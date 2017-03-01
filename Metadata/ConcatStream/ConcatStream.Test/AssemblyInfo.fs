@@ -1,4 +1,4 @@
-﻿namespace Metadata.Test.AssemblyInfo
+﻿namespace ConcatStream.Test.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
@@ -7,11 +7,11 @@ open System.Runtime.InteropServices
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[<assembly: AssemblyTitle("Metadata.Test")>]
+[<assembly: AssemblyTitle("ConcatStream.Test")>]
 [<assembly: AssemblyDescription("")>]
 [<assembly: AssemblyConfiguration("")>]
 [<assembly: AssemblyCompany("")>]
-[<assembly: AssemblyProduct("Metadata.Test")>]
+[<assembly: AssemblyProduct("ConcatStream.Test")>]
 [<assembly: AssemblyCopyright("Copyright ©  2017")>]
 [<assembly: AssemblyTrademark("")>]
 [<assembly: AssemblyCulture("")>]
@@ -22,7 +22,7 @@ open System.Runtime.InteropServices
 [<assembly: ComVisible(false)>]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[<assembly: Guid("365b24b3-7f0d-484c-9645-fb27a497ba9e")>]
+[<assembly: Guid("832031b9-30cb-4883-b91c-055437a6c1a1")>]
 
 // Version information for an assembly consists of the following four values:
 // 
