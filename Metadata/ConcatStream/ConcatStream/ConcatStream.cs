@@ -125,7 +125,10 @@ namespace Metadata {
             }
         }
 
-        //TODO: Implement Read/WriteTimeout property and CopyToAsync method overrides handling substreams
+        //TODO: Implement Read/WriteTimeout property handling substreams
+
+        // CopyTo uses Read internally
+        // CopyToAsync uses ReadAsync internally
 
         /// <summary>
         /// Clears all buffers for the concatenated streams and causes any

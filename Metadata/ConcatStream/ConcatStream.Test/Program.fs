@@ -4,6 +4,8 @@ open ConcatStream.Test.Generators
 
 [<EntryPoint>]
 let main argv =
+    initGenerators ()
+
     Gen.sample 5 5 Arb.generate<ReadableStream>
     |> printfn "%A"
     
