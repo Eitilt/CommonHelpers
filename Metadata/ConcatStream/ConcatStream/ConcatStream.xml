@@ -4,23 +4,23 @@
         <name>ConcatStream</name>
     </assembly>
     <members>
-        <member name="T:Metadata.ConcatStream">
+        <member name="T:ConcatStream.ConcatStream">
             <summary>
             Join multiple streams into a single continuous object.
             </summary>
         </member>
-        <member name="F:Metadata.ConcatStream.streams">
+        <member name="F:ConcatStream.ConcatStream.streams">
             <summary>
             The underlying individual streams, before concatenation.
             </summary>
         </member>
-        <member name="F:Metadata.ConcatStream.index">
+        <member name="F:ConcatStream.ConcatStream.index">
             <summary>
             The index of the currently active individual <see cref="T:System.IO.Stream"/>
-            within <see cref="F:Metadata.ConcatStream.streams"/>.
+            within <see cref="F:ConcatStream.ConcatStream.streams"/>.
             </summary>
         </member>
-        <member name="M:Metadata.ConcatStream.IncrementIndex">
+        <member name="M:ConcatStream.ConcatStream.IncrementIndex">
             <summary>
             Progress to the next concatenated stream, seeking to its beginning
             if possible.
@@ -30,7 +30,7 @@
             `false` there is no available next stream, `true` otherwise.
             </returns>
         </member>
-        <member name="P:Metadata.ConcatStream.CanRead">
+        <member name="P:ConcatStream.ConcatStream.CanRead">
             <summary>
             Whether all concatenated streams (and therefore this wrapper)
             support reading.
@@ -40,7 +40,7 @@
             If any concatenated stream is closed, this property returns false.
             </remarks>
         </member>
-        <member name="P:Metadata.ConcatStream.CanSeek">
+        <member name="P:ConcatStream.ConcatStream.CanSeek">
             <summary>
             Whether all concatenated streams (and therefore this wrapper)
             support seeking.
@@ -50,13 +50,13 @@
             If any concatenated stream is closed, this property returns false.
             </remarks>
         </member>
-        <member name="P:Metadata.ConcatStream.CanTimeout">
+        <member name="P:ConcatStream.ConcatStream.CanTimeout">
             <summary>
             Whether any concatenated stream (and therefore this wrapper)
             may time out.
             </summary>
         </member>
-        <member name="P:Metadata.ConcatStream.CanWrite">
+        <member name="P:ConcatStream.ConcatStream.CanWrite">
             <summary>
             Whether all concatenated streams (and therefore this wrapper)
             support writing.
@@ -66,7 +66,7 @@
             If any concatenated stream is closed, this property returns false.
             </remarks>
         </member>
-        <member name="P:Metadata.ConcatStream.Length">
+        <member name="P:ConcatStream.ConcatStream.Length">
             <summary>
             The length in bytes of the combined stream.
             </summary>
@@ -76,14 +76,14 @@
             seeking.
             </exception>
         </member>
-        <member name="P:Metadata.ConcatStream.Position">
+        <member name="P:ConcatStream.ConcatStream.Position">
             <summary>
             Gets or sets the position of the concatenated stream.
             </summary>
             
             <exception cref="T:System.IndexOutOfRangeException">
             All concatenated streams must support seeking to get or set the
-            position. Use the <see cref="P:Metadata.ConcatStream.CanSeek"/> property to determine
+            position. Use the <see cref="P:ConcatStream.ConcatStream.CanSeek"/> property to determine
             whether the stream supports seeking.
             <para/>
             Unlike other <see cref="T:System.IO.Stream"/> implementations, seeking to any
@@ -95,9 +95,17 @@
             from the stream that have been consumed, skipped, or both.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Seek(System.Int64,System.IO.SeekOrigin)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Seek(System.Int64,System.IO.SeekOrigin)"/>
         </member>
-        <member name="M:Metadata.ConcatStream.Flush">
+        <member name="M:ConcatStream.ConcatStream.#ctor(System.IO.Stream[])">
+            <summary>
+            Concatenate all the given streams, in order, into a single
+            point of access.
+            </summary>
+            
+            <param name="streams">The streams to join.</param>
+        </member>
+        <member name="M:ConcatStream.ConcatStream.Flush">
             <summary>
             Clears all buffers for the concatenated streams and causes any
             buffered data to be written to the underlying device.
@@ -105,9 +113,9 @@
             
             <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
             
-            <seealso cref="M:Metadata.ConcatStream.FlushAsync(System.Threading.CancellationToken)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.FlushAsync(System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:Metadata.ConcatStream.FlushAsync(System.Threading.CancellationToken)">
+        <member name="M:ConcatStream.ConcatStream.FlushAsync(System.Threading.CancellationToken)">
             <summary>
             Asynchronously clears all buffers for the concatenated streams and
             causes any buffered data to be written to the underlying device.
@@ -124,22 +132,22 @@
             
             <exception cref="T:System.IO.IOException">An I/O error occurs.</exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Flush"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Flush"/>
         </member>
-        <member name="M:Metadata.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:ConcatStream.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Reads a sequence of bytes from the current stream and advances the
             position within the stream by the number of bytes read.
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanRead"/> property to determine whether the
-            current instance supports reading. Use the <see cref="M:Metadata.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
+            Use the <see cref="P:ConcatStream.ConcatStream.CanRead"/> property to determine whether the
+            current instance supports reading. Use the <see cref="M:ConcatStream.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
             method to read asynchronously from the current stream.
             <para/>
-            If streams concatenated before <see cref="P:Metadata.ConcatStream.Position"/> have more
+            If streams concatenated before <see cref="P:ConcatStream.ConcatStream.Position"/> have more
             elements added to them, the output remains unaffected until and
-            unless <see cref="P:Metadata.ConcatStream.Position"/> is seeked to before those new
+            unless <see cref="P:ConcatStream.ConcatStream.Position"/> is seeked to before those new
             elements.
             <para/>
             The current position within the stream is advanced by the number
@@ -190,10 +198,10 @@
             The stream does not support reading.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
-            <seealso cref="M:Metadata.ConcatStream.ReadByte"/>
+            <seealso cref="M:ConcatStream.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.ReadByte"/>
         </member>
-        <member name="M:Metadata.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:ConcatStream.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Asynchronously reads a sequence of bytes from the current stream
             and advances the position within the stream by the number of bytes
@@ -201,13 +209,13 @@
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanRead"/> property to determine whether the
-            current instance supports reading. Use the <see cref="M:Metadata.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
+            Use the <see cref="P:ConcatStream.ConcatStream.CanRead"/> property to determine whether the
+            current instance supports reading. Use the <see cref="M:ConcatStream.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
             method to read synchronously from the current stream.
             <para/>
-            If streams concatenated before <see cref="P:Metadata.ConcatStream.Position"/> have more
+            If streams concatenated before <see cref="P:ConcatStream.ConcatStream.Position"/> have more
             elements added to them, the output remains unaffected until and
-            unless <see cref="P:Metadata.ConcatStream.Position"/> is seeked to before those new
+            unless <see cref="P:ConcatStream.ConcatStream.Position"/> is seeked to before those new
             elements.
             <para/>
             The current position within the stream is advanced by the number
@@ -271,17 +279,17 @@
             The stream does not support reading.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
-            <seealso cref="M:Metadata.ConcatStream.ReadByte"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.ReadByte"/>
         </member>
-        <member name="M:Metadata.ConcatStream.ReadByte">
+        <member name="M:ConcatStream.ConcatStream.ReadByte">
             <summary>
             Reads a byte from the stream and advances the position within the
             stream by one byte, or returns -1 if at the end of the stream.
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanRead"/> property to determine whether the
+            Use the <see cref="P:ConcatStream.ConcatStream.CanRead"/> property to determine whether the
             current instance supports reading.
             </remarks>
             
@@ -294,10 +302,10 @@
             The stream does not support reading.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
-            <seealso cref="M:Metadata.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Read(System.Byte[],System.Int32,System.Int32)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.ReadAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
         </member>
-        <member name="M:Metadata.ConcatStream.Seek(System.Int64,System.IO.SeekOrigin)">
+        <member name="M:ConcatStream.ConcatStream.Seek(System.Int64,System.IO.SeekOrigin)">
             <summary>
             Sets the position within the current stream.
             </summary>
@@ -335,7 +343,7 @@
             The stream does not support reading.
             </exception>
         </member>
-        <member name="M:Metadata.ConcatStream.SetLength(System.Int64)">
+        <member name="M:ConcatStream.ConcatStream.SetLength(System.Int64)">
             <summary>
             Sets the length of the current stream.
             </summary>
@@ -347,8 +355,8 @@
             the stream is expanded, the contents of the stream between the old
             and the new length are not defined.
             <para/>
-            Use the <see cref="P:Metadata.ConcatStream.CanRead"/> property to determine whether the
-            current stream supports writing, and the <see cref="P:Metadata.ConcatStream.CanSeek"/>
+            Use the <see cref="P:ConcatStream.ConcatStream.CanRead"/> property to determine whether the
+            current stream supports writing, and the <see cref="P:ConcatStream.ConcatStream.CanSeek"/>
             property to determine whether seeking is supported.
             </remarks>
             
@@ -363,14 +371,14 @@
             The stream does not support both writing and seeking.
             </exception>
         </member>
-        <member name="M:Metadata.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)">
+        <member name="M:ConcatStream.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)">
             <summary>
             Writes a sequence of bytes to the current stream and advances the
             current position within this stream by the number of bytes written.
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanWrite"/> property to determine whether the
+            Use the <see cref="P:ConcatStream.ConcatStream.CanWrite"/> property to determine whether the
             current instance supports writing. 
             <para/>
             If the write operation is successful, the position within the
@@ -408,10 +416,10 @@
             The stream does not support reading.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
-            <seealso cref="M:Metadata.ConcatStream.WriteByte(System.Byte)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.WriteByte(System.Byte)"/>
         </member>
-        <member name="M:Metadata.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
+        <member name="M:ConcatStream.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)">
             <summary>
             Asynchronously writes a sequence of bytes to the current stream,
             advances the current position within this stream by the number of
@@ -419,8 +427,8 @@
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanWrite"/> property to determine whether the
-            current instance supports writing. Use the <see cref="M:Metadata.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
+            Use the <see cref="P:ConcatStream.ConcatStream.CanWrite"/> property to determine whether the
+            current instance supports writing. Use the <see cref="M:ConcatStream.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
             method to read synchronously from the current stream.
             <para/>
             If the write operation is successful, the position within the
@@ -472,17 +480,17 @@
             The stream does not support reading.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
-            <seealso cref="M:Metadata.ConcatStream.WriteByte(System.Byte)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.WriteByte(System.Byte)"/>
         </member>
-        <member name="M:Metadata.ConcatStream.WriteByte(System.Byte)">
+        <member name="M:ConcatStream.ConcatStream.WriteByte(System.Byte)">
             <summary>
             Writes a byte to the current position in the stream and advances
             the position within the stream by one byte.
             </summary>
             
             <remarks>
-            Use the <see cref="P:Metadata.ConcatStream.CanWrite"/> property to determine whether the
+            Use the <see cref="P:ConcatStream.ConcatStream.CanWrite"/> property to determine whether the
             current instance supports writing.
             </remarks>
             
@@ -493,8 +501,8 @@
             The stream does not support writing.
             </exception>
             
-            <seealso cref="M:Metadata.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
-            <seealso cref="M:Metadata.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
+            <seealso cref="M:ConcatStream.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
         </member>
     </members>
 </doc>

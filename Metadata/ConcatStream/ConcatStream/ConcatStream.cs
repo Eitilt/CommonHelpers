@@ -5,7 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace Metadata {
+namespace ConcatStream {
     /// <summary>
     /// Join multiple streams into a single continuous object.
     /// </summary>
@@ -110,7 +110,7 @@ namespace Metadata {
         /// The Position property does not keep track of the number of bytes
         /// from the stream that have been consumed, skipped, or both.
         /// </exception>
-       /// 
+        /// 
         /// <seealso cref="Seek"/>
         public override long Position {
             get {
@@ -126,6 +126,18 @@ namespace Metadata {
         }
 
         //TODO: Implement Read/WriteTimeout property handling substreams
+        
+        /// <summary>
+        /// Concatenate all the given streams, in order, into a single
+        /// point of access.
+        /// </summary>
+        /// 
+        /// <param name="streams">The streams to join.</param>
+        public ConcatStream(params Stream[] streams) {
+            foreach (var s in streams) {
+                this.streams.Add(s);
+            }
+        }
 
         // CopyTo uses Read internally
         // CopyToAsync uses ReadAsync internally
