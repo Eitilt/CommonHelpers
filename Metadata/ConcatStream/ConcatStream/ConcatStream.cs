@@ -51,7 +51,7 @@ namespace ConcatStream {
 		/// If any concatenated stream is closed, this property returns false.
 		/// </remarks>
 		public override bool CanRead =>
-			streams.All((s) => s.CanRead);
+			streams.All(s => s.CanRead);
 
 		/// <summary>
 		/// Whether all concatenated streams (and therefore this wrapper)
@@ -62,14 +62,14 @@ namespace ConcatStream {
 		/// If any concatenated stream is closed, this property returns false.
 		/// </remarks>
 		public override bool CanSeek =>
-			streams.All((s) => s.CanSeek);
+			streams.All(s => s.CanSeek);
 
 		/// <summary>
 		/// Whether any concatenated stream (and therefore this wrapper)
 		/// may time out.
 		/// </summary>
 		public override bool CanTimeout =>
-			streams.Any((s) => s.CanTimeout);
+			streams.Any(s => s.CanTimeout);
 
 		/// <summary>
 		/// Whether all concatenated streams (and therefore this wrapper)
@@ -80,7 +80,7 @@ namespace ConcatStream {
 		/// If any concatenated stream is closed, this property returns false.
 		/// </remarks>
 		public override bool CanWrite =>
-			streams.All((s) => s.CanWrite);
+			streams.All(s => s.CanWrite);
 
 		/// <summary>
 		/// The length in bytes of the combined stream.
@@ -91,7 +91,7 @@ namespace ConcatStream {
 		/// seeking.
 		/// </exception>
 		public override long Length =>
-			streams.Sum((s) => s.Length);
+			streams.Sum(s => s.Length);
 
 		/// <summary>
 		/// Gets or sets the position of the concatenated stream.
@@ -117,7 +117,7 @@ namespace ConcatStream {
 				if (CanSeek == false)
 					throw new NotSupportedException("The stream does not support seeking");
 
-				long sum = streams.Take(index).Sum((s) => s.Length);
+				long sum = streams.Take(index).Sum(s => s.Length);
 				return (sum + streams[index].Position);
 			}
 			set {
@@ -151,7 +151,7 @@ namespace ConcatStream {
 		/// 
 		/// <seealso cref="FlushAsync"/>
 		public override void Flush() =>
-			streams.ForEach((s) => s.Flush());
+			streams.ForEach(s => s.Flush());
 
 		/// <summary>
 		/// Asynchronously clears all buffers for the concatenated streams and
@@ -171,7 +171,7 @@ namespace ConcatStream {
 		/// 
 		/// <seealso cref="Flush"/>
 		public override Task FlushAsync(CancellationToken cancellationToken) =>
-			Task.WhenAll(streams.Select((s) => s.FlushAsync(cancellationToken)));
+			Task.WhenAll(streams.Select(s => s.FlushAsync(cancellationToken)));
 
 		/// <summary>
 		/// Reads a sequence of bytes from the current stream and advances the
@@ -391,7 +391,7 @@ namespace ConcatStream {
 			long? remainder = count;
 			bool firstStream = true, lastStream = false;
 			var forwardStreams = streams.Skip(index)
-				.Select((s) => {
+				.Select(s => {
 					if (s.CanRead)
 						return Tuple.Create(s, s.Length);
 					else
@@ -440,7 +440,7 @@ namespace ConcatStream {
 
 			// Create temporary buffers to avoid thread collisions, then
 			// populate them from the appropriate streams
-			var buffers = forwardStreams.Select((s) =>
+			var buffers = forwardStreams.Select(s =>
 				new byte[s.Item2]
 			).ToArray();
 			var tasks = forwardStreams.Select((s, i) =>
@@ -630,7 +630,7 @@ namespace ConcatStream {
 				throw new NotSupportedException("The stream does not support both writing and seeking");
 
 			long remainder = 0;
-			streams = streams.TakeWhile((s) => {
+			streams = streams.TakeWhile(s => {
 				if (value < 0)
 					return false;
 
