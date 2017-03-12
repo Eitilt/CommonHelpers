@@ -171,7 +171,7 @@ namespace ConcatStream {
 		/// 
 		/// <seealso cref="Flush"/>
 		public override Task FlushAsync(CancellationToken cancellationToken) =>
-			Task.WhenAll(streams.Select(s => s.FlushAsync(cancellationToken)));
+			Task.WhenAll(from stream in streams select stream.FlushAsync(cancellationToken));
 
 		/// <summary>
 		/// Reads a sequence of bytes from the current stream and advances the
