@@ -1,4 +1,9 @@
-﻿using System;
+﻿/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -150,8 +155,10 @@ namespace ConcatStream {
 		/// <exception cref="IOException">An I/O error occurs.</exception>
 		/// 
 		/// <seealso cref="FlushAsync"/>
-		public override void Flush() =>
-			streams.ForEach(s => s.Flush());
+		public override void Flush() {
+			foreach (Stream stream in this.streams)
+				stream.Flush();
+		}
 
 		/// <summary>
 		/// Asynchronously clears all buffers for the concatenated streams and

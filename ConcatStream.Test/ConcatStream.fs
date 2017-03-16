@@ -1,4 +1,8 @@
-﻿module ConcatStream.Test.ConcatStream
+﻿(* Any copyright is dedicated to the Public Domain.
+ * http://creativecommons.org/publicdomain/zero/1.0/
+ *)
+
+module ConcatStream.Test.ConcatStream
 
 open System.IO
 
