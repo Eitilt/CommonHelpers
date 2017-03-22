@@ -2,7 +2,7 @@
  * http://creativecommons.org/publicdomain/zero/1.0/
  *)
 
-module ConcatStream.Test.Generators
+module AgEitilt.Common.Stream.Test.Generators
 
 open System
 open System.IO

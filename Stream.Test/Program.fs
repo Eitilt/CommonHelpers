@@ -4,7 +4,7 @@
 
 open FsCheck
 
-open ConcatStream.Test.Generators
+open AgEitilt.Common.Stream.Test.Generators
 
 [<EntryPoint>]
 let main argv =

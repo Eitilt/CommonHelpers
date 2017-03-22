@@ -10,17 +10,17 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace ConcatStream {
+namespace AgEitilt.Common.Stream {
 	/// <summary>
 	/// Join multiple streams into a single continuous object.
 	/// </summary>
-	class ConcatStream : Stream {
+	public class ConcatStream : System.IO.Stream {
 		/// <summary>
 		/// The underlying individual streams, before concatenation.
 		/// </summary>
-		List<Stream> streams;
+		List<System.IO.Stream> streams;
 		/// <summary>
-		/// The index of the currently active individual <see cref="Stream"/>
+		/// The index of the currently active individual <see cref="System.IO.Stream"/>
 		/// within <see cref="streams"/>.
 		/// </summary>
 		int index = 0;
@@ -92,7 +92,7 @@ namespace ConcatStream {
 		/// </summary>
 		/// 
 		/// <exception cref="NotSupportedException">
-		/// At least one concatenated <see cref="Stream"/> does not support
+		/// At least one concatenated <see cref="System.IO.Stream"/> does not support
 		/// seeking.
 		/// </exception>
 		public override long Length =>
@@ -107,7 +107,7 @@ namespace ConcatStream {
 		/// position. Use the <see cref="CanSeek"/> property to determine
 		/// whether the stream supports seeking.
 		/// <para/>
-		/// Unlike other <see cref="Stream"/> implementations, seeking to any
+		/// Unlike other <see cref="System.IO.Stream"/> implementations, seeking to any
 		/// location beyond the length of the stream is <em>not</em> supported.
 		/// 
 		/// TODO: See about bringing that into compliance.
@@ -138,7 +138,7 @@ namespace ConcatStream {
 		/// </summary>
 		/// 
 		/// <param name="streams">The streams to join.</param>
-		public ConcatStream(params Stream[] streams) {
+		public ConcatStream(params System.IO.Stream[] streams) {
 			foreach (var s in streams) {
 				this.streams.Add(s);
 			}
@@ -156,7 +156,7 @@ namespace ConcatStream {
 		/// 
 		/// <seealso cref="FlushAsync"/>
 		public override void Flush() {
-			foreach (Stream stream in this.streams)
+			foreach (System.IO.Stream stream in this.streams)
 				stream.Flush();
 		}
 
@@ -549,7 +549,7 @@ namespace ConcatStream {
 		/// the position specified by <paramref name="origin"/> by the number
 		/// of bytes specified by <paramref name="offset"/>.
 		/// <para/>
-		/// Unlike other <see cref="Stream"/> implementations, seeking to any
+		/// Unlike other <see cref="System.IO.Stream"/> implementations, seeking to any
 		/// location beyond the length of the stream is <em>not</em> supported.
 		/// 
 		/// TODO: See about bringing that into compliance.

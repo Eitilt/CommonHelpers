@@ -1,4 +1,4 @@
-﻿namespace ConcatStream.Test.AssemblyInfo
+﻿namespace AgEitilt.Common.Stream.Test.AssemblyInfo
 
 open System.Reflection
 open System.Runtime.CompilerServices
