@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard1.0</TargetFramework>
+    <AssemblyName>AgEitilt.Stream</AssemblyName>
+    <RootNamespace>AgEitilt.Common.Stream</RootNamespace>
     <Authors>Sam May</Authors>
     <Company>Ag Eitilt</Company>
     <Description>Extension methods and helper classes centered around System.IO.Stream.</Description>

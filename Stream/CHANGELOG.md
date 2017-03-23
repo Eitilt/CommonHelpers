@@ -1,0 +1,13 @@
+﻿# Change Log
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](http://keepachangelog.com/)
+and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## 0.2.0
+### Added
+- This change log
+- Stream.ReadAll(Async) extension methods copied from the original
+  [CardCatalog](https://github.com/Eitilt/CardCatalog) project
+## Changed
+- Renamed namespace to one including "company" prefix.

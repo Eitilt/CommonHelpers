@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <doc>
     <assembly>
-        <name>Dictionary</name>
+        <name>AgEitilt.Dictionary</name>
     </assembly>
     <members>
         <member name="T:AgEitilt.Common.Dictionary.ArrayEqualityComparer`1">
@@ -68,6 +68,1103 @@
             The object located at <paramref name="key"/> in
             <paramref name="dictionary"/>.
             </returns>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.ObservableDictionary`2">
+            <summary>
+            Represents a collection of keys and values while notifying listeners
+            when those contents change.
+            </summary>
+            
+            <remarks>
+            Retrieving a value by using its key is very fast, close to <c>O(1)</c>,
+            because the underlying <see cref="T:System.Collections.Generic.Dictionary`2"/> class is
+            implemented as a hash table.
+            <para/>
+            Each element is a key/value pair stored in a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> object. When iterated using a
+            <c>foreach</c> loop (<c>For Each</c> in Visual Basic, <c>for each</c>
+            in C++), the enumerated objects are therefore of that type rather than
+            either <typeparamref name="TKey"/> or <typeparamref name="TValue"/>.
+            <para/>
+            As long as an object is used as a key in the dictionary, it must not
+            change in any way that affects its hash value. Every key must be
+            unique according to the instance's equality comparer. A key cannot be
+            <c>null</c>, but a value can be if the value type
+            <typeparamref name="TKey"/> is a reference type.
+            <para/>
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> requires an equality
+            implementation to determine whether keys are equal. You can specify an
+            implementation of the <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> generic
+            interface by using a constructor that accepts a comparer parameter; if
+            you do not specify an implementation, the default generic equality
+            comparer is used. If type <typeparamref name="TKey"/> implements the
+            <see cref="T:System.IEquatable`1"/> generic interface, the default equality
+            comparer uses that implementation.
+            </remarks>
+            
+            <typeparam name="TKey">
+            The type of keys in the dictionary.
+            </typeparam>
+            <typeparam name="TValue">
+            The type of values in the dictionary.
+            </typeparam>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.ObservableDictionary`2.dictionary">
+            <summary>
+            The underlying item store.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Dictionary">
+            <summary>
+            Retrieve a reference to the underlying
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> used by the particular
+            instance as determined by the implementation.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that is
+            empty, has the default initial capacity, and uses the default
+            equality comparer for the key type.
+            </summary>
+            
+            <remarks>
+            This constructor is an <c>O(1)</c> operation.
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Int32)">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that is
+            empty, has the specified initial capacity, and uses the default
+            equality comparer for the key type.
+            </summary>
+            
+            <remarks>
+            This constructor is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <param name="capacity">
+            The initial number of elements that the dictionary can contain
+            before needing to be expanded.
+            </param>
+            
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="capacity"/> is less than 0.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that is
+            empty, has the default initial capacity, and uses the specified
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
+            </summary>
+            
+            <remarks>
+            This constructor is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <param name="comparer">
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> implementation to use when
+            comparing keys, or <c>null</c> to use the default
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> for the type of the key.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Collections.Generic.IDictionary{`0,`1})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that
+            contains elements copied from the specified
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> and uses the default
+            equality comparer for the key type.
+            </summary>
+            
+            <remarks>
+            The initial capacity of the new
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> is large enough
+            to contain all the elements in <paramref name="dictionary"/>.
+            <para/>
+            This constructor is an <c>O(n)</c> operation, where <c>n</c> is
+            the number of elements in <paramref name="dictionary"/>.
+            </remarks>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> whose elements are
+            copied to the new <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/>.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="dictionary"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="dictionary"/> contains one or more duplicate keys.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Int32,System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> class that is empty, has
+            the specified initial capacity, and uses the specified
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
+            </summary>
+            
+            <remarks>
+            This constructor is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <param name="capacity">
+            The initial number of elements that the dictionary can contain
+            before needing to be expanded.
+            </param>
+            <param name="comparer">
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> implementation to use when
+            comparing keys, or <c>null</c> to use the default
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> for the type of the key.
+            </param>
+            
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="capacity"/> is less than 0.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Collections.Generic.IDictionary{`0,`1},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that
+            contains elements copied from the specified
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> and uses the specified
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
+            </summary>
+            
+            <remarks>
+            The initial capacity of the new
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> is large enough
+            to contain all the elements in <paramref name="dictionary"/>.
+            <para/>
+            This constructor is an <c>O(n)</c> operation, where <c>n</c> is
+            the number of elements in <paramref name="dictionary"/>.
+            </remarks>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> whose elements are
+            copied to the new <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/>.
+            </param>
+            <param name="comparer">
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> implementation to use when
+            comparing keys, or <c>null</c> to use the default
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> for the type of the key.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="dictionary"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="dictionary"/> contains one or more duplicate keys.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Comparer">
+            <summary>
+            Gets the <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> that is used to
+            determine equality of keys for the dictionary. 
+            </summary>
+            
+            <remarks>
+            Getting the value of this property is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <value>
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> generic interface
+            implementation that is used to determine equality of keys for the
+            current <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> and to
+            provide hash values for the keys.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Keys">
+            <summary>
+            Gets a collection containing the keys in the
+            <see cref="T:System.Collections.Generic.Dictionary`2"/>.
+            </summary>
+            
+            <remarks>
+            The order of the keys in the
+            <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/> is
+            unspecified, but it is the same order as the associated values in
+            the <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/> 
+            returned by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Values"/> property.
+            <para/>
+            The returned <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/>
+            is not a static copy; instead, the
+            <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/> refers back
+            to the keys in the original <see cref="T:System.Collections.Generic.Dictionary`2"/>.
+            Therefore, changes to the <see cref="T:System.Collections.Generic.Dictionary`2"/>
+            continue to be reflected in the
+            <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/>.
+            <para/>
+            Getting the value of this property is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <value>
+            A <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/> containing
+            the keys in the <see cref="T:System.Collections.Generic.Dictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Values">
+            <summary>
+            Gets a collection containing the values in the
+            <see cref="T:System.Collections.Generic.Dictionary`2"/>.
+            </summary>
+            
+            <remarks>
+            The order of the values in the
+            <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/> is
+            unspecified, but it is the same order as the associated values in
+            the <see cref="T:System.Collections.Generic.Dictionary`2.KeyCollection"/> 
+            returned by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionary`2.Keys"/> property.
+            <para/>
+            The returned <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/>
+            is not a static copy; instead, the
+            <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/> refers back
+            to the values in the original
+            <see cref="T:System.Collections.Generic.Dictionary`2"/>. Therefore, changes to the
+            <see cref="T:System.Collections.Generic.Dictionary`2"/> continue to be reflected in
+            the <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/>.
+            <para/>
+            Getting the value of this property is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <value>
+            A <see cref="T:System.Collections.Generic.Dictionary`2.ValueCollection"/> containing
+            the values in the <see cref="T:System.Collections.Generic.Dictionary`2"/>.
+            </value>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.ContainsValue(`1)">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element with the specified value.
+            </summary>
+            
+            <remarks>
+            This method is an <c>O(1)</c> operation, where <c>n</c> is
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Count"/>.
+            </remarks>
+            
+            <param name="value">
+            The value to locate. This can be <c>null</c> for reference types.
+            </param>
+            
+            <returns>
+            <c>true</c> if the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element with a value equal to <paramref name="value"/>;
+            otherwise, <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary.
+            </summary>
+            
+            <remarks>
+            This method is an <c>O(1)</c> operation.
+            </remarks>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2">
+            <summary>
+            Represents a collection of keys and values while notifying listeners
+            when those contents change, regardless of the underlying
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <remarks>
+            Each element is a key/value pair stored in a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> object. When iterated using a
+            <c>foreach</c> loop (<c>For Each</c> in Visual Basic, <c>for each</c>
+            in C++), the enumerated objects are therefore of that type rather than
+            either <typeparamref name="TKey"/> or <typeparamref name="TValue"/>.
+            <para/>
+            Each pair must have a unique key. Implementations can vary in whether
+            they allow that key to be <c>null</c>. The value can be <c>null</c>
+            and does not have to be unique. The generic
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2"/> allows the
+            contained keys and values to be enumerated, but it does not imply any
+            particular sort order.
+            <para/>
+            TODO: May as well add INotifyPropertyChanging for .NETStandard >= 1.3
+            </remarks>
+            
+            <typeparam name="TKey">
+            The type of keys in the dictionary.
+            </typeparam>
+            <typeparam name="TValue">
+            The type of values in the dictionary.
+            </typeparam>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary">
+            <summary>
+            Retrieve a reference to the underlying
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> used by the particular
+            instance as determined by the implementation.
+            </summary>
+            
+            <value>
+            An instance providing methods common to all dictionaries.
+            </value>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvent(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item was added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="item">The new item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvent(`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item was added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="key">
+            The key at which the item was added.
+            </param>
+            <param name="value">
+            The value of the new item.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnAdd(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Perform any implementation-specific event handling when a new item
+            is added to <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="item">The new item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvent(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item was removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="item">The removed item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvent(`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item was removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="key">
+            The key previously associated with the item.
+            </param>
+            <param name="value">
+            The value of the item.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnRemove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Perform any implementation-specific event handling when an item is
+            removed from <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="item">The removed item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvent(System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key was changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvent(`0,`1,`1)">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key was changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="key">The key at which the change occurred.</param>
+            <param name="newValue">
+            The new value associated with <paramref name="key"/>.
+            </param>
+            <param name="oldValue">
+            The value previously associated with <paramref name="key"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReplace(System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Perform any implementation-specific event handling when an item is
+            changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendResetEvent(System.Collections.IList)">
+            <summary>
+            Notify all relevant listeners that <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> has
+            been cleared.
+            </summary>
+            
+            <param name="oldItems">
+            The items previously contained in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReset(System.Collections.IList)">
+            <summary>
+            Perform any implementation-specific event handling when
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is cleared.
+            </summary>
+            
+            <param name="oldItems">
+            The items previously contained in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Item(`0)">
+            <summary>
+            Gets or sets the element with the specified key.
+            </summary>
+            
+            <remarks>
+            You can use this property to add new elements by setting the value
+            of a key that does not exist in the dictionary; for example, 
+            <c>myDictionary["myNonexistentKey"] = myValue</c> in C# 
+            (<c>myCollection("myNonexistentKey") = myValue</c> in Visual
+            Basic). However, if the specified key already exists in the
+            dictionary, setting the value in this manner overwrites the
+            existing element. In contrast, the <see cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Add(`0,`1)"/>
+            method does not modify existing elements.
+            <para/>
+            Implementations can vary in whether they allow <paramref name="key"/>
+            to be <c>null</c>, but the assigned value can always be as long as
+            <typeparamref name="TValue"/> is a reference type.
+            <para/>
+            Getting or setting the value of this property approaches an
+            <c>O(1)</c> operation.
+            </remarks>
+            
+            <param name="key">The key of the element to get or set.</param>
+            
+            <value>The element with the specified key.</value>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c> and the implementation does
+            not support this.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            The property is used as an accessor and <paramref name="key"/> is
+            not found.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The property is used as a setter and the implementation is
+            read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Item(System.Object)">
+            <summary>
+            Gets or sets the element with the specified key.
+            </summary>
+            
+            <remarks>
+            You can use this property to add new elements by setting the value
+            of a key that does not exist in the dictionary; for example, 
+            <c>myDictionary["myNonexistentKey"] = myValue</c> in C# 
+            (<c>myCollection("myNonexistentKey") = myValue</c> in Visual
+            Basic). However, if the specified key already exists in the
+            dictionary, setting the value in this manner overwrites the
+            existing element. In contrast, the <see cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Add(`0,`1)"/>
+            method does not modify existing elements.
+            <para/>
+            Implementations can vary in whether they allow <paramref name="key"/>
+            to be <c>null</c>, but the assigned value can always be as long as
+            <typeparamref name="TValue"/> is a reference type.
+            <para/>
+            Getting or setting the value of this property approaches an
+            <c>O(1)</c> operation.
+            </remarks>
+            
+            <param name="key">The key of the element to get or set.</param>
+            
+            <value>
+            The element with the specified key, or <c>null</c> if the key does
+            not exist.
+            </value>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c> and the implementation does
+            not support this.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            The property is used as an accessor and <paramref name="key"/> is
+            not found.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The property is used as a setter and the implementation is read-
+            only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Keys">
+            <summary>
+            Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the keys in the returned <see cref="T:System.Collections.Generic.ICollection`1"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding values in the <see cref="T:System.Collections.Generic.ICollection`1"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Values"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the keys of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Keys">
+            <summary>
+            Gets an <see cref="T:System.Collections.ICollection"/> containing the keys of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the keys in the returned <see cref="T:System.Collections.ICollection"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding values in the <see cref="T:System.Collections.ICollection"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Values"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.ICollection"/> containing the keys of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Keys">
+            <summary>
+            Gets a read-only, enumerable collection containing the keys of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the keys in the returned <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding values in the <see cref="T:System.Collections.Generic.IEnumerable`1"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Values"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.Generic.IEnumerable`1"/> containing the keys of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Values">
+            <summary>
+            Gets an <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the values in the returned <see cref="T:System.Collections.Generic.ICollection`1"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding keys in the <see cref="T:System.Collections.Generic.ICollection`1"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Keys"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Values">
+            <summary>
+            Gets an <see cref="T:System.Collections.ICollection"/> containing the values of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the keys in the returned <see cref="T:System.Collections.ICollection"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding keys in the <see cref="T:System.Collections.ICollection"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Keys"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.Generic.ICollection`1"/> containing the values of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Values">
+            <summary>
+            Gets a read-only, enumerable collection containing the values of
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <remarks>
+            The order of the values in the returned <see cref="T:System.Collections.Generic.IEnumerable`1"/>
+            is unspecified, but it is guaranteed to be the same order as the
+            corresponding keys in the <see cref="T:System.Collections.Generic.IEnumerable`1"/> returned
+            by the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Keys"/> property.
+            </remarks>
+            
+            <value>
+            An <see cref="T:System.Collections.Generic.IEnumerable`1"/> containing the keys of the object
+            that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Count">
+            <summary>
+            Gets the number of key-value pairs contained in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#ICollection#Count">
+            <summary>
+            Gets the number of key-value pairs contained in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly">
+            <summary>
+            Gets a value indicating whether <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is
+            read-only.
+            </summary>
+            
+            <remarks>
+            A collection that is read-only does not allow the addition or
+            removal of elements after the collection is created. Note that
+            "read-only" in this context does not indicate whether individual
+            elements of the collection can be modified, since the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> interface only supports
+            addition, removal, and replacement operations.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#IsFixedSize">
+            <summary>
+            Gets a value indicating whether <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> has a
+            fixed size.
+            </summary>
+            
+            <remarks>
+            A collection with a fixed size does not allow the addition or
+            removal of elements after the collection is created, but does
+            allow the modification of existing elements.
+            <para/>
+            A collection with a fixed size is simply a collection with a
+            wrapper that prevents adding and removing elements; therefore, if
+            changes are made to the underlying collection, including the
+            addition or removal of elements, the fixed-size collection
+            reflects those changes.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#ICollection#IsSynchronized">
+            <summary>
+            Gets a value indicating whether access to <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>
+            is synchronized (thread safe).
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#ICollection#SyncRoot">
+            <summary>
+            Gets an object that can be used to synchronize access to the
+            <see cref="T:System.Collections.IDictionary"/>.
+            </summary>
+            
+            <remarks>
+            For collections whose underlying store is not publicly available,
+            the expected implementation is to return the current instance.
+            Note that the pointer to the current instance might not be
+            sufficient for collections that wrap other collections; those
+            should return the underlying collection's <c>SyncRoot</c> property.
+            <para/>
+            Most collection classes in the <see cref="N:System.Collections"/>
+            namespace also implement a <c>Synchronized</c> method, which
+            provides a synchronized wrapper around the underlying collection.
+            However, derived classes can provide their own synchronized
+            version of the collection using the <c>SyncRoot</c> property. The
+            synchronizing code must perform operations on the <c>SyncRoot</c>
+            property of the collection, not directly on the collection. This
+            ensures proper operation of collections that are derived from
+            other objects. Specifically, it maintains proper synchronization
+            with other threads that might be simultaneously modifying the
+            collection instance.
+            <para/>
+            Enumerating through a collection is intrinsically not a
+            thread-safe procedure. Even when a collection is synchronized,
+            other threads can still modify the collection, which causes the
+            enumerator to throw an exception. To guarantee thread safety
+            during enumeration, you can either lock the collection during the
+            entire enumeration or catch the exceptions resulting from changes
+            made by other threads.
+            </remarks>
+        </member>
+        <member name="E:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.CollectionChanged">
+            <summary>
+            Occurs when the collection changes.
+            </summary>
+            
+            <remarks>
+            If the sent <see cref="T:System.Collections.Specialized.NotifyCollectionChangedEventArgs"/> is of
+            type <see cref="F:System.Collections.Specialized.NotifyCollectionChangedAction.Add"/>,
+            <see cref="F:System.Collections.Specialized.NotifyCollectionChangedAction.Remove"/>, or
+            <see cref="F:System.Collections.Specialized.NotifyCollectionChangedAction.Replace"/>,
+            <see cref="P:System.Collections.Specialized.NotifyCollectionChangedEventArgs.NewItems"/> and (if
+            applicable) <see cref="P:System.Collections.Specialized.NotifyCollectionChangedEventArgs.OldItems"/>
+            are guaranteed to be an <see cref="T:System.Collections.IList"/> of
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> objects parameterized to
+            <typeparamref name="TKey"/> and <typeparamref name="TValue"/>.
+            </remarks>
+        </member>
+        <member name="E:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.PropertyChanged">
+            <summary>
+            Occurs when a property value changes.
+            </summary>
+            
+            <remarks>
+            The <c>PropertyChanged</c> event can indicate all properties on
+            the object have changed by using either <c>null</c> or
+            <see cref="F:System.String.Empty"/> as the property name in the
+            <see cref="T:System.ComponentModel.PropertyChangedEventArgs"/>.
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Add(`0,`1)">
+            <summary>
+            Adds an element with the provided key and value to the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <param name="key">
+            The object to use as the key of the element to add.
+            </param>
+            <param name="value">
+            The object to use as the value of the element to add.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An element with the same key already exists in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Adds a pre-created <see cref="T:System.Collections.Generic.KeyValuePair`2"/> to the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <param name="item">The item to add.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Add(System.Object,System.Object)">
+            <summary>
+            Adds an element with the provided key and value to the
+            <see cref="T:System.Collections.IDictionary"/>.
+            </summary>
+            
+            <param name="key">
+            The <see cref="T:System.Object"/> to use as the key of the element to add.
+            </param>
+            <param name="value">
+            The <see cref="T:System.Object"/> to use as the value of the element to add.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An element with the same key already exists in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Clear">
+            <summary>
+            Removes all items from the <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Clear">
+            <summary>
+            Removes all items from the <see cref="T:System.Collections.IDictionary"/>.
+            </summary>
+            
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.IDictionary"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains a specific item.
+            </summary>
+            
+            <param name="item">
+            The <see cref="T:System.Collections.Generic.KeyValuePair`2"/> to locate.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> associated with the key of
+            <paramref name="item"/> matches the latter's value; otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element with the specified key.
+            </summary>
+            
+            <param name="key">The key to locate.</param>
+            
+            <returns>
+            <c>true</c> if the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element associated with <paramref name="key"/>;
+            otherwise, <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is null.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Contains(System.Object)">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.IDictionary"/> contains an
+            element with the specified key.
+            </summary>
+            
+            <param name="item">The key to locate.</param>
+            
+            <returns>
+            <c>true</c> if the <see cref="T:System.Collections.IDictionary"/> contains an element
+            associated with a key <paramref name="item"/>; otherwise,
+            <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="item"/> is null.
+            </exception>
+            
+            <seealso cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
+            <summary>
+            Copies the elements of the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            to an <see cref="T:System.Array"/>, starting at a particular index.
+            </summary>
+            
+            <param name="array">
+            The one-dimensional <see cref="T:System.Array"/> that is the destination of
+            the elements copied from the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>. The <see cref="T:System.Array"/>
+            must have zero-based indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in <paramref name="array"/> at which copying
+            begins.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="array"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arrayIndex"/> is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            The number of elements in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> is greater than the
+            available space from <paramref name="arrayIndex"/> to the end of
+            the destination array.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">
+            <summary>
+            Copies the elements of the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            to an <see cref="T:System.Array"/>, starting at a particular index.
+            </summary>
+            
+            <param name="array">
+            The one-dimensional <see cref="T:System.Array"/> that is the destination of
+            the elements copied from the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>. The <see cref="T:System.Array"/>
+            must have zero-based indexing.
+            </param>
+            <param name="arrayIndex">
+            The zero-based index in <paramref name="array"/> at which copying
+            begins.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="array"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arrayIndex"/> is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="array"/> is multidimensional.
+            <para/>
+            -or-
+            <para/>
+            The number of elements in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> is greater than the
+            available space from <paramref name="arrayIndex"/> to the end of
+            the destination array.
+            <para/>
+            -or-
+            <para/>
+            <typeparamref name="TKey"/> cannot be cast automatically to the
+            underlying type of <paramref name="array"/>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary as <see cref="T:System.Collections.DictionaryEntry"/> instances boxed to
+            <see cref="T:System.Object"/>.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Remove(`0)">
+            <summary>
+            Removes the element with the specified key from the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <param name="key">The key of the element to remove.</param>
+            
+            <returns>
+            <c>true</c> if the element is successfully removed; otherwise,
+            <c>false</c>. This method also returns <c>false</c> if
+            <paramref name="key"/> was not found in the original
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Remove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Removes the element with the specified key from the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> if it also has the
+            specified value.
+            </summary>
+            
+            <param name="item">The element to remove.</param>
+            
+            <returns>
+            <c>true</c> if the element is successfully removed; otherwise,
+            <c>false</c>. This method also returns <c>false</c> if
+            such a pair was not found in the original
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </returns>
+            
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Remove(System.Object)">
+            <summary>
+            Removes the element with the specified key from the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </summary>
+            
+            <param name="key">The key of the element to remove.</param>
+            
+            <returns>
+            <c>true</c> if the element is successfully removed; otherwise,
+            <c>false</c>. This method also returns <c>false</c> if
+            <paramref name="key"/> was not found in the original
+            <see cref="T:System.Collections.Generic.IDictionary`2"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.NotSupportedException">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> is read-only.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.TryGetValue(`0,`1@)">
+            <summary>
+            Gets the value associated with the specified key.
+            </summary>
+            
+            <param name="key">The key whose value to get.</param>
+            <param name="value">
+            When this method returns, the value associated with
+            <paramref name="key"/>, if that key is found; otherwise, the
+            default value for the type of the value parameter. This parameter
+            is passed uninitialized.
+            </param>
+            
+            <returns></returns>
         </member>
     </members>
 </doc>
