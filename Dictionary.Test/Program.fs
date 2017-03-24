@@ -4,14 +4,19 @@
 
 open FsCheck
 
-open AgEitilt.Common.Stream.Test
+open AgEitilt.Common.Dictionary.Test
 
 [<EntryPoint>]
 let main argv =
     Generators.initGenerators ()
 
-    Check.QuickAll<ConcatStream.Constructors> ()
+    Check.QuickAll<ArrayKeys.Equals> ()
+    Check.QuickAll<ArrayKeys.HashCode> ()
     
+    Check.QuickAll<DictionaryExtension.GetOrCreate> ()
+
+    Check.QuickAll<ObservableDictionaryBase.Item> ()
+
     printfn "Press any key to close..."
     System.Console.ReadKey () |> ignore
 
