@@ -16,22 +16,26 @@ namespace AgEitilt.Common.Dictionary {
 	/// Implementation from <see href="http://stackoverflow.com/a/7244729"/>.
 	/// </remarks>
 	/// 
-	/// <typeparam name="ElementType">
+	/// <typeparam name="TElement">
 	/// The underlying type of the sequence.
 	/// </typeparam>
-	public class ArrayEqualityComparer<ElementType> : IEqualityComparer<ElementType[]> {
+	public class ArrayEqualityComparer<TElement> : IEqualityComparer<TElement[]> {
 		/// <summary>
 		/// Provide a more robust meant of testing the equality of
 		/// elements.
 		/// </summary>
-		static readonly EqualityComparer<ElementType> elementComparer = EqualityComparer<ElementType>.Default;
+		/// 
+		/// <remarks>
+		/// TODO: Allow specifying custom EqualityComparer.
+		/// </remarks>
+		static readonly EqualityComparer<TElement> elementComparer = EqualityComparer<TElement>.Default;
 
 		/// <summary>
 		/// Check two sequences for value equality.
 		/// </summary>
 		/// 
 		/// <returns>Whether the sequences are equal.</returns>
-		public bool Equals(ElementType[] x, ElementType[] y) {
+		public bool Equals(TElement[] x, TElement[] y) {
 			if (x == y)
 				return true;
 			else if ((x == null) || (y == null))
@@ -50,12 +54,12 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="obj">The sequence to hash.</param>
 		/// 
 		/// <returns>The calculated hash.</returns>
-		public int GetHashCode(ElementType[] obj) {
+		public int GetHashCode(TElement[] obj) {
 			if (obj == null)
 				return 0;
 
 			int hash = 17;
-			foreach (ElementType t in obj) {
+			foreach (TElement t in obj) {
 				hash *= 31;
 				hash += elementComparer.GetHashCode(t);
 			}

@@ -14,7 +14,7 @@
             Implementation from <see href="http://stackoverflow.com/a/7244729"/>.
             </remarks>
             
-            <typeparam name="ElementType">
+            <typeparam name="TElement">
             The underlying type of the sequence.
             </typeparam>
         </member>
@@ -23,6 +23,10 @@
             Provide a more robust meant of testing the equality of
             elements.
             </summary>
+            
+            <remarks>
+            TODO: Allow specifying custom EqualityComparer.
+            </remarks>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ArrayEqualityComparer`1.Equals(`0[],`0[])">
             <summary>

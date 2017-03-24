@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard1.0</TargetFramework>
+    <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
     <AssemblyName>AgEitilt.Dictionary</AssemblyName>
     <RootNamespace>AgEitilt.Common.Dictionary</RootNamespace>
     <Authors>Sam May</Authors>
@@ -21,9 +21,9 @@
   <PropertyGroup Condition="'$(Configuration)'=='Release'">
     <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(Configuration)'=='Release'And'$(NUGET_DIR)'!=''">
-    <!--<PostBuildEvent>copy /Y $(TargetDir)\..\$(TargetName).*.nupkg $(NUGET_DIR)</PostBuildEvent>-->
-  </PropertyGroup>
+  
+  <Target Name="CopyPackage" AfterTargets="Pack" Condition="'$(Configuration)'=='Release'And'$(NUGET_DIR)'!=''">
+    <Copy SourceFiles="$(OutputPath)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(NUGET_DIR)" />
+  </Target>
 
 </Project>

@@ -4,11 +4,13 @@
 
 module AgEitilt.Common.Stream.Test.ConcatStream
 
-open System.IO
+open FsCheck
+open FsCheck.Xunit
 
-open ConcatStream
+open AgEitilt.Common.Stream
 
 type Constructors () =
-    let ``The empty stream has length 0`` () =
+    [<Property(MaxTest = 1)>]
+    static member ``The empty stream has length 0`` () =
         let c = new ConcatStream ()
-        c.Length = 0
+        c.Length = 0L
