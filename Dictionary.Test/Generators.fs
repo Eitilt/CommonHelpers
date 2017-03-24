@@ -20,6 +20,10 @@ type ComparerGenerator =
 let ObservableDictionaryGen () =
     gen {
         return! Gen.elements <|
+        (*BUG: This doesn't actually generate empty dictionaries. That's often
+         * not what's desired, but should fix to not be unexpected (and then
+         * add deliberately-non-empty constructors)
+         *)
         [ ObservableDictionary<'a, 'b> ()
         ]
     }

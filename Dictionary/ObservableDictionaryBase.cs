@@ -152,7 +152,6 @@ namespace AgEitilt.Common.Dictionary {
 				newItem,
 				oldItem
 			));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 
 			OnReplace(newItem, oldItem);
@@ -195,9 +194,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		private void SendResetEvent(IList oldItems) {
 			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Reset,
-				oldItems,
-				0
+				NotifyCollectionChangedAction.Reset
 			));
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
