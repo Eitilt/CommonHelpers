@@ -16,6 +16,7 @@ let main argv =
     Check.QuickAll<DictionaryExtension.GetOrCreate> ()
 
     Check.QuickAll<ObservableDictionaryBase.Item> ()
+    Check.QuickAll<ObservableDictionaryBase.Keys> ()
 
     printfn "Press any key to close..."
     System.Console.ReadKey () |> ignore
