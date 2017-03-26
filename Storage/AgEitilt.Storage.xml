@@ -124,6 +124,11 @@
             Warning: This is not fully compatible with <c>Windows.Storage</c>
             as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
             <c>IAsyncAction</c>.
+            <para />
+            This has the same result as calling
+            <see cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            with <c>desiredName</c> set to <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/> and
+            <c>option</c> left as the default value.
             </remarks>
             
             <param name="fileToReplace">The file to replace.</param>
@@ -177,7 +182,7 @@
             The new location of this file.
             </param>
             <param name="desiredName">
-            The name under which the copy will try to be saved. If a file of
+            The name under which the item will try to be saved. If a file of
             this name already exists in <paramref name="destinationFolder"/>,
             the behaviour is determined by <paramref name="option"/>.
             </param>
@@ -196,6 +201,7 @@
             
             <seealso cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.IStorageItem.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
         </member>
         <member name="M:AgEitilt.Common.Storage.IStorageFile.OpenAsync(AgEitilt.Common.Storage.FileAccessMode)">
@@ -222,6 +228,163 @@
             A stream providing access to the data within the file, once the
             <see cref="T:System.Threading.Tasks.Task`1"/> completes.
             </returns>
+        </member>
+        <member name="T:AgEitilt.Common.Storage.IStorageItem">
+            <summary>
+            Manipulates storage items (files and folders) and their contents,
+            and provides information about them.
+            </summary>
+            
+            <seealso cref="T:AgEitilt.Common.Storage.StorageFile"/>
+            <seealso cref="T:AgEitilt.Common.Storage.StorageFolder"/>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.IStorageItem.Attributes">
+            <summary>
+            Describes the properties of a storage item.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as the <see cref="T:System.IO.FileAttributes"/> enum it returns is instead in
+            the <see cref="N:System.IO"/> namespace. This is actually a
+            near-superset of <c>Windows.Storage.FileAttributes</c>, but does
+            not include the item <c>LocallyIncomplete</c>.
+            </remarks>
+            
+            <value>The attributes of the file or folder.</value>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.IStorageItem.DateCreated">
+            <summary>
+            Gets the date and time the current item was created.
+            </summary>
+            
+            <remarks>
+            For the date and time of the last edit, see
+            <see cref="M:AgEitilt.Common.Storage.IStorageItem.GetBasicPropertiesAsync"/>.
+            <para/>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as that will always return a valid (though potentially zero)
+            instance of <see cref="T:System.DateTimeOffset"/>. This change was made to
+            provide clearer semantics, taking advantage of the builtin support
+            for <see cref="T:System.Nullable`1"/>.
+            </remarks>
+            
+            <value>
+            The date and time the current item was created, or <c>null</c> if
+            this information is not included on the file; for example (in
+            string format), "Fri Sep 16 13:47:08 PDT 2011".
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.IStorageItem.Name">
+            <summary>
+            Gets the name of the storage item, including (if it exists) the
+            file extension.
+            </summary>
+            
+            <value>The full name of the file or folder.</value>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.IStorageItem.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.IStorageItem.Path">
+            <summary>
+            The full path of the file on the file system, if it is located in
+            such an accessible place.
+            </summary>
+            
+            <remarks>
+            Do not rely on this property to access an item because some items
+            may not have file-system paths. For example if the item is backed
+            by a URI, or was picked using the file picker, the item is not
+            guaranteed to have a file-system path.
+            </remarks>
+            
+            <value>
+            The full path of the item (including its name), or an empty string
+            if it is not physically identifiable on the file system.
+            </value>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.DeleteAsync(AgEitilt.Common.Storage.StorageDeleteOption)">
+            <summary>
+            Removes the current item from disk.
+            </summary>
+            
+            <param name="option">
+            Whether to always skip the Recycle Bin and permanently delete the
+            item, or if that decision should rely on the default behaviour.
+            <para/>
+            Default value is the latter
+            (<see cref="F:AgEitilt.Common.Storage.StorageDeleteOption.Default"/>).
+            </param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.GetBasicPropertiesAsync">
+            <summary>
+            Gets the basic properties of the current item.
+            </summary>
+            
+            <returns>
+            The basic properties describing the item, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.IsOfType(AgEitilt.Common.Storage.StorageItemTypes)">
+            <summary>
+            Determines whether the current item is of the specified type.
+            </summary>
+            
+            <param name="type">The value to match against.</param>
+            
+            <returns>
+            <c>true</c> if the item is <paramref name="type"/>, otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Renames the current item.
+            </summary>
+            
+            <param name="desiredName">
+            The name under which the item will try to be saved. If a file of
+            this name already exists in this folder, the behaviour is
+            determined by <paramref name="option"/>.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file by the name of
+            <paramref name="desiredName"/> already exists in this folder.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="desiredName"/> is null.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            A file by the name of <paramref name="desiredName"/> already
+            exists and <paramref name="option"/> is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="desiredName"/> (as appended to the folder path) is
+            longer than allowed by the file system.
+            </exception>
+            <exception cref="T:System.FormatException">
+            <paramref name="desiredName"/> is not a valid name for the file
+            system.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            This file is deleted before the returned <see cref="T:System.Threading.Tasks.Task"/>
+            finishes.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>
         </member>
         <member name="T:AgEitilt.Common.Storage.NameCollisionOption">
             <summary>
@@ -282,6 +445,38 @@
             <remarks>
             This is an extension on the <c>Windows.System</c> enum.
             </remarks>
+        </member>
+        <member name="T:AgEitilt.Common.Storage.StorageDeleteOption">
+            <summary>
+            Specifies whether a deleted item is moved to the Recycle Bin (or the
+            platform equivalent) or permanently deleted.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageDeleteOption.Default">
+            <summary>
+            Use the default behaviour.
+            </summary>
+            
+            <remarks>
+            TODO: Describe the decisions made to determine behaviour.
+            For reference, on Windows 10:
+            <list type="bullet">
+            <item>
+            If the item is in application storage (accessed through
+            <c>ApplicationData</c>), then permanently deleted
+            </item>
+            <item>
+            Delete according to default behaviour of File Explorer for the
+            particular save location
+            </item>
+            </list>
+            </remarks>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageDeleteOption.PermanentDelete">
+            <summary>
+            Permanently deletes the item. The item is not moved to the
+            Recycle Bin.
+            </summary>
         </member>
     </members>
 </doc>

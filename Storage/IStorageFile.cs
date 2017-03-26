@@ -131,6 +131,11 @@ namespace AgEitilt.Common.Storage {
 		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
 		/// as it returns a simple <see cref="Task"/> rather than the modern
 		/// <c>IAsyncAction</c>.
+		/// <para />
+		/// This has the same result as calling
+		/// <see cref="MoveAsync(IStorageFolder, string, NameCollisionOption)"/>
+		/// with <c>desiredName</c> set to <see cref="IStorageItem.Name"/> and
+		/// <c>option</c> left as the default value.
 		/// </remarks>
 		/// 
 		/// <param name="fileToReplace">The file to replace.</param>
@@ -183,7 +188,7 @@ namespace AgEitilt.Common.Storage {
 		/// The new location of this file.
 		/// </param>
 		/// <param name="desiredName">
-		/// The name under which the copy will try to be saved. If a file of
+		/// The name under which the item will try to be saved. If a file of
 		/// this name already exists in <paramref name="destinationFolder"/>,
 		/// the behaviour is determined by <paramref name="option"/>.
 		/// </param>
@@ -202,6 +207,7 @@ namespace AgEitilt.Common.Storage {
 		/// 
 		/// <seealso cref="IStorageItem.Name"/>
 		/// <seealso cref="CopyAsync(IStorageFolder, string, NameCollisionOption)"/>
+		/// <seealso cref="IStorageItem.RenameAsync(string, NameCollisionOption)"/>
 		/// <seealso cref="MoveAndReplaceAsync(IStorageFile)"/>
 		Task<StorageFile> MoveAsync(
 			IStorageFolder destinationFolder,
