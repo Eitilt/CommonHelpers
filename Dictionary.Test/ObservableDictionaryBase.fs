@@ -8,6 +8,7 @@ open System.Collections.Generic
 open System.Collections.Specialized
 open System.ComponentModel
 
+open Xunit
 open FsCheck
 open FsCheck.Xunit
 
@@ -68,6 +69,15 @@ let isZeroProperty s v =
 let equalProperty s v w =
     (v = w) |@ sprintf "%s: %d (want %d)" s v w
 
+//BUG: Not being run
+type ObservableDictionaryBaseFixture () =
+    do
+        Arb.register<Generators.DictionaryGenerator> () |> ignore
+[<CollectionDefinition("ObservableDictionaryBase")>]
+type ObservableDictionaryBaseCollection () =
+    interface ICollectionFixture<ObservableDictionaryBaseFixture>
+
+[<Collection("ObservableDictionaryBase")>]
 type Item =
     [<Property>]
     static member ``Set and retrieval returns the same item``
@@ -88,7 +98,7 @@ type Item =
             (dict : ObservableDictionaryBase<obj, obj>, keys : NonNull<obj> array) =
         // The generator doesn't generate empty dictionaries, which can throw
         // off the isAddition/isReplace logic
-        dict.Clear ()
+        //dict.Clear ()
 
         // Add event tracker *after* the preprocessing
         let counts = Observer dict
@@ -123,6 +133,7 @@ type Item =
             .&. isZeroProperty "no unrecognized property events"     counts.UnrecognizedPropertyChanges
         )
 
+[<Collection("ObservableDictionaryBase")>]
 type Keys =
     //TODO: This doesn't check replacing values
     [<Property>]
@@ -130,26 +141,31 @@ type Keys =
             (dict : ObservableDictionaryBase<obj, obj>, keys : NonNull<obj> array, values : obj array) =
         // The generator doesn't generate empty dictionaries, which can throw
         // off the checking logic
-        dict.Clear ()
+        //dict.Clear ()
 
-        // Process the keys as .Add can't handle 
+        // Remove duplicate keys as .Add can't handle replacement
         let grouped =
             keys
             |> Seq.map (fun k -> k.Get)
             |> Seq.groupBy id
+            |> Seq.map fst
 
         // Number of unique keys in the list
         let groups = grouped |> Seq.length
 
-        // Generate a random value for each key
-        Gen.sample 4 groups Arb.generate<obj>
+        // Be sure there are at least as many values as there are keys
+        match Seq.length grouped, Array.length values with
+        | k, 0            -> Array.zeroCreate k
+        | k, v when k < v -> values
+        | k, v            -> Array.create (k / v + 1) values
+                             |> Array.collect id
         // Additionally, randomly switch between methods of adding values
-        |> List.zip <| Gen.sample 2 groups Arb.generate<bool>
-        |> Seq.iter2 (fun k (v, b) -> if b then dict.[k] <- v else dict.Add (k, v)) (grouped |> Seq.map fst)
+        |> Seq.zip <| Gen.sample 2 groups Arb.generate<bool>
+        |> Seq.iter2 (fun k (v, b) -> if b then dict.[k] <- v else dict.Add (k, v)) grouped
 
         groups > 0 ==> lazy
           // Compare the returned keys to what was put in
-        ( grouped |> Seq.map fst
+        ( grouped
           |> Seq.map (fun k -> dict.Keys |> Seq.exists ((=) k))
           |> Seq.reduce (&&)
           // If the length isn't greater than the number of groups, there
@@ -158,32 +174,77 @@ type Keys =
         )
     
     [<Property>]
-    static member ``Replacing values doesn't change the set of keys``
+    static member ``Replacing items doesn't change the set of keys``
             (dict : ObservableDictionaryBase<obj, obj>, keys : NonNull<obj> array, values : obj array) =
         // The generator doesn't generate empty dictionaries, which can throw
         // off the checking logic
-        dict.Clear ()
+        //dict.Clear ()
 
         // Prep the dictionary to have all elements at all unique keys 
         let grouped =
             keys
             |> Array.map (fun k -> k.Get)
             |> Seq.groupBy id
+            |> Seq.map fst
         let len = Seq.length grouped
 
-        grouped
-        |> Seq.iter2 (fun k v -> dict.[fst k] <- v) <| Gen.sample len len Arb.generate<obj>
+        // Be sure there are at least as many values as there are keys
+        match len, Array.length values with
+        | k, 0            -> Array.zeroCreate k
+        | k, v when k < v -> values
+        | k, v            -> Array.create (k / v + 1) values
+                             |> Array.collect id
+        |> Seq.iter2 (fun k v -> dict.[k] <- v) grouped
 
         len > 0 ==> lazy (
             // Assign to some keys multiple times and others not at all
-            Gen.elements keys |> Gen.sample len len
-            |> Seq.iter2 (fun k v -> dict.[k.Get] <- v) <| values
+            Gen.elements keys
+            |> Gen.sample len len
+            |> Seq.iter2 (fun v k -> dict.[k.Get] <- v) values
 
             // Compare the returned keys to what was put in
             grouped
-            |> Seq.map (fun k -> dict.Keys |> Seq.exists ((=) (fst k)))
+            |> Seq.map (fun k -> dict.Keys |> Seq.exists ((=) k))
             |> Seq.reduce (&&)
         )
         // If the length isn't greater than the number of groups, there
         // can't be extra keys beyond what we started with
         .&. (Seq.length grouped = Seq.length dict.Keys)
+
+    [<Property>]
+    static member ``Keys aren't included in the list after removal``
+            (dict : ObservableDictionaryBase<obj, obj>, keys : NonNull<obj> array, values : obj array) =
+        // Prep the dictionary to have all elements at all unique keys 
+        let grouped =
+            keys
+            |> Array.map (fun k -> k.Get)
+            |> Seq.groupBy id
+            |> Seq.map fst
+        let len = Seq.length grouped
+
+        // Be sure there are at least as many values as there are keys
+        match len, Array.length values with
+        | k, 0            -> Array.zeroCreate k
+        | k, v when k < v -> values
+        | k, v            -> Array.create (k / v + 1) values
+                             |> Array.collect id
+        |> Seq.iter2 (fun k v -> dict.[k] <- v) grouped
+
+        len > 0 ==> lazy (
+            // Take a random subset of keys to remove
+            let removed =
+                grouped
+                |> Gen.elements
+                |> Gen.sample len len
+                |> Seq.groupBy id
+                |> Seq.map fst
+
+            removed
+            |> Seq.iter (fun k -> dict.Remove k |> ignore)
+
+            // Check for any of the removed keys still being in the list
+            removed
+            |> Seq.map (fun k -> dict.Keys |> Seq.exists ((=) k))
+            |> Seq.reduce (&&)
+            |> not
+        )
