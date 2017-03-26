@@ -1,9 +1,10 @@
 ﻿# Considerations for migrating existing code
 A core goal for this package is to provide a drop-in replacement for
 the UWP-only `Windows.Storage` IO interactions. Even so, some changes
-have been made to better integrate with `System` namespaces or where
-the official implementation seems restrictive. This document lists any
-such known differences that aren't backwards-compatible, and which may
+have been made to better integrate with `System` namespaces or to take
+advantage of .NET-specific features that weren't added to maintain
+compatibility with, for example, C++. This document lists any such
+known differences that aren't backwards-compatible, and which may
 require the including code to be edited.
 
 ## IStorageFile
@@ -19,6 +20,18 @@ See also `IStorageItem`
   implementation of `Windows.Storage.IRandomAccessStream`
 - **`OpenTransactedWriteAsync`** is not yet implemented
 
+## IStorageFolder
+See also `IStorageItem`
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`CreateFileAsync`**
+  - **`CreateFolderAsync`**
+  - **`GetFileAsync`**
+  - **`GetFilesAsync`**
+  - **`GetFolderAsync`**
+  - **`GetFoldersAsync`**
+  - **`GetItemAsync`**
+  - **`GetItemsAsync`**
 ## IStorageItem
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:

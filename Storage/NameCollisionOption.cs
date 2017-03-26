@@ -5,16 +5,17 @@
 	/// </summary>
 	public enum NameCollisionOption {
 		/// <summary>
-		/// Raise an exception of type <see cref="System.Exception"/>.
+		/// Throw an exception.
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// TODO: While this is what <c>Windows.Storage</c> does, we can be
-		/// more specific in the exception type.
+		/// <c>Windows.Storage</c> specifies that the exception will be a
+		/// <see cref="System.Exception"/>, but we can be more specific in the
+		/// exception type.
 		/// </remarks>
 		FailIfExists,
 		/// <summary>
-		/// Automatically append a number to the base name of the file or
+		/// Automatically append a number to the base name of the new file or
 		/// folder.
 		/// </summary>
 		/// 

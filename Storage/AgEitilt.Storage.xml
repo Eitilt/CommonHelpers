@@ -4,6 +4,46 @@
         <name>AgEitilt.Storage</name>
     </assembly>
     <members>
+        <member name="T:AgEitilt.Common.Storage.CreationCollisionOption">
+            <summary>
+            Specifies what to do if an with the specified name already exists in
+            the current folder when you create a new file or folder.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.FailIfExists">
+            <summary>
+            Throw an exception.
+            </summary>
+            
+            <remarks>
+            <c>Windows.Storage</c> specifies that the exception will be a
+            <see cref="T:System.Exception"/>, but we can be more specific in the
+            exception type.
+            </remarks>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.GenerateUniqueName">
+            <summary>
+            Automatically append a number to the base name of the new file or
+            folder.
+            </summary>
+            
+            <remarks>
+            For example, if the folder <c>MyFolder (2)</c> already exists, the
+            resulting folder will be <c>MyFolder (3)</c>, and if the file
+            <c>MyFile.xaml.cs</c> does, the new one will be named
+            <c>MyFile (2).xaml.cs</c>.
+            </remarks>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.OpenIfExists">
+            <summary>
+            Return the existing item.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.ReplaceExisting">
+            <summary>
+            Replace the existing item.
+            </summary>
+        </member>
         <member name="T:AgEitilt.Common.Storage.IStorageFile">
             <summary>
             Represents a file. Provides information about the file and its
@@ -50,7 +90,7 @@
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
         </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder)">
+        <member name="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)">
             <summary>
             Creates a copy of this file in the specified folder.
             </summary>
@@ -60,14 +100,18 @@
             as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
             <c>IAsyncOperation&lt;...&gt;</c>.
             <para />
-            This has the same result as calling
-            <see cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
-            with <c>desiredName</c> set to <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/> and
-            <c>option</c> left as the default value.
+            The default value of <paramref name="option"/> was chosen for
+            compatability with the <c>Windows.Storage</c> implementation.
             </remarks>
             
             <param name="destinationFolder">
             The folder where the copy will be created.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            this name already exists in <paramref name="destinationFolder"/>.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
             </param>
             
             <returns>
@@ -75,7 +119,7 @@
             completes.
             </returns>
             
-            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)"/>
         </member>
         <member name="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)">
             <summary>
@@ -98,11 +142,12 @@
             the behaviour is determined by <paramref name="option"/>.
             </param>
             <param name="option">
-            The method used to handle situations where a file by the name of
-            <paramref name="desiredName"/> already exists in
+            The method used to handle situations where a file or folder by the
+            name of <paramref name="desiredName"/> already exists in
             <paramref name="destinationFolder"/>.
             <para />
-            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
             </param>
             
             <returns>
@@ -140,7 +185,7 @@
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
         </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder)">
+        <member name="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)">
             <summary>
             Moves this file to the specified folder.
             </summary>
@@ -150,14 +195,18 @@
             as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
             <c>IAsyncOperation&lt;...&gt;</c>.
             <para />
-            This has the same result as calling
-            <see cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
-            with <c>desiredName</c> set to <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/> and
-            <c>option</c> left as the default value.
+            The default value of <paramref name="option"/> was chosen for
+            compatibility with the <c>Windows.Storage</c> implementation.
             </remarks>
             
             <param name="destinationFolder">
             The new location of this file.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            this name already exists in <paramref name="destinationFolder"/>.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
             </param>
             
             <returns>
@@ -165,7 +214,7 @@
             completes.
             </returns>
             
-            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)"/>
         </member>
         <member name="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)">
             <summary>
@@ -187,11 +236,12 @@
             the behaviour is determined by <paramref name="option"/>.
             </param>
             <param name="option">
-            The method used to handle situations where a file by the name of
-            <paramref name="desiredName"/> already exists in
+            The method used to handle situations where a file or folder by the
+            name of <paramref name="desiredName"/> already exists in
             <paramref name="destinationFolder"/>.
             <para />
-            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
             </param>
             
             <returns>
@@ -226,6 +276,182 @@
             
             <returns>
             A stream providing access to the data within the file, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="T:AgEitilt.Common.Storage.IStorageFolder">
+            <summary>
+            Manipulates folders and their contents, and provides information about
+            both.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.CreateFileAsync(System.String,AgEitilt.Common.Storage.CreationCollisionOption)">
+            <summary>
+            Creates a new file in this folder.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <param name="desiredName">
+            The desired name of the file to create.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            the name of <paramref name="desiredName"/> already exists in this
+            folder.
+            <para />
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.CreationCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            A handle to the new file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.CreateFolderAsync(System.String,AgEitilt.Common.Storage.CreationCollisionOption)">
+            <summary>
+            Creates a new folder nested within this folder.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <param name="desiredName">
+            The desired name of the folder to create.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            the name of <paramref name="desiredName"/> already exists in this
+            folder.
+            <para />
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.CreationCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            A handle to the new folder, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetFileAsync(System.String)">
+            <summary>
+            Gets the specified file using this folder as the base of the
+            relative path.
+            </summary>
+            
+            <remarks>
+            If the file is located within this folder, <paramref name="path"/>
+            may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
+            <para/>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <param name="path">The path relative to this folder.</param>
+            
+            <returns>
+            A handle to the file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetFilesAsync">
+            <summary>
+            Gets all files contained in this folder.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <returns>
+            A list of handles to all such files, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetFolderAsync(System.String)">
+            <summary>
+            Gets the specified folder using this one as the base of the
+            relative path.
+            </summary>
+            
+            <remarks>
+            If the folder is located within this one, <paramref name="path"/>
+            may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
+            <para/>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <param name="path">The path relative to this folder.</param>
+            
+            <returns>
+            A handle to the folder, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetFoldersAsync">
+            <summary>
+            Gets all folders nested within this one.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <returns>
+            A list of handles to all such folders, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetItemAsync(System.String)">
+            <summary>
+            Gets the specified storage item using this folder as the base of
+            the relative path.
+            </summary>
+            
+            <remarks>
+            If the item is located within this folder, <paramref name="path"/>
+            may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
+            <para/>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <param name="path">The path relative to this folder.</param>
+            
+            <returns>
+            A handle to the storage item, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.GetItemsAsync">
+            <summary>
+            Gets all storage items contained in this folder.
+            </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
+            
+            <returns>
+            A list of handles to all such items, once the
             <see cref="T:System.Threading.Tasks.Task`1"/> completes.
             </returns>
         </member>
@@ -308,6 +534,12 @@
             Removes the current item from disk.
             </summary>
             
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
+            <c>IAsyncAction</c>.
+            </remarks>
+            
             <param name="option">
             Whether to always skip the Recycle Bin and permanently delete the
             item, or if that decision should rely on the default behaviour.
@@ -324,6 +556,12 @@
             <summary>
             Gets the basic properties of the current item.
             </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
+            <c>IAsyncOperation&lt;...&gt;</c>.
+            </remarks>
             
             <returns>
             The basic properties describing the item, once the
@@ -346,6 +584,12 @@
             <summary>
             Renames the current item.
             </summary>
+            
+            <remarks>
+            Warning: This is not fully compatible with <c>Windows.Storage</c>
+            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
+            <c>IAsyncAction</c>.
+            </remarks>
             
             <param name="desiredName">
             The name under which the item will try to be saved. If a file of
@@ -394,17 +638,18 @@
         </member>
         <member name="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists">
             <summary>
-            Raise an exception of type <see cref="T:System.Exception"/>.
+            Throw an exception.
             </summary>
             
             <remarks>
-            TODO: While this is what <c>Windows.Storage</c> does, we can be
-            more specific in the exception type.
+            <c>Windows.Storage</c> specifies that the exception will be a
+            <see cref="T:System.Exception"/>, but we can be more specific in the
+            exception type.
             </remarks>
         </member>
         <member name="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName">
             <summary>
-            Automatically append a number to the base name of the file or
+            Automatically append a number to the base name of the new file or
             folder.
             </summary>
             

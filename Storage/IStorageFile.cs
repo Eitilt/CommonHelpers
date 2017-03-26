@@ -56,14 +56,18 @@ namespace AgEitilt.Common.Storage {
 		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
 		/// <c>IAsyncOperation&lt;...&gt;</c>.
 		/// <para />
-		/// This has the same result as calling
-		/// <see cref="CopyAsync(IStorageFolder, string, NameCollisionOption)"/>
-		/// with <c>desiredName</c> set to <see cref="IStorageItem.Name"/> and
-		/// <c>option</c> left as the default value.
+		/// The default value of <paramref name="option"/> was chosen for
+		/// compatability with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The folder where the copy will be created.
+		/// </param>
+		/// <param name="option">
+		/// The method used to handle situations where a file or folder by
+		/// this name already exists in <paramref name="destinationFolder"/>.
+		/// <para />
+		/// Default value is <see cref="NameCollisionOption.FailIfExists"/>.
 		/// </param>
 		/// 
 		/// <returns>
@@ -71,8 +75,8 @@ namespace AgEitilt.Common.Storage {
 		/// completes.
 		/// </returns>
 		/// 
-		/// <seealso cref="MoveAsync(IStorageFolder)"/>
-		Task<StorageFile> CopyAsync(IStorageFolder destinationFolder);
+		/// <seealso cref="MoveAsync(IStorageFolder, NameCollisionOption)"/>
+		Task<StorageFile> CopyAsync(IStorageFolder destinationFolder, NameCollisionOption option = NameCollisionOption.FailIfExists);
 		/// <summary>
 		/// Creates a copy of this file in the specified folder, under a new
 		/// name.
@@ -93,11 +97,12 @@ namespace AgEitilt.Common.Storage {
 		/// the behaviour is determined by <paramref name="option"/>.
 		/// </param>
 		/// <param name="option">
-		/// The method used to handle situations where a file by the name of
-		/// <paramref name="desiredName"/> already exists in
+		/// The method used to handle situations where a file or folder by the
+		/// name of <paramref name="desiredName"/> already exists in
 		/// <paramref name="destinationFolder"/>.
 		/// <para />
-		/// Default value is <see cref="NameCollisionOption.GenerateUniqueName"/>.
+		/// Default value is
+		/// <see cref="NameCollisionOption.GenerateUniqueName"/>.
 		/// </param>
 		/// 
 		/// <returns>
@@ -157,14 +162,18 @@ namespace AgEitilt.Common.Storage {
 		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
 		/// <c>IAsyncOperation&lt;...&gt;</c>.
 		/// <para />
-		/// This has the same result as calling
-		/// <see cref="MoveAsync(IStorageFolder, string, NameCollisionOption)"/>
-		/// with <c>desiredName</c> set to <see cref="IStorageItem.Name"/> and
-		/// <c>option</c> left as the default value.
+		/// The default value of <paramref name="option"/> was chosen for
+		/// compatibility with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The new location of this file.
+		/// </param>
+		/// <param name="option">
+		/// The method used to handle situations where a file or folder by
+		/// this name already exists in <paramref name="destinationFolder"/>.
+		/// <para />
+		/// Default value is <see cref="NameCollisionOption.FailIfExists"/>.
 		/// </param>
 		/// 
 		/// <returns>
@@ -172,8 +181,8 @@ namespace AgEitilt.Common.Storage {
 		/// completes.
 		/// </returns>
 		/// 
-		/// <seealso cref="CopyAsync(IStorageFolder)"/>
-		Task<StorageFile> MoveAsync(IStorageFolder destinationFolder);
+		/// <seealso cref="CopyAsync(IStorageFolder, NameCollisionOption)"/>
+		Task<StorageFile> MoveAsync(IStorageFolder destinationFolder, NameCollisionOption option = NameCollisionOption.FailIfExists);
 		/// <summary>
 		/// Moves and renames this file to the specified folder and name.
 		/// </summary>
@@ -193,11 +202,12 @@ namespace AgEitilt.Common.Storage {
 		/// the behaviour is determined by <paramref name="option"/>.
 		/// </param>
 		/// <param name="option">
-		/// The method used to handle situations where a file by the name of
-		/// <paramref name="desiredName"/> already exists in
+		/// The method used to handle situations where a file or folder by the
+		/// name of <paramref name="desiredName"/> already exists in
 		/// <paramref name="destinationFolder"/>.
 		/// <para />
-		/// Default value is <see cref="NameCollisionOption.GenerateUniqueName"/>.
+		/// Default value is
+		/// <see cref="NameCollisionOption.GenerateUniqueName"/>.
 		/// </param>
 		/// 
 		/// <returns>

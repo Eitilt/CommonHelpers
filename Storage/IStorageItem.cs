@@ -80,6 +80,12 @@ namespace AgEitilt.Common.Storage {
 		/// Removes the current item from disk.
 		/// </summary>
 		/// 
+		/// <remarks>
+		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
+		/// as it returns a simple <see cref="Task"/> rather than the modern
+		/// <c>IAsyncAction</c>.
+		/// </remarks>
+		/// 
 		/// <param name="option">
 		/// Whether to always skip the Recycle Bin and permanently delete the
 		/// item, or if that decision should rely on the default behaviour.
@@ -96,6 +102,12 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets the basic properties of the current item.
 		/// </summary>
+		/// 
+		/// <remarks>
+		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
+		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
+		/// <c>IAsyncOperation&lt;...&gt;</c>.
+		/// </remarks>
 		/// 
 		/// <returns>
 		/// The basic properties describing the item, once the
@@ -118,6 +130,12 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Renames the current item.
 		/// </summary>
+		/// 
+		/// <remarks>
+		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
+		/// as it returns a simple <see cref="Task"/> rather than the modern
+		/// <c>IAsyncAction</c>.
+		/// </remarks>
 		/// 
 		/// <param name="desiredName">
 		/// The name under which the item will try to be saved. If a file of
