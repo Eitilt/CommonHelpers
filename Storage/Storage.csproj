@@ -1,0 +1,39 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard1.3;net45</TargetFrameworks>
+    <AssemblyName>AgEitilt.Storage</AssemblyName>
+    <RootNamespace>AgEitilt.Common.Storage</RootNamespace>
+    <Authors>Sam May</Authors>
+    <Company>Ag Eitilt</Company>
+    <Description>The primary classes from the Windows 10 Windows.Storage namespace ported to a broader range of frameworks.</Description>
+    <Copyright>Copyright (c) 2017 Sam May</Copyright>
+    <PackageLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PackageLicenseUrl>
+    <DocumentationFile>AgEitilt.Storage.xml</DocumentationFile>
+    <Version>0.1.0</Version>
+    <AssemblyVersion>0.1.0</AssemblyVersion>
+    <FileVersion>0.1.0.0</FileVersion>
+    <RepositoryUrl>https://github.com/Eitilt/CommonHelpers</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>windows 10 storage storagefile storagefolder</PackageTags>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)'=='Release'">
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+  </PropertyGroup>
+
+  <Target Name="CopyPackage" AfterTargets="Pack" Condition="'$(Configuration)'=='Release'And'$(NUGET_DIR)'!=''">
+    <Copy SourceFiles="$(OutputPath)\$(PackageId).$(PackageVersion).nupkg" DestinationFolder="$(NUGET_DIR)" />
+  </Target>
+
+  <ItemGroup>
+    <PackageReference Include="Mime-Detective">
+      <Version>0.0.2</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(TargetFramework)' == 'netstandard1.3'">
+    <PackageReference Include="System.IO.FileSystem" Version="4.3.0" />
+  </ItemGroup>
+
+</Project>
