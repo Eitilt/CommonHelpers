@@ -6,10 +6,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 ### Added
+#### Classes
+- `StorageFile` (skeleton)
 #### Enums
-- CreationCollisionOption
-- NameCollisionOption
-- StorageDeleteOption
+- `CreationCollisionOption`
+- `NameCollisionOption`
+- `StorageDeleteOption`
+- `StorageItemTypes`
 #### Interfaces
-- IStorageFile
-- IStorageItem
+- `IStorageFile`
+- `IStorageItem`
+- `IStorageItem2`

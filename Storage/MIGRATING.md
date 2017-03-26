@@ -16,6 +16,10 @@ See also `IStorageItem`
   - **`MoveAndReplaceAsync`**
   - **`MoveAsync`** (all overrides)
   - **`OpenAsync`**
+- **`FileType`** returns `null` if no extension can be retrieved from
+  the file name
+  - This may actually be the original behaviour, but the documentation
+    doesn't make it clear
 - **`OpenAsync`** returns `System.IO.FileStream` rather than an
   implementation of `Windows.Storage.IRandomAccessStream`
 - **`OpenTransactedWriteAsync`** is not yet implemented
@@ -32,6 +36,7 @@ See also `IStorageItem`
   - **`GetFoldersAsync`**
   - **`GetItemAsync`**
   - **`GetItemsAsync`**
+
 ## IStorageItem
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
@@ -48,3 +53,23 @@ See also `IStorageItem`
 - **`RenameAsync`** declares an exception for each of those described in
   the `Windows.Storage` documentation, but as that doesn't use the
   proper names for each exception, the types thrown may be different
+
+## StorageFile
+See also `IStorageFile`
+- Many members still only throw a `NotImplementedException`
+- Many members are still not even implemented to that extent, namely:
+  - **`FolderRelativeID`**
+  - **`CreateStreamedFileAsync`**
+  - **`CreateStreamedFileFromUriAsync`**
+  - **`GetFileFromApplicationUriAsync`**
+  - **`GetScaledImageAsThumbnailAsync`**
+  - **`GetThumbnailAsync`**
+  - **`OpenReadAsync`**
+  - **`OpenSequentialReadAsync`**
+  - **`Provider`**
+  - **`ReplaceWithStreamedFileAsync`**
+  - **`ReplaceWithStreamedFileFromUriAsync`**
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`GetFileFromPathAsync`**
+  - **`GetParentAsync`**
