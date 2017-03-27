@@ -65,9 +65,8 @@ namespace AgEitilt.Common.Storage {
 		/// 
 		/// <remarks>
 		/// Do not rely on this property to access an item because some items
-		/// may not have file-system paths. For example if the item is backed
-		/// by a URI, or was picked using the file picker, the item is not
-		/// guaranteed to have a file-system path.
+		/// may not have file-system paths. For example, if the item is backed
+		/// by a URI, or was picked using the file picker.
 		/// </remarks>
 		/// 
 		/// <value>

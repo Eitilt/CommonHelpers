@@ -1,4 +1,4 @@
 ﻿namespace AgEitilt.Common.Storage {
-	interface IStorageFolder2 {
+	interface IStorageFolder2 : IStorageFolder {
 	}
 }

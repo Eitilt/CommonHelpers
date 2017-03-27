@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ## Unreleased
 ### Added
 #### Enums
-- CreationCollisionOption
-- NameCollisionOption
-- StorageDeleteOption
+- `CreationCollisionOption`
+- `NameCollisionOption`
+- `StorageDeleteOption`
 #### Interfaces
-- IStorageFile
-- IStorageItem
+- `IStorageFile`
+- `IStorageFile2`
+- `IStorageItem`
+- `IStorageItem2`
+- `IStorageItemProperties`

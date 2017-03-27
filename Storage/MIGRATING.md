@@ -20,6 +20,15 @@ See also `IStorageItem`
   implementation of `Windows.Storage.IRandomAccessStream`
 - **`OpenTransactedWriteAsync`** is not yet implemented
 
+## IStorageFile2
+See also `IStorageFile`
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`OpenAsync`**
+- **`OpenAsync`** returns `System.IO.FileStream` rather than an
+  implementation of `Windows.Storage.IRandomAccessStream`
+- **`OpenTransactedWriteAsync`** is not yet implemented
+
 ## IStorageFolder
 See also `IStorageItem`
 - Async methods return `Task` or `Task<TResult>` objects rather than
@@ -32,6 +41,7 @@ See also `IStorageItem`
   - **`GetFoldersAsync`**
   - **`GetItemAsync`**
   - **`GetItemsAsync`**
+
 ## IStorageItem
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
