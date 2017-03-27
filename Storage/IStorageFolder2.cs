@@ -12,13 +12,6 @@ namespace AgEitilt.Common.Storage {
 		/// the name of the item.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is likely not fully compatible with
-		/// <c>Windows.Storage</c>; the documentation there does not describe
-		/// what value is returned if the item was not found. <c>null</c> was
-		/// chosen here for clear semantics.
-		/// </remarks>
-		/// 
 		/// <param name="name">
 		/// The name (or path relative to the current folder) of the storage
 		/// item to try to retrieve.
