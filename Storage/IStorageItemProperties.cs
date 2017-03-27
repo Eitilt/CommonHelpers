@@ -1,5 +1,9 @@
 ﻿namespace AgEitilt.Common.Storage {
-	interface IStorageItemProperties {
+	/// <summary>
+	/// Provides access to common properties on storage items and their
+	/// content.
+	/// </summary>
+	public interface IStorageItemProperties {
 		/// <summary>
 		/// Gets a user-friendly name for the file.
 		/// </summary>

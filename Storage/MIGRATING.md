@@ -47,6 +47,7 @@ See also `IStorageItem`
   - **`GetItemsAsync`**
 
 ### IStorageFolder2
+See also `IStorageFolder`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`TryGetItemAsync`**
@@ -92,6 +93,7 @@ See also `IStorageFile`
   - **`GetParentAsync`**
 
 ## IStorageItem2
+See also `IStorageItem`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`GetParentAsync`**
@@ -100,9 +102,17 @@ See also `IStorageFile`
 - **`FolderRelativeID`** not yet implemented
 - **`GetThumbnailAsync`** not yet implemented
 
+## IStorageItemProperties2
+See also `IStorageItemProperties`
+- **`GetScaledImageAsThumbnailAsync`** not yet implemented
+
+## IStorageItemPropertiesWithProvider
+See also `IStorageItemProperties`
+- **`Provider`** not yet implemented
+
 ## StorageOpenOption
-Most documentation in `Windows.Storage` is written as if these values
-may be composed (`None | AllowOnlyReaders`); this did not make much
-sense given the semantics, and has not been implemented.
-- The documentation on `AllowReadersAndWriters` is unclear, and this
-  implementation may not accurately reflect that of `Windows.Storage`.
+- Most documentation in `Windows.Storage` is written as if these values
+  may be composed (`None | AllowOnlyReaders`); this did not make much
+  sense given the semantics, and has not been implemented.
+- `AllowReadersAndWriters` documentation in `Windows.Storage` is
+  unclear, and this implementation may not accurately reflect that behaviour.

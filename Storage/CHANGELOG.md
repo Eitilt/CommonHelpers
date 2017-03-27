@@ -23,3 +23,5 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `IStorageItem`
 - `IStorageItem2`
 - `IStorageItemProperties`
+- `IStorageItemProperties2` (skeleton)
+- `IStorageItemPropertiesWithProvider` (skeleton)
