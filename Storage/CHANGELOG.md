@@ -13,13 +13,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `StorageOpenOptions`
 #### Interfaces
 - `IStorageFile`
-- `IStorageFile2`
+- `IStorageFile2` (contained in `IStorageFile`)
 - `IStorageFilePropertiesWithAvailability`
 - `IStorageFolder`
-- `IStorageFolder2`
+- `IStorageFolder2` (contained in `IStorageFolder`)
 - `IStorageItem`
-- `IStorageItem2`
+- `IStorageItem2` (contained in `IStorageItem`)
 - `IStorageItemProperties`
-- `IStorageItemProperties2` (skeleton)
+- `IStorageItemProperties2` (skeleton contained in
+  `IStorageItemProperties`)
 - `IStorageItemPropertiesWithProvider` (skeleton)
 - `IStreamedFileDataRequest` (skeleton)
