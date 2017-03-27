@@ -82,3 +82,10 @@ See also `IStorageFile`
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`GetFileFromPathAsync`**
   - **`GetParentAsync`**
+
+## StorageOpenOption
+Most documentation in `Windows.Storage` is written as if these values
+may be composed (`None | AllowOnlyReaders`); this did not make much
+sense given the semantics, and has not been implemented.
+- The documentation on `AllowReadersAndWriters` is unclear, and this
+  implementation may not accurately reflect that of `Windows.Storage`.

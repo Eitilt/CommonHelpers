@@ -13,6 +13,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `NameCollisionOption`
 - `StorageDeleteOption`
 - `StorageItemTypes`
+- `StorageOpenOptions`
 #### Interfaces
 - `IStorageFile`
 - `IStorageFile2`
