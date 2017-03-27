@@ -23,7 +23,7 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not likely fully compatible with
+		/// Warning: This is likely not fully compatible with
 		/// <c>Windows.Storage</c>; while the documentation there does not
 		/// describe what value is returned if the file has no extension, it
 		/// is likely an empty string. <c>null</c> was chosen here for clearer
