@@ -7,18 +7,10 @@ namespace AgEitilt.Common.Storage {
 	/// Provides methods to describe and manipulate a concrete file and its
 	/// contents.
 	/// </summary>
-	public class StorageFile : IStorageItem2, IStorageFile2 {
+	public class StorageFile : IStorageItem, IStorageItemPropertiesWithProvider, IStorageFile, IStorageFilePropertiesWithAvailability {
 		/// <summary>
 		/// Describes the properties of a storage item.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as the <see cref="FileAttributes"/> enum it returns is instead in
-		/// the <see cref="System.IO"/> namespace. This is actually a
-		/// near-superset of <c>Windows.Storage.FileAttributes</c>, but does
-		/// not include the item <c>LocallyIncomplete</c>.
-		/// </remarks>
 		/// 
 		/// <value>The attributes of the file or folder.</value>
 		public FileAttributes Attributes => throw new NotImplementedException();
@@ -39,12 +31,6 @@ namespace AgEitilt.Common.Storage {
 		/// <remarks>
 		/// For the date and time of the last edit, see
 		/// <see cref="GetBasicPropertiesAsync"/>.
-		/// <para/>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as that will always return a valid (though potentially zero)
-		/// instance of <see cref="DateTimeOffset"/>. This change was made to
-		/// provide clearer semantics, taking advantage of the builtin support
-		/// for <see cref="Nullable{T}"/>.
 		/// </remarks>
 		/// 
 		/// <value>
@@ -59,8 +45,8 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// This will typically be <see cref="Name"/> stripped of any file
-		/// extension.
+		/// This will typically be <see cref="Name"/> stripped of
+		/// any file extension.
 		/// </remarks>
 		/// 
 		/// <value>
@@ -70,11 +56,11 @@ namespace AgEitilt.Common.Storage {
 			Name?.Split(new char[1] { '.' }, StringSplitOptions.RemoveEmptyEntries)?[0];
 
 		/// <summary>
-		/// Gets a user-friendly description of the file content.
+		/// Gets a user-friendly description of the item's content.
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// For example, an image file might return "JPG Image".
+		/// For example, an image file might return "JPG image".
 		/// </remarks>
 		/// 
 		/// <value>
@@ -85,14 +71,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets the type of the file as declared by its extension.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not likely fully compatible with
-		/// <c>Windows.Storage</c>; while the documentation there does not
-		/// describe what value is returned if the file has no extension, it
-		/// is likely an empty string. <c>null</c> was chosen here for clearer
-		/// semantics.
-		/// </remarks>
 		/// 
 		/// <value>
 		/// The file extension; for example, <c>.jpg</c>, or null if this is
@@ -110,9 +88,6 @@ namespace AgEitilt.Common.Storage {
 					return split[split.Length - 1];
 			}
 		}
-
-		//TODO: Implement FolderRelativeID if this implementation of
-		// StorageFolder allows a means of determining this
 
 		/// <summary>
 		/// Indicates whether the file is located in an accessible location.
@@ -142,9 +117,8 @@ namespace AgEitilt.Common.Storage {
 		/// 
 		/// <remarks>
 		/// Do not rely on this property to access an item because some items
-		/// may not have file-system paths. For example if the item is backed
-		/// by a URI, or was picked using the file picker, the item is not
-		/// guaranteed to have a file-system path.
+		/// may not have file-system paths. For example, if the item is backed
+		/// by a URI, or was picked using the file picker.
 		/// </remarks>
 		/// 
 		/// <value>
@@ -160,18 +134,9 @@ namespace AgEitilt.Common.Storage {
 		/// <value>An object listing such properties.</value>
 		public StorageItemContentProperties Properties => throw new NotImplementedException();
 
-		//TODO: Implement Provider once StorageProvider handling has been
-		// added
-
 		/// <summary>
 		/// Replaces the specified file with a copy of this file.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// </remarks>
 		/// 
 		/// <param name="fileToReplace">The file to replace.</param>
 		/// 
@@ -190,12 +155,8 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// <para />
 		/// The default value of <paramref name="option"/> was chosen for
-		/// compatability with the <c>Windows.Storage</c> implementation.
+		/// compatibility with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
@@ -222,12 +183,6 @@ namespace AgEitilt.Common.Storage {
 		/// Creates a copy of this file in the specified folder, under a new
 		/// name.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The folder where the copy will be created.
@@ -269,12 +224,6 @@ namespace AgEitilt.Common.Storage {
 		/// Removes the current item from disk.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// </remarks>
-		/// 
 		/// <param name="option">
 		/// Whether to always skip the Recycle Bin and permanently delete the
 		/// item, or if that decision should rely on the default behaviour.
@@ -293,12 +242,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets the basic properties of the current item.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <returns>
 		/// The basic properties describing the item, once the
@@ -344,9 +287,6 @@ namespace AgEitilt.Common.Storage {
 			throw new NotImplementedException();
 		}
 
-		//TODO: Implement GetScaledImageAsThumbnailAsync and GetThumbnailAsync
-		// once thumbnail support is added
-
 		/// <summary>
 		/// Indicates whether this storage item and another refer to the same
 		/// file, and access it via the same path.
@@ -381,10 +321,6 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// <para />
 		/// This has the same result as calling
 		/// <see cref="MoveAsync(IStorageFolder, string, NameCollisionOption)"/>
 		/// with <c>desiredName</c> set to <see cref="Name"/> and
@@ -408,10 +344,6 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// <para />
 		/// The default value of <paramref name="option"/> was chosen for
 		/// compatibility with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
@@ -439,12 +371,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Moves and renames this file to the specified folder and name.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The new location of this file.
@@ -483,26 +409,20 @@ namespace AgEitilt.Common.Storage {
 		/// Opens a random-access stream over the file.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>. Additionally, the value type
-		/// returned by awaiting that task is a <see cref="FileStream"/>
-		/// rather than a <c>IRandomAccessStream</c>; this is particularly
-		/// dangerous because the former doesn't guarantee as strongly that
-		/// reading from it will result in that number of bytes.
-		/// <para/>
-		/// TODO: Expand the package to include that interface, to avoid any
-		/// issues that may occur.
-		/// </remarks>
-		/// 
 		/// <param name="accessMode">The type of access to allow.</param>
+		/// <param name="options">
+		/// The allowed interactions between multiple streams reading from or
+		/// writing to this file.
+		/// </param>
 		/// 
 		/// <returns>
 		/// A stream providing access to the data within the file, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
-		public Task<FileStream> OpenAsync(FileAccessMode accessMode) {
+		public Task<FileStream> OpenAsync(
+				FileAccessMode accessMode,
+				StorageOpenOptions options = StorageOpenOptions.None
+			) {
 			throw new NotImplementedException();
 		}
 
@@ -512,12 +432,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Renames the current item.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// </remarks>
 		/// 
 		/// <param name="desiredName">
 		/// The name under which the item will try to be saved. If a file of

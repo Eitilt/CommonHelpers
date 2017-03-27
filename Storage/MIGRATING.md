@@ -77,15 +77,11 @@ See also `IStorageItem2`
 See also `IStorageFile`
 - Many members still only throw a `NotImplementedException`
 - Many members are still not even implemented to that extent, namely:
-  - **`FolderRelativeID`**
   - **`CreateStreamedFileAsync`**
   - **`CreateStreamedFileFromUriAsync`**
   - **`GetFileFromApplicationUriAsync`**
-  - **`GetScaledImageAsThumbnailAsync`**
-  - **`GetThumbnailAsync`**
   - **`OpenReadAsync`**
   - **`OpenSequentialReadAsync`**
-  - **`Provider`**
   - **`ReplaceWithStreamedFileAsync`**
   - **`ReplaceWithStreamedFileFromUriAsync`**
 - Async methods return `Task` or `Task<TResult>` objects rather than

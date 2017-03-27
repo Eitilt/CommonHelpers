@@ -22,14 +22,6 @@ namespace AgEitilt.Common.Storage {
 		/// Gets the type of the file as declared by its extension.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is likely not fully compatible with
-		/// <c>Windows.Storage</c>; while the documentation there does not
-		/// describe what value is returned if the file has no extension, it
-		/// is likely an empty string. <c>null</c> was chosen here for clearer
-		/// semantics.
-		/// </remarks>
-		/// 
 		/// <value>
 		/// The file extension; for example, <c>.jpg</c>, or null if this is
 		/// not included in the file name.
@@ -56,7 +48,7 @@ namespace AgEitilt.Common.Storage {
 		/// 
 		/// <remarks>
 		/// The default value of <paramref name="option"/> was chosen for
-		/// compatability with the <c>Windows.Storage</c> implementation.
+		/// compatibility with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
