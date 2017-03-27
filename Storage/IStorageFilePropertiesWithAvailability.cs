@@ -2,7 +2,7 @@
 	/// <summary>
 	/// Provides access to the file's availability.
 	/// </summary>
-	interface IStorageFilePropertiesWithAvailability {
+	public interface IStorageFilePropertiesWithAvailability {
 		/// <summary>
 		/// Indicates whether the file is located in an accessible location.
 		/// </summary>

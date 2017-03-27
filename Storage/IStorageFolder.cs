@@ -6,7 +6,7 @@ namespace AgEitilt.Common.Storage {
 	/// Manipulates folders and their contents, and provides information about
 	/// both.
 	/// </summary>
-	public interface IStorageFolder {
+	public interface IStorageFolder : IStorageItem {
 		/// <summary>
 		/// Creates a new file in this folder.
 		/// </summary>
