@@ -67,6 +67,11 @@ See also `IStorageItem`
   the `Windows.Storage` documentation, but as that doesn't use the
   proper names for each exception, the types thrown may be different
 
+## IStorageItem2
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`GetParentAsync`**
+
 ## StorageOpenOption
 Most documentation in `Windows.Storage` is written as if these values
 may be composed (`None | AllowOnlyReaders`); this did not make much
