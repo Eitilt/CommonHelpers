@@ -257,6 +257,8 @@ namespace AgEitilt.Common.Storage {
 		/// A stream providing access to the data within the file, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="IStorageFile2.OpenAsync(FileAccessMode, StorageOpenOptions)"/>
 		Task<FileStream> OpenAsync(FileAccessMode accessMode);
 
 		//TODO: Add OpenTransactedWriteAsync once we have added a concept of

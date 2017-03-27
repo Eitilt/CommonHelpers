@@ -46,6 +46,14 @@ See also `IStorageItem`
   - **`GetItemAsync`**
   - **`GetItemsAsync`**
 
+### IStorageFolder2
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`TryGetItemAsync`**
+- **`TryGetItemAsync`** returns `null` if the file is not found
+  - This may actually be the original behaviour, but the documentation
+    doesn't specify
+
 ## IStorageItem
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:

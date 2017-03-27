@@ -179,6 +179,7 @@ namespace AgEitilt.Common.Storage {
 		/// </returns>
 		/// 
 		/// <seealso cref="GetItemsAsync"/>
+		/// <seealso cref="IStorageFolder2.TryGetItemAsync(string)"/>
 		/// <seealso cref="GetFileAsync(string)"/>
 		/// <seealso cref="GetFolderAsync(string)"/>
 		Task<IStorageItem> GetItemAsync(string path);
