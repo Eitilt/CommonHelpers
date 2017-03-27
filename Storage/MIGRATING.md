@@ -8,7 +8,7 @@ known differences that aren't backwards-compatible, and which may
 require the including code to be edited.
 
 ## IStorageFile
-See also `IStorageItem`
+See also `IStorageItem` and `IStorageFile2`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`CopyAndReplaceAsync`**
@@ -25,7 +25,7 @@ See also `IStorageItem`
 - **`OpenTransactedWriteAsync`** is not yet implemented
 
 ## IStorageFile2
-See also `IStorageFile`
+No longer exists; merged into `IStorageFile`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`OpenAsync`**
@@ -34,7 +34,7 @@ See also `IStorageFile`
 - **`OpenTransactedWriteAsync`** is not yet implemented
 
 ## IStorageFolder
-See also `IStorageItem`
+See also `IStorageItem` and `IStorageFolder2`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`CreateFileAsync`**
@@ -47,7 +47,7 @@ See also `IStorageItem`
   - **`GetItemsAsync`**
 
 ### IStorageFolder2
-See also `IStorageFolder`
+No longer exists; merged into `IStorageFolder`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`TryGetItemAsync`**
@@ -56,6 +56,7 @@ See also `IStorageFolder`
     doesn't specify
 
 ## IStorageItem
+See also `IStorageItem2`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`DeleteAsync`**
@@ -93,17 +94,18 @@ See also `IStorageFile`
   - **`GetParentAsync`**
 
 ## IStorageItem2
-See also `IStorageItem`
+No longer exists; merged into `IStorageItem`
 - Async methods return `Task` or `Task<TResult>` objects rather than
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`GetParentAsync`**
 
 ## IStorageItemProperties
+See also `IStorageItemProperties2`
 - **`FolderRelativeID`** not yet implemented
 - **`GetThumbnailAsync`** not yet implemented
 
 ## IStorageItemProperties2
-See also `IStorageItemProperties`
+No longer exists; merged into `IStorageItemProperties`
 - **`GetScaledImageAsThumbnailAsync`** not yet implemented
 
 ## IStorageItemPropertiesWithProvider

@@ -41,6 +41,8 @@
 		/// <value>An object listing such properties.</value>
 		StorageItemContentProperties Properties { get; }
 
-		//TODO: Implement GetThumbnailAsync once thumbnail support is added
+		//TODO: Implement GetScaledImageAsThumbnailAsync (from
+		// IStorageItemProperties2) andGetThumbnailAsync once thumbnail
+		// support is added
 	}
 }

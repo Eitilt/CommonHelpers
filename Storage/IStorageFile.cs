@@ -209,16 +209,21 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <param name="accessMode">The type of access to allow.</param>
+		/// <param name="options">
+		/// The allowed interactions between multiple streams reading from or
+		/// writing to this file.
+		/// </param>
 		/// 
 		/// <returns>
 		/// A stream providing access to the data within the file, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
-		/// 
-		/// <seealso cref="IStorageFile2.OpenAsync(FileAccessMode, StorageOpenOptions)"/>
-		Task<FileStream> OpenAsync(FileAccessMode accessMode);
+		Task<FileStream> OpenAsync(
+			FileAccessMode accessMode,
+			StorageOpenOptions options = StorageOpenOptions.None
+		);
 
 		//TODO: Add OpenTransactedWriteAsync once we have added a concept of
-		// transactions
+		// transactions (overloads in both IStorageFile and IStorageFile2)
 	}
 }
