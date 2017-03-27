@@ -91,6 +91,11 @@ See also `IStorageFile`
   - **`GetFileFromPathAsync`**
   - **`GetParentAsync`**
 
+## IStorageItem2
+- Async methods return `Task` or `Task<TResult>` objects rather than
+  `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
+  - **`GetParentAsync`**
+
 ## StorageOpenOption
 Most documentation in `Windows.Storage` is written as if these values
 may be composed (`None | AllowOnlyReaders`); this did not make much
