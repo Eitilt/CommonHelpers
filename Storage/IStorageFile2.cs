@@ -25,9 +25,10 @@ namespace AgEitilt.Common.Storage {
 		/// issues that may occur.
 		/// </remarks>
 		/// 
-		/// <param name="accessMode">The type of access to allow.</param>
+		/// <param name="accessMode">The type of access to request.</param>
 		/// <param name="options">
-		/// The allowed interactions between types of streams.
+		/// The allowed interactions between multiple streams reading from or
+		/// writing to this file.
 		/// </param>
 		/// 
 		/// <returns>

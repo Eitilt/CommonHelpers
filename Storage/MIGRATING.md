@@ -58,3 +58,10 @@ See also `IStorageItem`
 - **`RenameAsync`** declares an exception for each of those described in
   the `Windows.Storage` documentation, but as that doesn't use the
   proper names for each exception, the types thrown may be different
+
+## StorageOpenOption
+Most documentation in `Windows.Storage` is written as if these values
+may be composed (`None | AllowOnlyReaders`); this did not make much
+sense given the semantics, and has not been implemented.
+- The documentation on `AllowReadersAndWriters` is unclear, and this
+  implementation may not accurately reflect that of `Windows.Storage`.
