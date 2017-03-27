@@ -259,7 +259,7 @@ namespace AgEitilt.Common.Storage {
 		/// </returns>
 		Task<FileStream> OpenAsync(FileAccessMode accessMode);
 
-		//TODO: Implement OpenTransactedWriteAsync() as that currently relies
-		// on unsupported concepts
+		//TODO: Add OpenTransactedWriteAsync once we have added a concept of
+		// transactions
 	}
 }

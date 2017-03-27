@@ -15,5 +15,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `StorageItemTypes`
 #### Interfaces
 - `IStorageFile`
+- `IStorageFile2`
 - `IStorageItem`
 - `IStorageItem2`
+- `IStorageItemProperties`

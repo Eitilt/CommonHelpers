@@ -33,6 +33,9 @@ namespace AgEitilt.Common.Storage {
 		/// A handle to the new file, once the <see cref="Task{TResult}"/>
 		/// completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="CreateFolderAsync(string, CreationCollisionOption)"/>
+		/// <seealso cref="IStorageItem.Name"/>
 		Task<StorageFile> CreateFileAsync(string desiredName, CreationCollisionOption option = CreationCollisionOption.FailIfExists);
 
 		/// <summary>
@@ -61,6 +64,9 @@ namespace AgEitilt.Common.Storage {
 		/// A handle to the new folder, once the <see cref="Task{TResult}"/>
 		/// completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="CreateFileAsync(string, CreationCollisionOption)"/>
+		/// <seealso cref="IStorageItem.Name"/>
 		Task<StorageFolder> CreateFolderAsync(string desiredName, CreationCollisionOption option = CreationCollisionOption.FailIfExists);
 
 		/// <summary>
@@ -83,6 +89,9 @@ namespace AgEitilt.Common.Storage {
 		/// A handle to the file, once the <see cref="Task{TResult}"/>
 		/// completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetFilesAsync"/>
+		/// <seealso cref="GetItemAsync(string)"/>
 		Task<StorageFile> GetFileAsync(string path);
 
 		/// <summary>
@@ -99,6 +108,9 @@ namespace AgEitilt.Common.Storage {
 		/// A list of handles to all such files, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetFileAsync(string)"/>
+		/// <seealso cref="GetItemsAsync"/>
 		Task<IReadOnlyList<StorageFile>> GetFilesAsync();
 
 		/// <summary>
@@ -121,6 +133,9 @@ namespace AgEitilt.Common.Storage {
 		/// A handle to the folder, once the <see cref="Task{TResult}"/>
 		/// completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetFoldersAsync"/>
+		/// <seealso cref="GetItemAsync(string)"/>
 		Task<StorageFolder> GetFolderAsync(string path);
 
 		/// <summary>
@@ -137,6 +152,9 @@ namespace AgEitilt.Common.Storage {
 		/// A list of handles to all such folders, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetFolderAsync(string)"/>
+		/// <seealso cref="GetItemsAsync"/>
 		Task<IReadOnlyList<StorageFile>> GetFoldersAsync();
 
 		/// <summary>
@@ -159,6 +177,10 @@ namespace AgEitilt.Common.Storage {
 		/// A handle to the storage item, once the <see cref="Task{TResult}"/>
 		/// completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetItemsAsync"/>
+		/// <seealso cref="GetFileAsync(string)"/>
+		/// <seealso cref="GetFolderAsync(string)"/>
 		Task<IStorageItem> GetItemAsync(string path);
 
 		/// <summary>
@@ -175,6 +197,10 @@ namespace AgEitilt.Common.Storage {
 		/// A list of handles to all such items, once the
 		/// <see cref="Task{TResult}"/> completes.
 		/// </returns>
+		/// 
+		/// <seealso cref="GetItemAsync(string)"/>
+		/// <seealso cref="GetFilesAsync"/>
+		/// <seealso cref="GetFoldersAsync"/>
 		Task<IReadOnlyList<IStorageItem>> GetItemsAsync();
 	}
 }
