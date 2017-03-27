@@ -72,6 +72,10 @@ See also `IStorageItem`
   `IAsyncAction` or `IAsyncResult<TResult>`; this affects:
   - **`GetParentAsync`**
 
+## IStorageItemProperties
+- **`FolderRelativeID`** not yet implemented
+- **`GetThumbnailAsync`** not yet implemented
+
 ## StorageOpenOption
 Most documentation in `Windows.Storage` is written as if these values
 may be composed (`None | AllowOnlyReaders`); this did not make much
