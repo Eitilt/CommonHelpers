@@ -25,3 +25,4 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `IStorageItemProperties`
 - `IStorageItemProperties2` (skeleton)
 - `IStorageItemPropertiesWithProvider` (skeleton)
+- `IStreamedFileDataRequest` (skeleton)
