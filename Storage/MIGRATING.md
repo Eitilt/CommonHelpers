@@ -86,6 +86,9 @@ See also `IStorageItemProperties`
 See also `IStorageItemProperties`
 - **`Provider`** not yet implemented
 
+## IStreamedFileDataRequest
+- **`FailAndClose`** not yet implemented
+
 ## StorageOpenOption
 - Most documentation in `Windows.Storage` is written as if these values
   may be composed (`None | AllowOnlyReaders`); this did not make much
