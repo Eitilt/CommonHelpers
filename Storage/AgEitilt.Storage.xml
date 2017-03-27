@@ -14,12 +14,6 @@
             <summary>
             Throw an exception.
             </summary>
-            
-            <remarks>
-            <c>Windows.Storage</c> specifies that the exception will be a
-            <see cref="T:System.Exception"/>, but we can be more specific in the
-            exception type.
-            </remarks>
         </member>
         <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.GenerateUniqueName">
             <summary>
@@ -75,12 +69,6 @@
             Replaces the specified file with a copy of this file.
             </summary>
             
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
-            <c>IAsyncAction</c>.
-            </remarks>
-            
             <param name="fileToReplace">The file to replace.</param>
             
             <returns>
@@ -96,10 +84,6 @@
             </summary>
             
             <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            <para />
             The default value of <paramref name="option"/> was chosen for
             compatability with the <c>Windows.Storage</c> implementation.
             </remarks>
@@ -126,12 +110,6 @@
             Creates a copy of this file in the specified folder, under a new
             name.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <param name="destinationFolder">
             The folder where the copy will be created.
@@ -166,10 +144,6 @@
             </summary>
             
             <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
-            <c>IAsyncAction</c>.
-            <para />
             This has the same result as calling
             <see cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
             with <c>desiredName</c> set to <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/> and
@@ -191,10 +165,6 @@
             </summary>
             
             <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            <para />
             The default value of <paramref name="option"/> was chosen for
             compatibility with the <c>Windows.Storage</c> implementation.
             </remarks>
@@ -220,12 +190,6 @@
             <summary>
             Moves and renames this file to the specified folder and name.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <param name="destinationFolder">
             The new location of this file.
@@ -259,19 +223,6 @@
             Opens a random-access stream over the file.
             </summary>
             
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>. Additionally, the value type
-            returned by awaiting that task is a <see cref="T:System.IO.FileStream"/>
-            rather than a <c>IRandomAccessStream</c>; this is particularly
-            dangerous because the former doesn't guarantee as strongly that
-            reading from it will result in that number of bytes.
-            <para/>
-            TODO: Expand the package to include that interface, to avoid any
-            issues that may occur.
-            </remarks>
-            
             <param name="accessMode">The type of access to allow.</param>
             
             <returns>
@@ -290,19 +241,6 @@
             <summary>
             Opens a random-access stream over the file.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>. Additionally, the value type
-            returned by awaiting that task is a <see cref="T:System.IO.FileStream"/>
-            rather than a <c>IRandomAccessStream</c>; this is particularly
-            dangerous because the former doesn't guarantee as strongly that
-            reading from it will result in that number of bytes.
-            <para/>
-            TODO: Expand the package to include that interface, to avoid any
-            issues that may occur.
-            </remarks>
             
             <param name="accessMode">The type of access to request.</param>
             <param name="options">
@@ -344,12 +282,6 @@
             Creates a new file in this folder.
             </summary>
             
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
-            
             <param name="desiredName">
             The desired name of the file to create.
             </param>
@@ -374,12 +306,6 @@
             <summary>
             Creates a new folder nested within this folder.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <param name="desiredName">
             The desired name of the folder to create.
@@ -410,10 +336,6 @@
             <remarks>
             If the file is located within this folder, <paramref name="path"/>
             may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
-            <para/>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
             </remarks>
             
             <param name="path">The path relative to this folder.</param>
@@ -430,12 +352,6 @@
             <summary>
             Gets all files contained in this folder.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <returns>
             A list of handles to all such files, once the
@@ -454,10 +370,6 @@
             <remarks>
             If the folder is located within this one, <paramref name="path"/>
             may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
-            <para/>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
             </remarks>
             
             <param name="path">The path relative to this folder.</param>
@@ -474,12 +386,6 @@
             <summary>
             Gets all folders nested within this one.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <returns>
             A list of handles to all such folders, once the
@@ -498,10 +404,6 @@
             <remarks>
             If the item is located within this folder, <paramref name="path"/>
             may simply be the <see cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>.
-            <para/>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
             </remarks>
             
             <param name="path">The path relative to this folder.</param>
@@ -520,12 +422,6 @@
             <summary>
             Gets all storage items contained in this folder.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <returns>
             A list of handles to all such items, once the
@@ -547,13 +443,6 @@
             Try to get a single storage item from the current folder by using
             the name of the item.
             </summary>
-            
-            <remarks>
-            Warning: This is likely not fully compatible with
-            <c>Windows.Storage</c>; the documentation there does not describe
-            what value is returned if the item was not found. <c>null</c> was
-            chosen here for clear semantics.
-            </remarks>
             
             <param name="name">
             The name (or path relative to the current folder) of the storage
@@ -581,14 +470,6 @@
             Describes the properties of a storage item.
             </summary>
             
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as the <see cref="T:System.IO.FileAttributes"/> enum it returns is instead in
-            the <see cref="N:System.IO"/> namespace. This is actually a
-            near-superset of <c>Windows.Storage.FileAttributes</c>, but does
-            not include the item <c>LocallyIncomplete</c>.
-            </remarks>
-            
             <value>The attributes of the file or folder.</value>
         </member>
         <member name="P:AgEitilt.Common.Storage.IStorageItem.DateCreated">
@@ -599,12 +480,6 @@
             <remarks>
             For the date and time of the last edit, see
             <see cref="M:AgEitilt.Common.Storage.IStorageItem.GetBasicPropertiesAsync"/>.
-            <para/>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as that will always return a valid (though potentially zero)
-            instance of <see cref="T:System.DateTimeOffset"/>. This change was made to
-            provide clearer semantics, taking advantage of the builtin support
-            for <see cref="T:System.Nullable`1"/>.
             </remarks>
             
             <value>
@@ -645,12 +520,6 @@
             Removes the current item from disk.
             </summary>
             
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
-            <c>IAsyncAction</c>.
-            </remarks>
-            
             <param name="option">
             Whether to always skip the Recycle Bin and permanently delete the
             item, or if that decision should rely on the default behaviour.
@@ -667,12 +536,6 @@
             <summary>
             Gets the basic properties of the current item.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a <see cref="T:System.Threading.Tasks.Task`1"/> rather than the modern
-            <c>IAsyncOperation&lt;...&gt;</c>.
-            </remarks>
             
             <returns>
             The basic properties describing the item, once the
@@ -695,12 +558,6 @@
             <summary>
             Renames the current item.
             </summary>
-            
-            <remarks>
-            Warning: This is not fully compatible with <c>Windows.Storage</c>
-            as it returns a simple <see cref="T:System.Threading.Tasks.Task"/> rather than the modern
-            <c>IAsyncAction</c>.
-            </remarks>
             
             <param name="desiredName">
             The name under which the item will try to be saved. If a file of
@@ -835,12 +692,6 @@
             <summary>
             Throw an exception.
             </summary>
-            
-            <remarks>
-            <c>Windows.Storage</c> specifies that the exception will be a
-            <see cref="T:System.Exception"/>, but we can be more specific in the
-            exception type.
-            </remarks>
         </member>
         <member name="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName">
             <summary>

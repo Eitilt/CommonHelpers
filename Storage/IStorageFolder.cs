@@ -11,12 +11,6 @@ namespace AgEitilt.Common.Storage {
 		/// Creates a new file in this folder.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
-		/// 
 		/// <param name="desiredName">
 		/// The desired name of the file to create.
 		/// </param>
@@ -41,12 +35,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Creates a new folder nested within this folder.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <param name="desiredName">
 		/// The desired name of the folder to create.
@@ -77,10 +65,6 @@ namespace AgEitilt.Common.Storage {
 		/// <remarks>
 		/// If the file is located within this folder, <paramref name="path"/>
 		/// may simply be the <see cref="IStorageItem.Name"/>.
-		/// <para/>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
 		/// </remarks>
 		/// 
 		/// <param name="path">The path relative to this folder.</param>
@@ -97,12 +81,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets all files contained in this folder.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <returns>
 		/// A list of handles to all such files, once the
@@ -121,10 +99,6 @@ namespace AgEitilt.Common.Storage {
 		/// <remarks>
 		/// If the folder is located within this one, <paramref name="path"/>
 		/// may simply be the <see cref="IStorageItem.Name"/>.
-		/// <para/>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
 		/// </remarks>
 		/// 
 		/// <param name="path">The path relative to this folder.</param>
@@ -141,12 +115,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets all folders nested within this one.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <returns>
 		/// A list of handles to all such folders, once the
@@ -165,10 +133,6 @@ namespace AgEitilt.Common.Storage {
 		/// <remarks>
 		/// If the item is located within this folder, <paramref name="path"/>
 		/// may simply be the <see cref="IStorageItem.Name"/>.
-		/// <para/>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
 		/// </remarks>
 		/// 
 		/// <param name="path">The path relative to this folder.</param>
@@ -187,12 +151,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Gets all storage items contained in this folder.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <returns>
 		/// A list of handles to all such items, once the

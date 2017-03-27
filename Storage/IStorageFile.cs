@@ -31,12 +31,6 @@ namespace AgEitilt.Common.Storage {
 		/// Replaces the specified file with a copy of this file.
 		/// </summary>
 		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// </remarks>
-		/// 
 		/// <param name="fileToReplace">The file to replace.</param>
 		/// 
 		/// <returns>
@@ -52,10 +46,6 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// <para />
 		/// The default value of <paramref name="option"/> was chosen for
 		/// compatability with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
@@ -81,12 +71,6 @@ namespace AgEitilt.Common.Storage {
 		/// Creates a copy of this file in the specified folder, under a new
 		/// name.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The folder where the copy will be created.
@@ -133,10 +117,6 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a simple <see cref="Task"/> rather than the modern
-		/// <c>IAsyncAction</c>.
-		/// <para />
 		/// This has the same result as calling
 		/// <see cref="MoveAsync(IStorageFolder, string, NameCollisionOption)"/>
 		/// with <c>desiredName</c> set to <see cref="IStorageItem.Name"/> and
@@ -158,10 +138,6 @@ namespace AgEitilt.Common.Storage {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// <para />
 		/// The default value of <paramref name="option"/> was chosen for
 		/// compatibility with the <c>Windows.Storage</c> implementation.
 		/// </remarks>
@@ -186,12 +162,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Moves and renames this file to the specified folder and name.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>.
-		/// </remarks>
 		/// 
 		/// <param name="destinationFolder">
 		/// The new location of this file.
@@ -228,19 +198,6 @@ namespace AgEitilt.Common.Storage {
 		/// <summary>
 		/// Opens a random-access stream over the file.
 		/// </summary>
-		/// 
-		/// <remarks>
-		/// Warning: This is not fully compatible with <c>Windows.Storage</c>
-		/// as it returns a <see cref="Task{TResult}"/> rather than the modern
-		/// <c>IAsyncOperation&lt;...&gt;</c>. Additionally, the value type
-		/// returned by awaiting that task is a <see cref="FileStream"/>
-		/// rather than a <c>IRandomAccessStream</c>; this is particularly
-		/// dangerous because the former doesn't guarantee as strongly that
-		/// reading from it will result in that number of bytes.
-		/// <para/>
-		/// TODO: Expand the package to include that interface, to avoid any
-		/// issues that may occur.
-		/// </remarks>
 		/// 
 		/// <param name="accessMode">The type of access to allow.</param>
 		/// 
