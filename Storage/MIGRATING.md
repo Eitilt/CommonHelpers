@@ -7,6 +7,10 @@ compatibility with, for example, C++. This document lists any such
 known differences that aren't backwards-compatible, and which may
 require the including code to be edited.
 
+For all elements, the `Windows.Storage` documentation generally does
+not describe what is thrown; exception handling may be assumed to not be
+compatible.
+
 ## IStorageFile
 See also `IStorageItem` and `IStorageFile2`
 - Async methods return `Task` or `Task<TResult>` objects rather than

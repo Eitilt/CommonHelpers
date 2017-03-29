@@ -14,6 +14,12 @@
             <summary>
             Throw an exception.
             </summary>
+            
+            <remarks>
+            <c>Windows.Storage</c> specifies that the exception will be a
+            <see cref="T:System.Exception"/>, but we can be more specific in the
+            exception type.
+            </remarks>
         </member>
         <member name="F:AgEitilt.Common.Storage.CreationCollisionOption.GenerateUniqueName">
             <summary>
@@ -61,7 +67,8 @@
             </summary>
             
             <value>
-            The file extension; for example, <c>jpg</c>.
+            The file extension; for example, <c>.jpg</c>, or null if this is
+            not included in the file name.
             </value>
         </member>
         <member name="M:AgEitilt.Common.Storage.IStorageFile.CopyAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)">
@@ -85,7 +92,7 @@
             
             <remarks>
             The default value of <paramref name="option"/> was chosen for
-            compatability with the <c>Windows.Storage</c> implementation.
+            compatibility with the <c>Windows.Storage</c> implementation.
             </remarks>
             
             <param name="destinationFolder">
@@ -218,31 +225,12 @@
             <seealso cref="M:AgEitilt.Common.Storage.IStorageItem.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
         </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageFile.OpenAsync(AgEitilt.Common.Storage.FileAccessMode)">
+        <member name="M:AgEitilt.Common.Storage.IStorageFile.OpenAsync(AgEitilt.Common.Storage.FileAccessMode,AgEitilt.Common.Storage.StorageOpenOptions)">
             <summary>
             Opens a random-access stream over the file.
             </summary>
             
             <param name="accessMode">The type of access to allow.</param>
-            
-            <returns>
-            A stream providing access to the data within the file, once the
-            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
-            </returns>
-            
-            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile2.OpenAsync(AgEitilt.Common.Storage.FileAccessMode,AgEitilt.Common.Storage.StorageOpenOptions)"/>
-        </member>
-        <member name="T:AgEitilt.Common.Storage.IStorageFile2">
-            <summary>
-            Provides additional methods for manipulating files.
-            </summary>
-        </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageFile2.OpenAsync(AgEitilt.Common.Storage.FileAccessMode,AgEitilt.Common.Storage.StorageOpenOptions)">
-            <summary>
-            Opens a random-access stream over the file.
-            </summary>
-            
-            <param name="accessMode">The type of access to request.</param>
             <param name="options">
             The allowed interactions between multiple streams reading from or
             writing to this file.
@@ -252,8 +240,6 @@
             A stream providing access to the data within the file, once the
             <see cref="T:System.Threading.Tasks.Task`1"/> completes.
             </returns>
-            
-            <seealso cref="M:AgEitilt.Common.Storage.IStorageFile.OpenAsync(AgEitilt.Common.Storage.FileAccessMode)"/>
         </member>
         <member name="T:AgEitilt.Common.Storage.IStorageFilePropertiesWithAvailability">
             <summary>
@@ -414,7 +400,7 @@
             </returns>
             
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.GetItemsAsync"/>
-            <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder2.TryGetItemAsync(System.String)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.TryGetItemAsync(System.String)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.GetFileAsync(System.String)"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.GetFolderAsync(System.String)"/>
         </member>
@@ -432,13 +418,7 @@
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.GetFilesAsync"/>
             <seealso cref="M:AgEitilt.Common.Storage.IStorageFolder.GetFoldersAsync"/>
         </member>
-        <member name="T:AgEitilt.Common.Storage.IStorageFolder2">
-            <summary>
-            Provides additional methods for manipulating folders and their
-            contents.
-            </summary>
-        </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageFolder2.TryGetItemAsync(System.String)">
+        <member name="M:AgEitilt.Common.Storage.IStorageFolder.TryGetItemAsync(System.String)">
             <summary>
             Try to get a single storage item from the current folder by using
             the name of the item.
@@ -542,6 +522,29 @@
             <see cref="T:System.Threading.Tasks.Task`1"/> completes.
             </returns>
         </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.GetParentAsync">
+            <summary>
+            Gets the folder containing this file.
+            </summary>
+            
+            <returns>
+            A handle to the folder, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.IStorageItem.IsEqual(AgEitilt.Common.Storage.IStorageItem)">
+            <summary>
+            Indicates whether this storage item and another refer to the same
+            file, and access it via the same path.
+            </summary>
+            
+            <param name="item">The storage item to compare against.</param>
+            
+            <returns>
+            <c>true</c> if the this file is equal to <paramref name="item"/>;
+            otherwise <c>false</c>.
+            </returns>
+        </member>
         <member name="M:AgEitilt.Common.Storage.IStorageItem.IsOfType(AgEitilt.Common.Storage.StorageItemTypes)">
             <summary>
             Determines whether the current item is of the specified type.
@@ -598,34 +601,6 @@
             
             <seealso cref="P:AgEitilt.Common.Storage.IStorageItem.Name"/>
         </member>
-        <member name="T:AgEitilt.Common.Storage.IStorageItem2">
-            <summary>
-            Provides additional information about files and folders.
-            </summary>
-        </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageItem2.GetParentAsync">
-            <summary>
-            Gets the folder containing this file.
-            </summary>
-            
-            <returns>
-            A handle to the folder, once the <see cref="T:System.Threading.Tasks.Task`1"/>
-            completes.
-            </returns>
-        </member>
-        <member name="M:AgEitilt.Common.Storage.IStorageItem2.IsEqual(AgEitilt.Common.Storage.IStorageItem)">
-            <summary>
-            Indicates whether this storage item and another refer to the same
-            file, and access it via the same path.
-            </summary>
-            
-            <param name="item">The storage item to compare against.</param>
-            
-            <returns>
-            <c>true</c> if the this file is equal to <paramref name="item"/>;
-            otherwise <c>false</c>.
-            </returns>
-        </member>
         <member name="T:AgEitilt.Common.Storage.IStorageItemProperties">
             <summary>
             Provides access to common properties on storage items and their
@@ -666,11 +641,6 @@
             
             <value>An object listing such properties.</value>
         </member>
-        <member name="T:AgEitilt.Common.Storage.IStorageItemProperties2">
-            <summary>
-            Provides methods to retrieve scaled thumbnail images.
-            </summary>
-        </member>
         <member name="T:AgEitilt.Common.Storage.IStorageItemPropertiesWithProvider">
             <summary>
             Provides access to information about the service providing this file.
@@ -692,6 +662,12 @@
             <summary>
             Throw an exception.
             </summary>
+            
+            <remarks>
+            <c>Windows.Storage</c> specifies that the exception will be a
+            <see cref="T:System.Exception"/>, but we can be more specific in the
+            exception type.
+            </remarks>
         </member>
         <member name="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName">
             <summary>
@@ -737,6 +713,32 @@
             This is an extension on the <c>Windows.System</c> enum.
             </remarks>
         </member>
+        <member name="T:AgEitilt.Common.Storage.Resources.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.Resources.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.Resources.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.Resources.Strings.Exception_FileNotFound">
+            <summary>
+              Looks up a localized string similar to File &quot;{0}&quot; does not exist or was deleted.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.Resources.Strings.Exception_FileNull">
+            <summary>
+              Looks up a localized string similar to Missing reference to file.
+            </summary>
+        </member>
         <member name="T:AgEitilt.Common.Storage.StorageDeleteOption">
             <summary>
             Specifies whether a deleted item is moved to the Recycle Bin (or the
@@ -767,6 +769,594 @@
             <summary>
             Permanently deletes the item. The item is not moved to the
             Recycle Bin.
+            </summary>
+        </member>
+        <member name="T:AgEitilt.Common.Storage.StorageFile">
+            <summary>
+            Provides methods to describe and manipulate a concrete file and its
+            contents.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageFile.file">
+            <summary>
+            A handle to the underlying file.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.CheckFile(System.Nullable{System.IO.FileAccess})">
+            <summary>
+            Ensure the file is in a valid state for access, throwing the
+            proper exception if it's not.
+            </summary>
+            
+            <param name="openMode">
+            Which type of access to determine the accessibility with, or
+            <c>null</c> if <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> should only be checked for field
+            presence (non-null).
+            </param>
+            
+            <returns>
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/>, if it can be safely accessed.
+            </returns>
+            
+            <exception cref="T:System.IO.FileNotFoundException">
+            <paramref name="openMode"/> is not null and <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/>
+            doesn't exist on the file system, probably due to deletion.
+            </exception>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageFile.mimeCache">
+            <summary>
+            The previous file type detected.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageFile.readingMime">
+            <summary>
+            The task detecting the file's MIME type, if one is in progress.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.ReadMimeAsync(System.Boolean)">
+            <summary>
+            Asynchronously detect the file's MIME type from its header.
+            </summary>
+            
+            <param name="useCached">
+            If <c>false</c>, recheck the type of the file; otherwise use the
+            last type detected.
+            </param>
+            
+            <returns>A task that completes once the type is read.</returns>
+            
+            <exception cref="T:System.IO.DirectoryNotFoundException">
+            The enclosing directory no longer exists, and can't use the cached
+            type.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> doesn't exist on the file system, probably due
+            to deletion, and can't use the cached type.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The file is unable to be read or is a directory, and can't use the
+            cached type.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.Attributes">
+            <summary>
+            Describes the properties of a storage item.
+            </summary>
+            
+            <value>The attributes of the file or folder.</value>
+            
+            <exception cref="T:System.IO.DirectoryNotFoundException">
+            The enclosing directory no longer exists.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The file is unable to be read, or is a directory.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.ContentType">
+            <summary>
+            Get the MIME type of the file contents.
+            </summary>
+            
+            <remarks>
+            If this is accessed shortly after the <see cref="T:AgEitilt.Common.Storage.StorageFile"/> is
+            created, this may be a long operation as this is being read from
+            the file on disk. It is saved after the first processing, however,
+            so later accesses are only slightly more than a direct field
+            access.
+            </remarks>
+            
+            <value>
+            The type in standard MIME format; for example, <c>audio/mpeg</c>.
+            </value>
+            
+            <exception cref="T:System.IO.DirectoryNotFoundException">
+            The enclosing directory no longer exists, and can't use the cached
+            type.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> not found, probably due to deletion, and can't
+            use the cached type.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The file is unable to be read or is a directory, and can't use the
+            cached type.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.StorageFile.DisplayType"/>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.DateCreated">
+            <summary>
+            Gets the date and time the current item was created.
+            </summary>
+            
+            <remarks>
+            For the date and time of the last edit, see
+            <see cref="M:AgEitilt.Common.Storage.StorageFile.GetBasicPropertiesAsync"/>.
+            </remarks>
+            
+            <value>
+            The date and time the current item was created, or <c>null</c> if
+            this information is not included on the file; for example (in
+            string format), "Fri Sep 16 13:47:08 PDT 2011".
+            </value>
+            
+            <exception cref="T:System.IO.DirectoryNotFoundException">
+            The enclosing directory no longer exists.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> doesn't exist on the file system, probably due
+            to deletion.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.DisplayName">
+            <summary>
+            Gets a user-friendly name for the file.
+            </summary>
+            
+            <remarks>
+            This will typically be <see cref="P:AgEitilt.Common.Storage.StorageFile.Name"/> stripped of
+            the last file extension.
+            </remarks>
+            
+            <value>
+            The user-friendly name.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.DisplayType">
+            <summary>
+            Gets a user-friendly description of the item's content.
+            </summary>
+            
+            <remarks>
+            For example, an image file might return "JPG image".
+            </remarks>
+            
+            <value>
+            The user-friendly type of content.
+            </value>
+            
+            <exception cref="T:System.IO.DirectoryNotFoundException">
+            The enclosing directory no longer exists, and can't use the cached
+            type.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> doesn't exist on the file system, probably due
+            to deletion, and can't use the cached type.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The file is unable to be read or is a directory, and can't use the
+            cached type.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.StorageFile.ContentType"/>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.FileType">
+            <summary>
+            Gets the extension of the file .
+            </summary>
+            
+            <remarks>
+            If the file has multiple extensions, only the last is returned.
+            <para/>
+            Do not rely on this to determine the file type; while it is the
+            primary indication of type on Windows systems, on other platforms
+            it may only provide a hint (for example, standard plaintext files
+            on Linux are typically not given any extension at all, but
+            <c>text.jpg</c> would be just as valid). If code depends on the
+            type of a file, <see cref="P:AgEitilt.Common.Storage.StorageFile.ContentType"/> should be used instead.
+            <para/>
+            TODO: Generate default extension based on MIME type, if it's not
+            included?
+            </remarks>
+            
+            <value>
+            The file extension; for example, <c>.jpg</c>, or null if this is
+            not included in the file name.
+            </value>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.IsAvailable">
+            <summary>
+            Indicates whether the file is located in an accessible location.
+            </summary>
+            
+            <remarks>TODO: Make this more robust.</remarks>
+            
+            <value>
+            <c>true</c> if the file is local (and all parent folders can be
+            read by this process), if it is cached locally, or if it can be
+            downloaded; otherwise, <c>false</c>.
+            </value>
+            
+            <exception cref="T:System.IO.FileNotFoundException">
+            <see cref="F:AgEitilt.Common.Storage.StorageFile.file"/> doesn't exist on the file system, probably due
+            to deletion, and can't use the cached type.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.Name">
+            <summary>
+            Gets the name of the storage item, including (if it exists) the
+            file extension.
+            </summary>
+            
+            <value>The full name of the file or folder.</value>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.Path">
+            <summary>
+            The full path of the file on the file system, if it is located in
+            such an accessible place.
+            </summary>
+            
+            <remarks>
+            Do not rely on this property to access an item because some items
+            may not have file-system paths. For example, if the item is backed
+            by a URI, or was picked using the file picker.
+            </remarks>
+            
+            <value>
+            The full path of the item (including its name), or an empty string
+            if it is not physically identifiable on the file system.
+            </value>
+            
+            <exception cref="T:System.IO.PathTooLongException">
+            The file path is longer than allowed by the system.
+            </exception>
+            <exception cref="T:System.UnauthorizedAccessException">
+            The file is unable to be read, or is a directory.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Storage.StorageFile.Properties">
+            <summary>
+            Gets a description of the properties of the contained content.
+            </summary>
+            
+            <value>An object listing such properties.</value>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.CopyAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)">
+            <summary>
+            Replaces the specified file with a copy of this file.
+            </summary>
+            
+            <param name="fileToReplace">The file to replace.</param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Creates a copy of this file in the specified folder.
+            </summary>
+            
+            <remarks>
+            The default value of <paramref name="option"/> was chosen for
+            compatibility with the <c>Windows.Storage</c> implementation.
+            </remarks>
+            
+            <param name="destinationFolder">
+            The folder where the copy will be created.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            this name already exists in <paramref name="destinationFolder"/>.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            A handle to the new file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Creates a copy of this file in the specified folder, under a new
+            name.
+            </summary>
+            
+            <param name="destinationFolder">
+            The folder where the copy will be created.
+            </param>
+            <param name="desiredName">
+            The name under which the copy will try to be saved. If a file of
+            this name already exists in <paramref name="destinationFolder"/>,
+            the behaviour is determined by <paramref name="option"/>.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by the
+            name of <paramref name="desiredName"/> already exists in
+            <paramref name="destinationFolder"/>.
+            <para />
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
+            </param>
+            
+            <returns>
+            A handle to the new file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.StorageFile.Name"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.CopyAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.DeleteAsync(AgEitilt.Common.Storage.StorageDeleteOption)">
+            <summary>
+            Removes the current item from disk.
+            </summary>
+            
+            <param name="option">
+            Whether to always skip the Recycle Bin and permanently delete the
+            item, or if that decision should rely on the default behaviour.
+            <para/>
+            Default value is the latter
+            (<see cref="F:AgEitilt.Common.Storage.StorageDeleteOption.Default"/>).
+            </param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.GetBasicPropertiesAsync">
+            <summary>
+            Gets the basic properties of the current item.
+            </summary>
+            
+            <returns>
+            The basic properties describing the item, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.GetFileFromPathAsync(System.String)">
+            <summary>
+            Gets an instance of <see cref="T:AgEitilt.Common.Storage.StorageFile"/> representing the
+            specified file.
+            </summary>
+            
+            <remarks>
+            Unlike the <c>Windows.Storage</c> implementation,
+            <paramref name="path"/> will correctly handle either <c>\</c> or
+            <c>/</c> as folder separators.
+            </remarks>
+            
+            <param name="path">The absolute path of the file.</param>
+            
+            <returns>
+            A handle to the file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.GetParentAsync">
+            <summary>
+            Gets the folder containing this file.
+            </summary>
+            
+            <returns>
+            A handle to the folder, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.IsEqual(AgEitilt.Common.Storage.IStorageItem)">
+            <summary>
+            Indicates whether this storage item and another refer to the same
+            file, and access it via the same path.
+            </summary>
+            
+            <param name="item">The storage item to compare against.</param>
+            
+            <returns>
+            <c>true</c> if the this file is equal to <paramref name="item"/>;
+            otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.IsOfType(AgEitilt.Common.Storage.StorageItemTypes)">
+            <summary>
+            Determines whether the current item is of the specified type.
+            </summary>
+            
+            <param name="type">The value to match against.</param>
+            
+            <returns>
+            <c>true</c> if the item is <paramref name="type"/>, otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)">
+            <summary>
+            Replaces the specified file with this file, removing the latter
+            from its current location.
+            </summary>
+            
+            <remarks>
+            This has the same result as calling
+            <see cref="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            with <c>desiredName</c> set to <see cref="P:AgEitilt.Common.Storage.StorageFile.Name"/> and
+            <c>option</c> left as the default value.
+            </remarks>
+            
+            <param name="fileToReplace">The file to replace.</param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.CopyAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Moves this file to the specified folder.
+            </summary>
+            
+            <remarks>
+            The default value of <paramref name="option"/> was chosen for
+            compatibility with the <c>Windows.Storage</c> implementation.
+            </remarks>
+            
+            <param name="destinationFolder">
+            The new location of this file.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by
+            this name already exists in <paramref name="destinationFolder"/>.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            A handle to the new file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+            
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,AgEitilt.Common.Storage.NameCollisionOption)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.MoveAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Moves and renames this file to the specified folder and name.
+            </summary>
+            
+            <param name="destinationFolder">
+            The new location of this file.
+            </param>
+            <param name="desiredName">
+            The name under which the item will try to be saved. If a file of
+            this name already exists in <paramref name="destinationFolder"/>,
+            the behaviour is determined by <paramref name="option"/>.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file or folder by the
+            name of <paramref name="desiredName"/> already exists in
+            <paramref name="destinationFolder"/>.
+            <para />
+            Default value is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.GenerateUniqueName"/>.
+            </param>
+            
+            <returns>
+            A handle to the new file, once the <see cref="T:System.Threading.Tasks.Task`1"/>
+            completes.
+            </returns>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.StorageFile.Name"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.CopyAsync(AgEitilt.Common.Storage.IStorageFolder,System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)"/>
+            <seealso cref="M:AgEitilt.Common.Storage.StorageFile.MoveAndReplaceAsync(AgEitilt.Common.Storage.IStorageFile)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.OpenAsync(AgEitilt.Common.Storage.FileAccessMode,AgEitilt.Common.Storage.StorageOpenOptions)">
+            <summary>
+            Opens a random-access stream over the file.
+            </summary>
+            
+            <param name="accessMode">The type of access to allow.</param>
+            <param name="options">
+            The allowed interactions between multiple streams reading from or
+            writing to this file.
+            </param>
+            
+            <returns>
+            A stream providing access to the data within the file, once the
+            <see cref="T:System.Threading.Tasks.Task`1"/> completes.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Storage.StorageFile.RenameAsync(System.String,AgEitilt.Common.Storage.NameCollisionOption)">
+            <summary>
+            Renames the current item.
+            </summary>
+            
+            <param name="desiredName">
+            The name under which the item will try to be saved. If a file of
+            this name already exists in this folder, the behaviour is
+            determined by <paramref name="option"/>.
+            </param>
+            <param name="option">
+            The method used to handle situations where a file by the name of
+            <paramref name="desiredName"/> already exists in this folder.
+            <para />
+            Default value is <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </param>
+            
+            <returns>
+            An awaitable <see cref="T:System.Threading.Tasks.Task"/>, with no associated value.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="desiredName"/> is null.
+            </exception>
+            <exception cref="T:System.InvalidOperationException">
+            A file by the name of <paramref name="desiredName"/> already
+            exists and <paramref name="option"/> is
+            <see cref="F:AgEitilt.Common.Storage.NameCollisionOption.FailIfExists"/>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="desiredName"/> (as appended to the folder path) is
+            longer than allowed by the file system.
+            </exception>
+            <exception cref="T:System.FormatException">
+            <paramref name="desiredName"/> is not a valid name for the file
+            system.
+            </exception>
+            <exception cref="T:System.IO.FileNotFoundException">
+            This file is deleted before the returned <see cref="T:System.Threading.Tasks.Task"/>
+            finishes.
+            </exception>
+            
+            <seealso cref="P:AgEitilt.Common.Storage.StorageFile.Name"/>
+        </member>
+        <member name="T:AgEitilt.Common.Storage.StorageItemTypes">
+            <summary>
+            Describes whether a storage item is a file or a folder.
+            </summary>
+            
+            <remarks>
+            This method is useful for processing the results from a method that
+            returns <see cref="T:AgEitilt.Common.Storage.IStorageItem"/> instances that can be files or
+            folders. To work with the returned items, call the
+            <see cref="M:AgEitilt.Common.Storage.IStorageItem.IsOfType(AgEitilt.Common.Storage.StorageItemTypes)"/> method to
+            determine whether each item is a file or a folder, then cast the item
+            to the proper implementation.
+            </remarks>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageItemTypes.File">
+            <summary>
+            A file that is represented as a <see cref="T:AgEitilt.Common.Storage.StorageFile"/>
+            instance.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageItemTypes.Folder">
+            <summary>
+            A file that is represented as a <see cref="T:AgEitilt.Common.Storage.StorageFolder"/>
+            instance.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Storage.StorageItemTypes.None">
+            <summary>
+            A storage item that is neither a file nor a folder.
             </summary>
         </member>
         <member name="T:AgEitilt.Common.Storage.StorageOpenOptions">

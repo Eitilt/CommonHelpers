@@ -1,6 +1,9 @@
 ﻿using System;
 using System.IO;
+using System.Security;
 using System.Threading.Tasks;
+using MimeDetective;
+using MimeDetective.Extensions;
 
 namespace AgEitilt.Common.Storage {
 	/// <summary>
@@ -9,20 +12,147 @@ namespace AgEitilt.Common.Storage {
 	/// </summary>
 	public class StorageFile : IStorageItem, IStorageItemPropertiesWithProvider, IStorageFile, IStorageFilePropertiesWithAvailability {
 		/// <summary>
+		/// A handle to the underlying file.
+		/// </summary>
+		FileInfo file = null;
+		/// <summary>
+		/// Ensure the file is in a valid state for access, throwing the
+		/// proper exception if it's not.
+		/// </summary>
+		/// 
+		/// <param name="openMode">
+		/// Which type of access to determine the accessibility with, or
+		/// <c>null</c> if <see cref="file"/> should only be checked for field
+		/// presence (non-null).
+		/// </param>
+		/// 
+		/// <returns>
+		/// <see cref="file"/>, if it can be safely accessed.
+		/// </returns>
+		/// 
+		/// <exception cref="FileNotFoundException">
+		/// <paramref name="openMode"/> is not null and <see cref="file"/>
+		/// doesn't exist on the file system, probably due to deletion.
+		/// </exception>
+		FileInfo CheckFile(FileAccess? openMode = null) {
+			if (file == null)
+				// Internal error, and so not declared
+				throw new MissingFieldException(Resources.Strings.Exception_FileNull);
+			if ((openMode.HasValue) && (file.Exists == false)) {
+				throw new FileNotFoundException(
+					String.Format(Resources.Strings.Exception_FileNotFound, file.Name),
+					file.FullName
+				);
+			}
+
+			return file;
+		}
+
+		/// <summary>
+		/// The previous file type detected.
+		/// </summary>
+		FileType mimeCache = null;
+		/// <summary>
+		/// The task detecting the file's MIME type, if one is in progress.
+		/// </summary>
+		Task<FileType> readingMime = null;
+		/// <summary>
+		/// Asynchronously detect the file's MIME type from its header.
+		/// </summary>
+		/// 
+		/// <param name="useCached">
+		/// If <c>false</c>, recheck the type of the file; otherwise use the
+		/// last type detected.
+		/// </param>
+		/// 
+		/// <returns>A task that completes once the type is read.</returns>
+		/// 
+		/// <exception cref="DirectoryNotFoundException">
+		/// The enclosing directory no longer exists, and can't use the cached
+		/// type.
+		/// </exception>
+		/// <exception cref="FileNotFoundException">
+		/// <see cref="file"/> doesn't exist on the file system, probably due
+		/// to deletion, and can't use the cached type.
+		/// </exception>
+		/// <exception cref="UnauthorizedAccessException">
+		/// The file is unable to be read or is a directory, and can't use the
+		/// cached type.
+		/// </exception>
+		async Task<FileType> ReadMimeAsync(bool useCached = true) {
+			if (useCached && (mimeCache != null)) {
+				return mimeCache;
+			} else if (readingMime == null) {
+				//TODO: Make test-and-set atomic
+				//TODO: Get around throwing IOException if already opened
+				readingMime = CheckFile(FileAccess.Read).OpenRead().GetFileTypeAsync();
+
+				mimeCache = await readingMime;
+				// Reset flag to indicate work is completed
+				readingMime = null;
+
+				return mimeCache;
+			} else {
+				return await readingMime;
+			}
+		}
+
+		/// <summary>
 		/// Describes the properties of a storage item.
 		/// </summary>
 		/// 
 		/// <value>The attributes of the file or folder.</value>
-		public FileAttributes Attributes => throw new NotImplementedException();
+		/// 
+		/// <exception cref="DirectoryNotFoundException">
+		/// The enclosing directory no longer exists.
+		/// </exception>
+		/// <exception cref="UnauthorizedAccessException">
+		/// The file is unable to be read, or is a directory.
+		/// </exception>
+		public FileAttributes Attributes {
+			get {
+				try {
+					//TODO: Cut down on the thrown exceptions
+					return CheckFile().Attributes;
+				} catch (SecurityException e) {
+					// Rewrap to better follow other signatures
+					throw new UnauthorizedAccessException(e.Message, e);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Get the MIME type of the file contents.
 		/// </summary>
 		/// 
+		/// <remarks>
+		/// If this is accessed shortly after the <see cref="StorageFile"/> is
+		/// created, this may be a long operation as this is being read from
+		/// the file on disk. It is saved after the first processing, however,
+		/// so later accesses are only slightly more than a direct field
+		/// access.
+		/// </remarks>
+		/// 
 		/// <value>
 		/// The type in standard MIME format; for example, <c>audio/mpeg</c>.
 		/// </value>
-		public string ContentType => throw new NotImplementedException();
+		/// 
+		/// <exception cref="DirectoryNotFoundException">
+		/// The enclosing directory no longer exists, and can't use the cached
+		/// type.
+		/// </exception>
+		/// <exception cref="FileNotFoundException">
+		/// <see cref="file"/> not found, probably due to deletion, and can't
+		/// use the cached type.
+		/// </exception>
+		/// <exception cref="UnauthorizedAccessException">
+		/// The file is unable to be read or is a directory, and can't use the
+		/// cached type.
+		/// </exception>
+		/// 
+		/// <seealso cref="DisplayType"/>
+		public string ContentType =>
+			ReadMimeAsync().Result.Mime;
 
 		/// <summary>
 		/// Gets the date and time the current item was created.
@@ -38,7 +168,35 @@ namespace AgEitilt.Common.Storage {
 		/// this information is not included on the file; for example (in
 		/// string format), "Fri Sep 16 13:47:08 PDT 2011".
 		/// </value>
-		public DateTimeOffset? DateCreated => throw new NotImplementedException();
+		/// 
+		/// <exception cref="DirectoryNotFoundException">
+		/// The enclosing directory no longer exists.
+		/// </exception>
+		/// <exception cref="FileNotFoundException">
+		/// <see cref="file"/> doesn't exist on the file system, probably due
+		/// to deletion.
+		/// </exception>
+		public DateTimeOffset? DateCreated {
+			get {
+				try {
+					return new DateTimeOffset(CheckFile().CreationTimeUtc);
+				} catch (DirectoryNotFoundException e) {
+					// Want to only handle IOExceptions below, so need to
+					// include this case to not be overzealous
+					throw e;
+				} catch (IOException e) {
+					/* Potentially not always as correct, but makes external
+					 * exception handling simpler, and the documentation
+					 * implies it's the rough semantics.
+					 */
+					throw new FileNotFoundException(e.Message, e);
+				} catch (PlatformNotSupportedException) {
+					//TODO: Try to get this in other manners for
+					// non-Windows NT platforms
+					return null;
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets a user-friendly name for the file.
@@ -46,14 +204,14 @@ namespace AgEitilt.Common.Storage {
 		/// 
 		/// <remarks>
 		/// This will typically be <see cref="Name"/> stripped of
-		/// any file extension.
+		/// the last file extension.
 		/// </remarks>
 		/// 
 		/// <value>
 		/// The user-friendly name.
 		/// </value>
 		public string DisplayName =>
-			Name?.Split(new char[1] { '.' }, StringSplitOptions.RemoveEmptyEntries)?[0];
+			Name.Substring(0, Name.Length - (FileType?.Length ?? 0));
 
 		/// <summary>
 		/// Gets a user-friendly description of the item's content.
@@ -66,11 +224,42 @@ namespace AgEitilt.Common.Storage {
 		/// <value>
 		/// The user-friendly type of content.
 		/// </value>
-		public string DisplayType => throw new NotImplementedException();
+		/// 
+		/// <exception cref="DirectoryNotFoundException">
+		/// The enclosing directory no longer exists, and can't use the cached
+		/// type.
+		/// </exception>
+		/// <exception cref="FileNotFoundException">
+		/// <see cref="file"/> doesn't exist on the file system, probably due
+		/// to deletion, and can't use the cached type.
+		/// </exception>
+		/// <exception cref="UnauthorizedAccessException">
+		/// The file is unable to be read or is a directory, and can't use the
+		/// cached type.
+		/// </exception>
+		/// 
+		/// <seealso cref="ContentType"/>
+		public string DisplayType =>
+			//TODO: Actually parse this into readable resources
+			ContentType;
 
 		/// <summary>
-		/// Gets the type of the file as declared by its extension.
+		/// Gets the extension of the file .
 		/// </summary>
+		/// 
+		/// <remarks>
+		/// If the file has multiple extensions, only the last is returned.
+		/// <para/>
+		/// Do not rely on this to determine the file type; while it is the
+		/// primary indication of type on Windows systems, on other platforms
+		/// it may only provide a hint (for example, standard plaintext files
+		/// on Linux are typically not given any extension at all, but
+		/// <c>text.jpg</c> would be just as valid). If code depends on the
+		/// type of a file, <see cref="ContentType"/> should be used instead.
+		/// <para/>
+		/// TODO: Generate default extension based on MIME type, if it's not
+		/// included?
+		/// </remarks>
 		/// 
 		/// <value>
 		/// The file extension; for example, <c>.jpg</c>, or null if this is
@@ -78,14 +267,8 @@ namespace AgEitilt.Common.Storage {
 		/// </value>
 		public string FileType {
 			get {
-				var split = Name?.Split(new char[1] { '.' }, StringSplitOptions.RemoveEmptyEntries);
-
-				if (split == null)
-					return null;
-				else if (split.Length == 1)
-					return null;
-				else
-					return split[split.Length - 1];
+				var ext = CheckFile().Extension;
+				return (ext.Length == 0 ? ext : null);
 			}
 		}
 
@@ -93,12 +276,28 @@ namespace AgEitilt.Common.Storage {
 		/// Indicates whether the file is located in an accessible location.
 		/// </summary>
 		/// 
+		/// <remarks>TODO: Make this more robust.</remarks>
+		/// 
 		/// <value>
 		/// <c>true</c> if the file is local (and all parent folders can be
 		/// read by this process), if it is cached locally, or if it can be
 		/// downloaded; otherwise, <c>false</c>.
 		/// </value>
-		public bool IsAvailable => throw new NotImplementedException();
+		/// 
+		/// <exception cref="FileNotFoundException">
+		/// <see cref="file"/> doesn't exist on the file system, probably due
+		/// to deletion, and can't use the cached type.
+		/// </exception>
+		public bool IsAvailable {
+			get {
+				try {
+					CheckFile(FileAccess.Read);
+				} catch (FileNotFoundException) {
+					return false;
+				}
+				return true;
+			}
+		}
 
 		/// <summary>
 		/// Gets the name of the storage item, including (if it exists) the
@@ -108,7 +307,8 @@ namespace AgEitilt.Common.Storage {
 		/// <value>The full name of the file or folder.</value>
 		/// 
 		/// <seealso cref="RenameAsync(string, NameCollisionOption)"/>
-		public string Name => throw new NotImplementedException();
+		public string Name =>
+			CheckFile().Name;
 
 		/// <summary>
 		/// The full path of the file on the file system, if it is located in
@@ -125,7 +325,23 @@ namespace AgEitilt.Common.Storage {
 		/// The full path of the item (including its name), or an empty string
 		/// if it is not physically identifiable on the file system.
 		/// </value>
-		public string Path => throw new NotImplementedException();
+		/// 
+		/// <exception cref="PathTooLongException">
+		/// The file path is longer than allowed by the system.
+		/// </exception>
+		/// <exception cref="UnauthorizedAccessException">
+		/// The file is unable to be read, or is a directory.
+		/// </exception>
+		public string Path {
+			get {
+				try {
+					return CheckFile().FullName;
+				} catch (SecurityException e) {
+					// Rewrap to better follow other signatures
+					throw new UnauthorizedAccessException(e.Message, e);
+				}
+			}
+		}
 
 		/// <summary>
 		/// Gets a description of the properties of the contained content.
