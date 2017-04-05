@@ -11,10 +11,44 @@ namespace AgEitilt.Common.Storage {
 	/// contents.
 	/// </summary>
 	public class StorageFile : IStorageItem, IStorageItemPropertiesWithProvider, IStorageFile, IStorageFilePropertiesWithAvailability {
+#if UWP
+		/// <summary>
+		/// A handle to the underlying file.
+		/// </summary>
+		Windows.Storage.StorageFile file = null;
+
+		/// <summary>
+		/// Ensure the file is in a valid state for access, throwing the
+		/// proper exception if it's not.
+		/// </summary>
+		/// 
+		/// <param name="openMode">
+		/// Which type of access to determine the accessibility with, or
+		/// <c>null</c> if <see cref="file"/> should only be checked for field
+		/// presence (non-null).
+		/// </param>
+		/// 
+		/// <returns>
+		/// <see cref="file"/>, if it can be safely accessed.
+		/// </returns>
+		/// 
+		/// <exception cref="FileNotFoundException">
+		/// <paramref name="openMode"/> is not null and <see cref="file"/>
+		/// doesn't exist on the file system, probably due to deletion.
+		/// </exception>
+		Windows.Storage.StorageFile CheckFile(FileAccess? openMode = null) {
+			if (file == null)
+				// Internal error, and so not declared
+				throw new MissingFieldException(Resources.Strings.Exception_FileNull);
+
+			return file;
+		}
+#else
 		/// <summary>
 		/// A handle to the underlying file.
 		/// </summary>
 		FileInfo file = null;
+
 		/// <summary>
 		/// Ensure the file is in a valid state for access, throwing the
 		/// proper exception if it's not.
@@ -47,6 +81,7 @@ namespace AgEitilt.Common.Storage {
 
 			return file;
 		}
+#endif
 
 		/// <summary>
 		/// The previous file type detected.
@@ -84,8 +119,12 @@ namespace AgEitilt.Common.Storage {
 				return mimeCache;
 			} else if (readingMime == null) {
 				//TODO: Make test-and-set atomic
+#if UWP
+				readingMime = await (await CheckFile(FileAccess.Read).OpenReadAsync()).GetFileTypeAsync(stream);
+#else
 				//TODO: Get around throwing IOException if already opened
 				readingMime = CheckFile(FileAccess.Read).OpenRead().GetFileTypeAsync();
+#endif
 
 				mimeCache = await readingMime;
 				// Reset flag to indicate work is completed
@@ -179,7 +218,11 @@ namespace AgEitilt.Common.Storage {
 		public DateTimeOffset? DateCreated {
 			get {
 				try {
+#if UWP
+					return CheckFile().DateCreated;
+#else
 					return new DateTimeOffset(CheckFile().CreationTimeUtc);
+#endif
 				} catch (DirectoryNotFoundException e) {
 					// Want to only handle IOExceptions below, so need to
 					// include this case to not be overzealous
@@ -267,7 +310,11 @@ namespace AgEitilt.Common.Storage {
 		/// </value>
 		public string FileType {
 			get {
+#if UWP
+				var ext = CheckFile().FileType;
+#else
 				var ext = CheckFile().Extension;
+#endif
 				return (ext.Length == 0 ? ext : null);
 			}
 		}
@@ -335,7 +382,11 @@ namespace AgEitilt.Common.Storage {
 		public string Path {
 			get {
 				try {
+#if UWP
+					return CheckFile().Path;
+#else
 					return CheckFile().FullName;
+#endif
 				} catch (SecurityException e) {
 					// Rewrap to better follow other signatures
 					throw new UnauthorizedAccessException(e.Message, e);
