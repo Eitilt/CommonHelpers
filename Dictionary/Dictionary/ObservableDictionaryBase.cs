@@ -149,6 +149,7 @@ namespace AgEitilt.Common.Dictionary {
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
+			OnAdding(item);
 
 			action.Invoke();
 
@@ -174,74 +175,114 @@ namespace AgEitilt.Common.Dictionary {
 			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
-		/// is added to <see cref="Dictionary"/>.
+		/// is just about to be added to <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="item">The new item.</param>
+		protected virtual void OnAdding(KeyValuePair<TKey, TValue> item) { }
+		/// <summary>
+		/// Perform any implementation-specific event handling when a new item
+		/// has been added to <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The new item.</param>
 		protected virtual void OnAdd(KeyValuePair<TKey, TValue> item) { }
 
 		/// <summary>
-		/// Notify all relevant listeners that some item is just about to be
-		/// removed from the <see cref="Dictionary"/>.
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="item">The removed item.</param>
-		protected void SendRemovingEvents(KeyValuePair<TKey, TValue> item) {
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) {
+			if (preTest()) {
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
+				OnRemoving(item);
+			}
 
-			OnRemoving(item);
+			if (action()) {
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Remove,
+					item
+				));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+
+				OnRemove(item);
+
+				return true;
+			} else {
+				return false;
+			}
 		}
 		/// <summary>
-		/// Notify all relevant listeners that some item is just about to be
-		/// removed from the <see cref="Dictionary"/>.
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="key">
 		/// The key previously associated with the item.
 		/// </param>
 		/// <param name="value">The value of the item.</param>
-		protected void SendRemovingEvents(TKey key, TValue value) =>
-			SendRemovingEvents(new KeyValuePair<TKey, TValue>(key, value));
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue value) =>
+			SendRemoveEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
-		/// Perform any implementation-specific event handling when an item is
-		/// just about to be removed from <see cref="Dictionary"/>.
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
+		protected void SendRemoveEvents(Action action, TKey key, TValue value) {
+			Func<bool> dummyAction = (() => {
+				action();
+				return true;
+			});
+			SendRemoveEvents((() => true), dummyAction, key, value);
+		}
+		/// <summary>
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="item">The removed item.</param>
+		protected void SendRemoveEvents(Action action, KeyValuePair<TKey, TValue> item) {
+			Func<bool> dummyAction = (() => {
+				action();
+				return true;
+			});
+			SendRemoveEvents((() => true), dummyAction, item);
+		}
+		/// <summary>
+		/// Perform any implementation-specific event handling when an item
+		/// is just about to be removed from <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The removed item.</param>
 		protected virtual void OnRemoving(KeyValuePair<TKey, TValue> item) { }
-
-		/// <summary>
-		/// Notify all relevant listeners that some item has been removed from
-		/// the <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="item">The removed item.</param>
-		protected void SendRemoveEvents(KeyValuePair<TKey, TValue> item) {
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Remove,
-				item
-			));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-
-			OnRemove(item);
-		}
-		/// <summary>
-		/// Notify all relevant listeners that some item has been removed from
-		/// the <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="key">
-		/// The key previously associated with the item.
-		/// </param>
-		/// <param name="value">The value of the item.</param>
-		protected void SendRemoveEvents(TKey key, TValue value) =>
-			SendRemoveEvents(new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// has been removed from <see cref="Dictionary"/>.
@@ -269,6 +310,7 @@ namespace AgEitilt.Common.Dictionary {
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 #endif
+			OnReplacing(newItem, oldItem);
 
 			action.Invoke();
 
@@ -300,7 +342,20 @@ namespace AgEitilt.Common.Dictionary {
 			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item is
-		/// changed in <see cref="Dictionary"/>.
+		/// just about to be changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="newItem">
+		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// </param>
+		/// <param name="oldItem">
+		/// The item as it was previously represented in
+		/// <see cref="Dictionary"/>.
+		/// </param>
+		protected virtual void OnReplacing(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) { }
+		/// <summary>
+		/// Perform any implementation-specific event handling when an item
+		/// has been changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="newItem">
@@ -318,15 +373,13 @@ namespace AgEitilt.Common.Dictionary {
 		/// </summary>
 		/// 
 		/// <param name="action">The action that causes the reset.</param>
-		/// <param name="oldItems">
-		/// The items previously contained in <see cref="Dictionary"/>.
-		/// </param>
-		protected void SendResetEvents(Action action, IList oldItems) {
+		protected void SendResetEvents(Action action) {
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
+			OnResetting();
 
 			action.Invoke();
 
@@ -337,18 +390,19 @@ namespace AgEitilt.Common.Dictionary {
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
 
-			OnReset(oldItems);
+			OnReset();
 		}
 		/// <summary>
 		/// Perform any implementation-specific event handling when
-		/// <see cref="Dictionary"/> is cleared.
+		/// <see cref="Dictionary"/> is just about to be cleared.
 		/// </summary>
-		/// 
-		/// <param name="oldItems">
-		/// The items previously contained in <see cref="Dictionary"/>.
-		/// </param>
-		protected virtual void OnReset(IList oldItems) { }
-#endregion
+		protected virtual void OnResetting() { }
+		/// <summary>
+		/// Perform any implementation-specific event handling when
+		/// <see cref="Dictionary"/> has been cleared.
+		/// </summary>
+		protected virtual void OnReset() { }
+		#endregion
 
 		/// <summary>
 		/// Gets or sets the element with the specified key.
@@ -751,7 +805,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <seealso cref="IsReadOnly"/>
 		public void Clear() {
 			IList oldItems = Dictionary.ToList();
-			SendResetEvents((() => Dictionary.Clear()), oldItems);
+			SendResetEvents(() => Dictionary.Clear());
 		}
 		/// <summary>
 		/// Removes all items from the <see cref="IDictionary"/>.
@@ -762,7 +816,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		void IDictionary.Clear() => Clear();
+		void IDictionary.Clear() =>
+			Clear();
 
 		/// <summary>
 		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
@@ -950,14 +1005,9 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public bool Remove(TKey key) {
-			if (Dictionary.TryGetValue(key, out TValue oldValue))
-				SendRemovingEvents(key, oldValue);
+			var containedKey = Dictionary.TryGetValue(key, out TValue oldValue);
 
-			bool removed = Dictionary.Remove(key);
-			if (removed)
-				SendRemoveEvents(key, oldValue);
-
-			return removed;
+			return SendRemoveEvents((() => containedKey), (() => Dictionary.Remove(key)), key, oldValue);
 		}
 		/// <summary>
 		/// Removes the element with the specified key from the
@@ -979,16 +1029,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		public bool Remove(KeyValuePair<TKey, TValue> item) {
-			if (Dictionary.Contains(item))
-				SendRemovingEvents(item);
-
-			bool removed = Dictionary.Remove(item);
-			if (removed)
-				SendRemoveEvents(item);
-
-			return removed;
-		}
+		public bool Remove(KeyValuePair<TKey, TValue> item) =>
+			SendRemoveEvents((() => Dictionary.Contains(item)), (() => Dictionary.Remove(item)), item);
 		/// <summary>
 		/// Removes the element with the specified key from the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
@@ -1021,12 +1063,7 @@ namespace AgEitilt.Common.Dictionary {
 			bool containedKey = converted.Contains(key);
 			object oldValue = (containedKey ? converted[key] : null);
 
-			if (containedKey)
-				SendRemovingEvents((TKey)key, (TValue)oldValue);
-
-			converted.Remove(key);
-			if (containedKey)
-				SendRemoveEvents((TKey)key, (TValue)oldValue);
+			SendRemoveEvents((() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
 		}
 
 		/// <summary>
