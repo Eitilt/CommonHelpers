@@ -3,6 +3,10 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/.
  */
 
+#if (!NETSTANDARD1_0 && !NETSTANDARD1_1)
+#define SUPPORT_PROPERTYCHANGING_EVENT
+#endif
+
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -14,6 +18,39 @@ namespace AgEitilt.Common.Dictionary {
 	//TODO: Build another around ConcurrentDictionary for .NETStandard >= 1.1
 	// See <https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets> and
 	// <https://docs.microsoft.com/en-us/nuget/create-packages/supporting-multiple-target-frameworks>
+
+	/// <summary>
+	/// Represents a generic read-only collection of key/value pairs while
+	/// notifying listeners when those contents change.
+	/// </summary>
+	/// 
+	/// <remarks>
+	/// Each element is a key/value pair stored in a
+	/// <see cref="KeyValuePair{TKey, TValue}"/> object. When iterated using a
+	/// <c>foreach</c> loop (<c>For Each</c> in Visual Basic, <c>for each</c>
+	/// in C++), the enumerated objects are therefore of that type rather than
+	/// either <typeparamref name="TKey"/> or <typeparamref name="TValue"/>.
+	/// <para/>
+	/// Each pair must have a unique key. Implementations can vary in whether
+	/// they allow that key to be <c>null</c>. The value can be <c>null</c>
+	/// and does not have to be unique. The generic
+	/// <see cref="ObservableDictionaryBase{TKey, TValue}"/> allows the
+	/// contained keys and values to be enumerated, but it does not imply any
+	/// particular sort order.
+	/// </remarks>
+	/// 
+	/// <typeparam name="TKey">
+	/// The type of keys in the dictionary.
+	/// </typeparam>
+	/// <typeparam name="TValue">
+	/// The type of values in the dictionary.
+	/// </typeparam>
+	public interface IObservableReadOnlyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>,
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+		INotifyPropertyChanging,
+#endif
+		INotifyCollectionChanged, INotifyPropertyChanged { }
+
 
 	/// <summary>
 	/// Represents a collection of keys and values while notifying listeners
@@ -34,8 +71,6 @@ namespace AgEitilt.Common.Dictionary {
 	/// <see cref="ObservableDictionaryBase{TKey, TValue}"/> allows the
 	/// contained keys and values to be enumerated, but it does not imply any
 	/// particular sort order.
-	/// <para/>
-	/// TODO: May as well add INotifyPropertyChanging for .NETStandard >= 1.3
 	/// </remarks>
 	/// 
 	/// <typeparam name="TKey">
@@ -45,10 +80,9 @@ namespace AgEitilt.Common.Dictionary {
 	/// The type of values in the dictionary.
 	/// </typeparam>
 	public abstract class ObservableDictionaryBase<TKey, TValue>
-		: IDictionary, IDictionary<TKey, TValue>, IReadOnlyDictionary<TKey, TValue>,
+		: IDictionary, IDictionary<TKey, TValue>, IObservableReadOnlyDictionary<TKey, TValue>,
 		  ICollection, ICollection<KeyValuePair<TKey, TValue>>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>,
-		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,
-		  INotifyCollectionChanged, INotifyPropertyChanged {
+		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>> {
 		/// <summary>
 		/// Retrieve a reference to the underlying
 		/// <see cref="IDictionary{TKey, TValue}"/> used by the particular
@@ -60,13 +94,64 @@ namespace AgEitilt.Common.Dictionary {
 		/// </value>
 		abstract protected IDictionary<TKey, TValue> Dictionary { get; }
 
+#region Content change event handling
 		/// <summary>
-		/// Notify all relevant listeners that some item was added to the
+		/// Occurs when the collection changes.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// If the sent <see cref="NotifyCollectionChangedEventArgs"/> is of
+		/// type <see cref="NotifyCollectionChangedAction.Add"/>,
+		/// <see cref="NotifyCollectionChangedAction.Remove"/>, or
+		/// <see cref="NotifyCollectionChangedAction.Replace"/>,
+		/// <see cref="NotifyCollectionChangedEventArgs.NewItems"/> and (if
+		/// applicable) <see cref="NotifyCollectionChangedEventArgs.OldItems"/>
+		/// are guaranteed to be an <see cref="IList"/> of
+		/// <see cref="KeyValuePair{TKey, TValue}"/> objects parameterized to
+		/// <typeparamref name="TKey"/> and <typeparamref name="TValue"/>.
+		/// </remarks>
+		public event NotifyCollectionChangedEventHandler CollectionChanged;
+		/// <summary>
+		/// Occurs when a property value changes.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// The <c>PropertyChanged</c> event can indicate all properties on
+		/// the object have changed by using either <c>null</c> or
+		/// <see cref="String.Empty"/> as the property name in the
+		/// <see cref="PropertyChangedEventArgs"/>.
+		/// </remarks>
+		public event PropertyChangedEventHandler PropertyChanged;
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+		/// <summary>
+		/// Occurs just before a property value changes.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// The <c>PropertyChanging</c> event can indicate all properties on
+		/// the object have changed by using either <c>null</c> or
+		/// <see cref="String.Empty"/> as the property name in the
+		/// <see cref="PropertyChangingEventArgs"/>.
+		/// </remarks>
+		public event PropertyChangingEventHandler PropertyChanging;
+#endif
+
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="action">The action that causes the addition.</param>
 		/// <param name="item">The new item.</param>
-		private void SendAddEvent(KeyValuePair<TKey, TValue> item) {
+		protected void SendAddEvents(Action action, KeyValuePair<TKey, TValue> item) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+#endif
+
+			action.Invoke();
+
 			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
 				NotifyCollectionChangedAction.Add,
 				item
@@ -78,17 +163,15 @@ namespace AgEitilt.Common.Dictionary {
 			OnAdd(item);
 		}
 		/// <summary>
-		/// Notify all relevant listeners that some item was added to the
+		/// Notify all relevant listeners that some item is added to the
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="key">
-		/// The key at which the item was added.
-		/// </param>
-		/// <param name="value">
-		/// The value of the new item.
-		/// </param>
-		private void SendAddEvent(TKey key, TValue value) => SendAddEvent(new KeyValuePair<TKey, TValue>(key, value));
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="key">The key at which the item is added.</param>
+		/// <param name="value">The value of the new item.</param>
+		protected void SendAddEvents(Action action, TKey key, TValue value) =>
+			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
 		/// is added to <see cref="Dictionary"/>.
@@ -98,12 +181,46 @@ namespace AgEitilt.Common.Dictionary {
 		protected virtual void OnAdd(KeyValuePair<TKey, TValue> item) { }
 
 		/// <summary>
-		/// Notify all relevant listeners that some item was removed from the
-		/// <see cref="Dictionary"/>.
+		/// Notify all relevant listeners that some item is just about to be
+		/// removed from the <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The removed item.</param>
-		private void SendRemoveEvent(KeyValuePair<TKey, TValue> item) {
+		protected void SendRemovingEvents(KeyValuePair<TKey, TValue> item) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+#endif
+
+			OnRemoving(item);
+		}
+		/// <summary>
+		/// Notify all relevant listeners that some item is just about to be
+		/// removed from the <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
+		protected void SendRemovingEvents(TKey key, TValue value) =>
+			SendRemovingEvents(new KeyValuePair<TKey, TValue>(key, value));
+		/// <summary>
+		/// Perform any implementation-specific event handling when an item is
+		/// just about to be removed from <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="item">The removed item.</param>
+		protected virtual void OnRemoving(KeyValuePair<TKey, TValue> item) { }
+
+		/// <summary>
+		/// Notify all relevant listeners that some item has been removed from
+		/// the <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="item">The removed item.</param>
+		protected void SendRemoveEvents(KeyValuePair<TKey, TValue> item) {
 			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
 				NotifyCollectionChangedAction.Remove,
 				item
@@ -115,20 +232,19 @@ namespace AgEitilt.Common.Dictionary {
 			OnRemove(item);
 		}
 		/// <summary>
-		/// Notify all relevant listeners that some item was removed from the
-		/// <see cref="Dictionary"/>.
+		/// Notify all relevant listeners that some item has been removed from
+		/// the <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="key">
 		/// The key previously associated with the item.
 		/// </param>
-		/// <param name="value">
-		/// The value of the item.
-		/// </param>
-		private void SendRemoveEvent(TKey key, TValue value) => SendRemoveEvent(new KeyValuePair<TKey, TValue>(key, value));
+		/// <param name="value">The value of the item.</param>
+		protected void SendRemoveEvents(TKey key, TValue value) =>
+			SendRemoveEvents(new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
-		/// Perform any implementation-specific event handling when an item is
-		/// removed from <see cref="Dictionary"/>.
+		/// Perform any implementation-specific event handling when an item
+		/// has been removed from <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The removed item.</param>
@@ -136,9 +252,12 @@ namespace AgEitilt.Common.Dictionary {
 
 		/// <summary>
 		/// Notify all relevant listeners that the value associated with some
-		/// key was changed in <see cref="Dictionary"/>.
+		/// key is changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
 		/// <param name="newItem">
 		/// The item as it is now represented in <see cref="Dictionary"/>.
 		/// </param>
@@ -146,7 +265,13 @@ namespace AgEitilt.Common.Dictionary {
 		/// The item as it was previously represented in
 		/// <see cref="Dictionary"/>.
 		/// </param>
-		private void SendReplaceEvent(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
+		protected void SendReplaceEvents(Action action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+#endif
+
+			action.Invoke();
+
 			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
 				NotifyCollectionChangedAction.Replace,
 				newItem,
@@ -158,9 +283,12 @@ namespace AgEitilt.Common.Dictionary {
 		}
 		/// <summary>
 		/// Notify all relevant listeners that the value associated with some
-		/// key was changed in <see cref="Dictionary"/>.
+		/// key is changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
 		/// <param name="key">The key at which the change occurred.</param>
 		/// <param name="newValue">
 		/// The new value associated with <paramref name="key"/>.
@@ -168,8 +296,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="oldValue">
 		/// The value previously associated with <paramref name="key"/>.
 		/// </param>
-		private void SendReplaceEvent(TKey key, TValue newValue, TValue oldValue) =>
-			SendReplaceEvent(new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
+		protected void SendReplaceEvents(Action action, TKey key, TValue newValue, TValue oldValue) =>
+			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item is
 		/// changed in <see cref="Dictionary"/>.
@@ -185,14 +313,23 @@ namespace AgEitilt.Common.Dictionary {
 		protected virtual void OnReplace(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) { }
 
 		/// <summary>
-		/// Notify all relevant listeners that <see cref="Dictionary"/> has
-		/// been cleared.
+		/// Notify all relevant listeners that <see cref="Dictionary"/> is
+		/// cleared.
 		/// </summary>
 		/// 
+		/// <param name="action">The action that causes the reset.</param>
 		/// <param name="oldItems">
 		/// The items previously contained in <see cref="Dictionary"/>.
 		/// </param>
-		private void SendResetEvent(IList oldItems) {
+		protected void SendResetEvents(Action action, IList oldItems) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+#endif
+
+			action.Invoke();
+
 			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
 				NotifyCollectionChangedAction.Reset
 			));
@@ -211,6 +348,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// The items previously contained in <see cref="Dictionary"/>.
 		/// </param>
 		protected virtual void OnReset(IList oldItems) { }
+#endregion
 
 		/// <summary>
 		/// Gets or sets the element with the specified key.
@@ -255,13 +393,12 @@ namespace AgEitilt.Common.Dictionary {
 		public TValue this[TKey key] {
 			get => Dictionary[key];
 			set {
-				bool containedKey = Dictionary.TryGetValue(key, out TValue oldValue);
-				Dictionary[key] = value;
+				Action action = () => Dictionary[key] = value;
 
-				if (containedKey)
-					SendReplaceEvent(key, value, oldValue);
+				if (Dictionary.TryGetValue(key, out TValue oldValue))
+					SendReplaceEvents(action, key, value, oldValue);
 				else
-					SendAddEvent(key, value);
+					SendAddEvents(action, key, value);
 			}
 		}
 		/// <summary>
@@ -318,12 +455,12 @@ namespace AgEitilt.Common.Dictionary {
 
 				bool containedKey = converted.Contains(key);
 				object oldValue = (containedKey ? converted[key] : null);
-				converted[key] = value;
+				Action action = () => converted[key] = value;
 
 				if (containedKey)
-					SendReplaceEvent((TKey)key, (TValue)value, (TValue)oldValue);
+					SendReplaceEvents(action, (TKey)key, (TValue)value, (TValue)oldValue);
 				else
-					SendAddEvent((TKey)key, (TValue)value);
+					SendAddEvents(action, (TKey)key, (TValue)value);
 			}
 		}
 
@@ -536,34 +673,6 @@ namespace AgEitilt.Common.Dictionary {
 			(Dictionary as IDictionary)?.SyncRoot;
 
 		/// <summary>
-		/// Occurs when the collection changes.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// If the sent <see cref="NotifyCollectionChangedEventArgs"/> is of
-		/// type <see cref="NotifyCollectionChangedAction.Add"/>,
-		/// <see cref="NotifyCollectionChangedAction.Remove"/>, or
-		/// <see cref="NotifyCollectionChangedAction.Replace"/>,
-		/// <see cref="NotifyCollectionChangedEventArgs.NewItems"/> and (if
-		/// applicable) <see cref="NotifyCollectionChangedEventArgs.OldItems"/>
-		/// are guaranteed to be an <see cref="IList"/> of
-		/// <see cref="KeyValuePair{TKey, TValue}"/> objects parameterized to
-		/// <typeparamref name="TKey"/> and <typeparamref name="TValue"/>.
-		/// </remarks>
-		public event NotifyCollectionChangedEventHandler CollectionChanged;
-		/// <summary>
-		/// Occurs when a property value changes.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// The <c>PropertyChanged</c> event can indicate all properties on
-		/// the object have changed by using either <c>null</c> or
-		/// <see cref="String.Empty"/> as the property name in the
-		/// <see cref="PropertyChangedEventArgs"/>.
-		/// </remarks>
-		public event PropertyChangedEventHandler PropertyChanged;
-
-		/// <summary>
 		/// Adds an element with the provided key and value to the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
 		/// </summary>
@@ -587,20 +696,16 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		public void Add(TKey key, TValue value) {
-			Dictionary.Add(key, value);
-			SendAddEvent(key, value);
-		}
+		public void Add(TKey key, TValue value) =>
+			SendAddEvents((() => Dictionary.Add(key, value)), key, value);
 		/// <summary>
 		/// Adds a pre-created <see cref="KeyValuePair{TKey, TValue}"/> to the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The item to add.</param>
-		public void Add(KeyValuePair<TKey, TValue> item) {
-			Dictionary.Add(item);
-			SendAddEvent(item);
-		}
+		public void Add(KeyValuePair<TKey, TValue> item) =>
+			SendAddEvents((() => Dictionary.Add(item)), item);
 		/// <summary>
 		/// Adds an element with the provided key and value to the
 		/// <see cref="IDictionary"/>.
@@ -632,8 +737,7 @@ namespace AgEitilt.Common.Dictionary {
 			if (converted == null)
 				return;
 
-			converted.Add(key, value);
-			SendAddEvent((TKey)key, (TValue)value);
+			SendAddEvents((() => converted.Add(key, value)), (TKey)key, (TValue)value);
 		}
 
 		/// <summary>
@@ -647,8 +751,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <seealso cref="IsReadOnly"/>
 		public void Clear() {
 			IList oldItems = Dictionary.ToList();
-			Dictionary.Clear();
-			SendResetEvent(oldItems);
+			SendResetEvents((() => Dictionary.Clear()), oldItems);
 		}
 		/// <summary>
 		/// Removes all items from the <see cref="IDictionary"/>.
@@ -847,11 +950,12 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public bool Remove(TKey key) {
-			Dictionary.TryGetValue(key, out TValue oldValue);
+			if (Dictionary.TryGetValue(key, out TValue oldValue))
+				SendRemovingEvents(key, oldValue);
 
 			bool removed = Dictionary.Remove(key);
 			if (removed)
-				SendRemoveEvent(key, oldValue);
+				SendRemoveEvents(key, oldValue);
 
 			return removed;
 		}
@@ -876,9 +980,12 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public bool Remove(KeyValuePair<TKey, TValue> item) {
+			if (Dictionary.Contains(item))
+				SendRemovingEvents(item);
+
 			bool removed = Dictionary.Remove(item);
 			if (removed)
-				SendRemoveEvent(item);
+				SendRemoveEvents(item);
 
 			return removed;
 		}
@@ -914,9 +1021,12 @@ namespace AgEitilt.Common.Dictionary {
 			bool containedKey = converted.Contains(key);
 			object oldValue = (containedKey ? converted[key] : null);
 
+			if (containedKey)
+				SendRemovingEvents((TKey)key, (TValue)oldValue);
+
 			converted.Remove(key);
 			if (containedKey)
-				SendRemoveEvent((TKey)key, (TValue)oldValue);
+				SendRemoveEvents((TKey)key, (TValue)oldValue);
 		}
 
 		/// <summary>

@@ -4,7 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## 0.2.2
+### Added
+- `IObservableReadOnlyDictionary` interface combining observable
+  interfaces with `IReadOnlyDictionary`
+- `INotifyPropertyChanging` (as opposed to `...Changed`) for frameworks
+  that support it
+
+## 0.2.1
 ### Changed
 - Value replacements in ObservableDictionaryBase subclasses no longer
   trigger a PropertyChangedEvent on Keys.

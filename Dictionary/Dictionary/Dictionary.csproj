@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard1.0;net45</TargetFrameworks>
+    <TargetFrameworks>netstandard1.0;netstandard1.3;net45</TargetFrameworks>
     <AssemblyName>AgEitilt.Dictionary</AssemblyName>
     <RootNamespace>AgEitilt.Common.Dictionary</RootNamespace>
     <Authors>Sam May</Authors>
@@ -11,9 +11,9 @@
     <PackageLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PackageLicenseUrl>
     <DocumentationFile>AgEitilt.Dictionary.xml</DocumentationFile>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <Version>0.2.1</Version>
-    <AssemblyVersion>0.2.1</AssemblyVersion>
-    <FileVersion>0.2.1.0</FileVersion>
+    <Version>0.2.2</Version>
+    <AssemblyVersion>0.2.2</AssemblyVersion>
+    <FileVersion>0.2.2.0</FileVersion>
     <RepositoryUrl>https://github.com/Eitilt/CommonHelpers</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dictionary extension</PackageTags>
