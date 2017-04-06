@@ -5,7 +5,7 @@
 
 using System.Threading.Tasks;
 
-namespace AgEitilt.Common.Stream {
+namespace AgEitilt.Common.Stream.Extensions {
 	/// <summary>
 	/// Extension methods on the <see cref="System.IO.Stream"/> class.
 	/// </summary>

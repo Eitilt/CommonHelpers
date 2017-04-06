@@ -504,12 +504,12 @@
             <seealso cref="M:AgEitilt.Common.Stream.ConcatStream.Write(System.Byte[],System.Int32,System.Int32)"/>
             <seealso cref="M:AgEitilt.Common.Stream.ConcatStream.WriteAsync(System.Byte[],System.Int32,System.Int32,System.Threading.CancellationToken)"/>
         </member>
-        <member name="T:AgEitilt.Common.Stream.StreamExtension">
+        <member name="T:AgEitilt.Common.Stream.Extensions.StreamExtension">
             <summary>
             Extension methods on the <see cref="T:System.IO.Stream"/> class.
             </summary>
         </member>
-        <member name="M:AgEitilt.Common.Stream.StreamExtension.ReadAll(System.IO.Stream,System.Byte[],System.Int32,System.Int32)">
+        <member name="M:AgEitilt.Common.Stream.Extensions.StreamExtension.ReadAll(System.IO.Stream,System.Byte[],System.Int32,System.Int32)">
             <summary>
             Read from the stream until it ends or the requested number of
             bytes has been reached.
@@ -532,7 +532,7 @@
             number of bytes was reached.
             </returns>
         </member>
-        <member name="M:AgEitilt.Common.Stream.StreamExtension.ReadAllAsync(System.IO.Stream,System.Byte[],System.Int32,System.Int32)">
+        <member name="M:AgEitilt.Common.Stream.Extensions.StreamExtension.ReadAllAsync(System.IO.Stream,System.Byte[],System.Int32,System.Int32)">
             <summary>
             Read from the stream asynchronously until it ends or the requested
             number of bytes has been reached.

@@ -5,7 +5,7 @@
 
 using System.Collections.Generic;
 
-namespace AgEitilt.Common.Dictionary {
+namespace AgEitilt.Common.Dictionary.Extensions {
 	/// <summary>
 	/// Extension methods on the <see cref="IDictionary{TKey, TValue}"/>
 	/// interface.
