@@ -55,7 +55,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="IDictionary{TKey, TValue}"/> used by the particular
 		/// instance as determined by the implementation.
 		/// </summary>
-		protected override IDictionary<TKey, TValue> Dictionary => dictionary;
+		protected override IDictionary<TKey, TValue> Dictionary =>
+			dictionary;
 
 		/// <summary>
 		/// Initializes a new instance of the
@@ -69,7 +70,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </remarks>
 		public ObservableDictionary() =>
 			dictionary = new Dictionary<TKey, TValue>();
-
 		/// <summary>
 		/// Initializes a new instance of the
 		/// <see cref="ObservableDictionary{TKey, TValue}"/> class that is
@@ -91,7 +91,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		public ObservableDictionary(int capacity) =>
 			dictionary = new Dictionary<TKey, TValue>(capacity);
-
 		/// <summary>
 		/// Initializes a new instance of the
 		/// <see cref="ObservableDictionary{TKey, TValue}"/> class that is
@@ -110,7 +109,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		public ObservableDictionary(IEqualityComparer<TKey> comparer) =>
 			dictionary = new Dictionary<TKey, TValue>(comparer);
-
 		/// <summary>
 		/// Initializes a new instance of the
 		/// <see cref="ObservableDictionary{TKey, TValue}"/> class that
@@ -140,12 +138,11 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="dictionary"/> contains one or more duplicate keys.
 		/// </exception>
 		public ObservableDictionary(IDictionary<TKey, TValue> dictionary) =>
-			dictionary = new Dictionary<TKey, TValue>(dictionary);
-
+			this.dictionary = new Dictionary<TKey, TValue>(dictionary);
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="IDictionary{TKey, TValue}"/> class that is empty, has
-		/// the specified initial capacity, and uses the specified
+		/// <see cref="ObservableDictionary{TKey, TValue}"/> class that is
+		/// empty, has the specified initial capacity, and uses the specified
 		/// <see cref="IEqualityComparer{T}"/>.
 		/// </summary>
 		/// 
@@ -168,7 +165,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		public ObservableDictionary(int capacity, IEqualityComparer<TKey> comparer) =>
 			dictionary = new Dictionary<TKey, TValue>(capacity, comparer);
-
 		/// <summary>
 		/// Initializes a new instance of the
 		/// <see cref="ObservableDictionary{TKey, TValue}"/> class that
@@ -203,7 +199,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="dictionary"/> contains one or more duplicate keys.
 		/// </exception>
 		public ObservableDictionary(IDictionary<TKey, TValue> dictionary, IEqualityComparer<TKey> comparer) =>
-			dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
+			this.dictionary = new Dictionary<TKey, TValue>(dictionary, comparer);
 
 		/// <summary>
 		/// Gets the <see cref="IEqualityComparer{T}"/> that is used to

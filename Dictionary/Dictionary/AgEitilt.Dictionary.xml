@@ -44,16 +44,386 @@
             
             <returns>The calculated hash.</returns>
         </member>
-        <member name="T:AgEitilt.Common.Dictionary.DictionaryExtension">
+        <member name="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2">
+            <summary>
+            Represents a collection of keys and values while notifying listeners
+            when those contents change.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type of keys in the dictionary.
+            </typeparam>
+            <typeparam name="TValue">
+            The type of values in the dictionary.
+            </typeparam>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.dictionary">
+            <summary>
+            The underlying item store.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.Dictionary">
+            <summary>
+            Retrieve a reference to the underlying
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> used by the particular
+            instance as determined by the implementation.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.#ctor">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/> class
+            that is empty, has the default initial capacity, and uses the
+            default equality comparer for the key type.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/> class
+            that contains elements copied from the specified collection of
+            key/value pairs and uses the default equality comparer for the key
+            type.
+            </summary>
+            
+            <remarks>
+            The initial capacity of the new
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/> is
+            large enough to contain all the elements in
+            <paramref name="collection"/>.
+            </remarks>
+            
+            <param name="collection">
+            The elements which should be copied to the new
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/>.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="collection"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="collection"/> contains one or more duplicate keys.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/> class
+            that is empty, has the default initial capacity, and uses the
+            specified <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
+            </summary>
+            
+            <param name="comparer">
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> implementation to use when
+            comparing keys, or <c>null</c> to use the default
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> for the type of the key.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initializes a new instance of the
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/> class
+            that contains elements copied from the specified collection of
+            key/value pairs and uses the specified
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
+            </summary>
+            
+            <remarks>
+            The initial capacity of the new
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> is large enough
+            to contain all the elements in <paramref name="collection"/>.
+            </remarks>
+            
+            <param name="collection">
+            The elements which should be copied to the new
+            <see cref="T:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2"/>.
+            </param>
+            <param name="comparer">
+            The <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> implementation to use when
+            comparing keys, or <c>null</c> to use the default
+            <see cref="T:System.Collections.Generic.IEqualityComparer`1"/> for the type of the key.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="collection"/> is null.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="collection"/> contains one or more duplicate keys.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.IsEmpty">
+            <summary>
+            Simplifies testing whether the dictionary contains no items.
+            </summary>
+            
+            <value>
+            <c>true</c> if no key/value pair exists in the dictionary;
+            otherwise <c>false</c>.
+            </value>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.AddOrUpdate(`0,System.Func{`0,`1},System.Func{`0,`1,`1})">
+            <summary>
+            Add the item generated by <paramref name="updateValueFactory"/> to
+            the dictionary if <paramref name="key"/> already exists in it, or
+            that generated by <paramref name="addValueFactory"/> otherwise;
+            returning the respective value.
+            </summary>
+            
+            <param name="key">
+            The object to use as the key of the element to add or update.
+            </param>
+            <param name="addValueFactory">
+            The function used to generate a value if the dictionary did not
+            contain <paramref name="key"/>.
+            </param>
+            <param name="updateValueFactory">
+            The function used to generate a value if the dictionary already
+            contained <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The value generated by <paramref name="updateValueFactory"/> if
+            the key already existed; otherwise that generated by
+            <paramref name="addValueFactory"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.AddOrUpdate(`0,`1,System.Func{`0,`1,`1})">
+            <summary>
+            Add <paramref name="addValue"/> to the dictionary if
+            <paramref name="key"/> already exists in it, or
+            <paramref name="addValue"/> otherwise; returning the respective
+            value.
+            </summary>
+            
+            <param name="key">
+            The object to use as the key of the element to add or update.
+            </param>
+            <param name="addValue">
+            The value to add if the dictionary did not contain
+            <paramref name="key"/>.
+            </param>
+            <param name="updateValueFactory">
+            The function used to generate a value if the dictionary already
+            contained <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The value generated by <paramref name="updateValueFactory"/> if
+            the key already existed; otherwise <paramref name="addValue"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.GetOrAdd(`0,System.Func{`0,`1})">
+            <summary>
+            Retrieve the requested value from the dictionary, creating a new
+            entry if necessary.
+            </summary>
+            
+            <param name="key">The dictionary key to access.</param>
+            <param name="valueFactory">
+            The function used to generate a value if the dictionary did not
+            contain <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The object located at <paramref name="key"/> in the dictionary.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.GetOrAdd(`0,`1)">
+            <summary>
+            Retrieve the requested value from the dictionary, creating a new
+            entry if necessary.
+            </summary>
+            
+            <param name="key">The dictionary key to access.</param>
+            <param name="value">
+            The value to add if <paramref name="key"/> was not in the
+            dictionary.
+            </param>
+            
+            <returns>
+            The object located at <paramref name="key"/> in the dictionary.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.ToArray">
+            <summary>
+            Copies the key/value pairs comprising the dictionary to an array.
+            </summary>
+            
+            <returns>The array of key/value pairs.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.TryAdd(`0,`1)">
+            <summary>
+            Add a value to the dictionary as long as the desired key does not
+            already exist.
+            </summary>
+            
+            <param name="key">
+            The object to use as the key of the element to add.
+            </param>
+            <param name="value">
+            The object to use as the value of the element to add.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was added successfully, or false if
+            <paramref name="key"/> already exists.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.TryRemove(`0,`1@)">
+            <summary>
+            Remove a value from the dictionary if the given key exists.
+            </summary>
+            
+            <param name="key">The dictionary key to remove.</param>
+            <param name="value">
+            Once this method completes, the value previously associated with
+            <paramref name="key"/> if it existed in the dictionary, or the
+            default value of <typeparamref name="TValue"/> otherwise.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was removed successfully, or false if
+            <paramref name="key"/> did not exist.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ConcurrentObservableDictionary`2.TryUpdate(`0,`1,`1)">
+            <summary>
+            Replace a value in the dictionary if the given key exists and the
+            existing value is equal to a desired comparison.
+            </summary>
+            
+            <param name="key">The dictionary key to replace.</param>
+            <param name="newValue">
+            The value to update the key with, if all conditions are met.
+            </param>
+            <param name="comparisonValue">
+            The value to use for testing the equality of the existing key.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was replaced successfully, or false if
+            <paramref name="key"/> did not exist or the existing value is not
+            equal to <paramref name="comparisonValue"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension">
             <summary>
             Extension methods on the <see cref="T:System.Collections.Generic.IDictionary`2"/>
             interface.
             </summary>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.DictionaryExtension.GetOrCreate``2(System.Collections.Generic.IDictionary{``0,``1},``0)">
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``0,``1},System.Func{``0,``1,``1})">
+            <summary>
+            Add the item generated by <paramref name="updateValueFactory"/> to
+            the dictionary if <paramref name="key"/> already exists in it, or
+            that generated by <paramref name="addValueFactory"/> otherwise;
+            returning the respective value.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">
+            The object to use as the key of the element to add or update.
+            </param>
+            <param name="addValueFactory">
+            The function used to generate a value if the dictionary did not
+            contain <paramref name="key"/>.
+            </param>
+            <param name="updateValueFactory">
+            The function used to generate a value if the dictionary already
+            contained <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The value generated by <paramref name="updateValueFactory"/> if
+            the key already existed; otherwise that generated by
+            <paramref name="addValueFactory"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.AddOrUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1,System.Func{``0,``1,``1})">
+            <summary>
+            Add <paramref name="addValue"/> to the dictionary if
+            <paramref name="key"/> already exists in it, or
+            <paramref name="addValue"/> otherwise; returning the respective
+            value.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">
+            The object to use as the key of the element to add or update.
+            </param>
+            <param name="addValue">
+            The value to add if the dictionary did not contain
+            <paramref name="key"/>.
+            </param>
+            <param name="updateValueFactory">
+            The function used to generate a value if the dictionary already
+            contained <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The value generated by <paramref name="updateValueFactory"/> if
+            the key already existed; otherwise <paramref name="addValue"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0)">
             <summary>
             Retrieve the requested value from the dictionary, creating a new
-            entry if necessary.
+            entry if necessary using the default <typeparamref name="TValue"/>
+            constructor.
             </summary>
             
             <typeparam name="TKey">
@@ -72,6 +442,272 @@
             The object located at <paramref name="key"/> in
             <paramref name="dictionary"/>.
             </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Retrieve the requested value from the dictionary, creating a new
+            entry if necessary.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to access.</param>
+            <param name="value">
+            The value to add if <paramref name="key"/> was not in the
+            dictionary.
+            </param>
+            
+            <returns>
+            The object located at <paramref name="key"/> in
+            <paramref name="dictionary"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.GetOrAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,System.Func{``0,``1})">
+            <summary>
+            Retrieve the requested value from the dictionary, creating a new
+            entry if necessary.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to access.</param>
+            <param name="valueFactory">
+            The function used to generate a value if the dictionary did not
+            contain <paramref name="key"/>.
+            </param>
+            
+            <returns>
+            The object located at <paramref name="key"/> in
+            <paramref name="dictionary"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.IsEmpty``2(System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            Simplifies testing whether the dictionary contains no items.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            
+            <returns>
+            <c>true</c> if no key/value pair exists in the dictionary;
+            otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.ToArray``2(System.Collections.Generic.IDictionary{``0,``1})">
+            <summary>
+            Copies the key/value pairs comprising the dictionary to an array.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            
+            <returns>The array of key/value pairs.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.TryAdd``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Add a value to the dictionary as long as the desired key does not
+            already exist.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">
+            The object to use as the key of the element to add.
+            </param>
+            <param name="value">
+            The object to use as the value of the element to add.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was added successfully, or false if
+            <paramref name="key"/> already exists.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.TryRemove``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1@)">
+            <summary>
+            Remove a value from the dictionary if the given key exists.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to remove.</param>
+            <param name="value">
+            Once this method completes, the value previously associated with
+            <paramref name="key"/> if it existed in the dictionary, or the
+            default value of <typeparamref name="TValue"/> otherwise.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was removed successfully, or false if
+            <paramref name="key"/> did not exist.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.TryUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1)">
+            <summary>
+            Replace a value in the dictionary if the given key exists.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to replace.</param>
+            <param name="newValue">
+            The value to update the key with, if all conditions are met.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was replaced successfully, or false if
+            <paramref name="key"/> did not exist.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.TryUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1,``1)">
+            <summary>
+            Replace a value in the dictionary if the given key exists and the
+            existing value is equal to a desired comparison.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to replace.</param>
+            <param name="newValue">
+            The value to update the key with, if all conditions are met.
+            </param>
+            <param name="comparisonValue">
+            The value to use for testing the equality of the existing key.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was replaced successfully, or false if
+            <paramref name="key"/> did not exist or the existing value is not
+            equal to <paramref name="comparisonValue"/>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.Extensions.DictionaryExtension.TryUpdate``2(System.Collections.Generic.IDictionary{``0,``1},``0,``1,System.Predicate{``1})">
+            <summary>
+            Replace a value in the dictionary if the given key exists and the
+            existing value is equal to a desired comparison.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type used for the dictionary's keys.
+            </typeparam>
+            <typeparam name="TValue">
+            The type used for the dictionary's values.
+            </typeparam>
+            
+            <param name="dictionary">
+            The <see cref="T:System.Collections.Generic.IDictionary`2"/> on which to operate.
+            </param>
+            <param name="key">The dictionary key to replace.</param>
+            <param name="newValue">
+            The value to update the key with, if all conditions are met.
+            </param>
+            <param name="comparison">
+            The test to use in deciding whether to replace the value.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value was replaced successfully, or false if
+            <paramref name="key"/> did not exist or
+            <paramref name="comparison"/> returns <c>false</c> when passed the
+            existing value.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
         </member>
         <member name="T:AgEitilt.Common.Dictionary.ObservableDictionary`2">
             <summary>
@@ -209,8 +845,8 @@
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionary`2.#ctor(System.Int32,System.Collections.Generic.IEqualityComparer{`0})">
             <summary>
             Initializes a new instance of the
-            <see cref="T:System.Collections.Generic.IDictionary`2"/> class that is empty, has
-            the specified initial capacity, and uses the specified
+            <see cref="T:AgEitilt.Common.Dictionary.ObservableDictionary`2"/> class that is
+            empty, has the specified initial capacity, and uses the specified
             <see cref="T:System.Collections.Generic.IEqualityComparer`1"/>.
             </summary>
             
@@ -486,7 +1122,81 @@
             <see cref="T:System.ComponentModel.PropertyChangingEventArgs"/>.
             </remarks>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Action,System.Collections.Generic.KeyValuePair{`0,`1})">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.DummyAction(System.Action)">
+            <summary>
+            Wrap an action to use it in, for example,
+            <see cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1})"/>.
+            </summary>
+            
+            <param name="action">The action to wrap.</param>
+            
+            <returns>The enclosing function.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.DummyAction(System.Func{System.Boolean})">
+            <summary>
+            Wrap a function to use it in, for example,
+            <see cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1})"/>.
+            </summary>
+            
+            <param name="action">The action to wrap.</param>
+            
+            <returns>The enclosing function.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.DummyAction(System.Func{`1})">
+            <summary>
+            Wrap a function to use it in, for example,
+            <see cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1})"/>.
+            </summary>
+            
+            <param name="action">The action to wrap.</param>
+            
+            <returns>The enclosing function.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the addition.</param>
+            <param name="item">The new item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Boolean},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the addition.</param>
+            <param name="item">The new item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{System.Boolean},System.Func{System.Boolean},`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item is added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the addition.</param>
+            <param name="key">The key at which the item is added.</param>
+            <param name="value">The value of the new item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{`1},System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
             Notify all relevant listeners that some item is added to the
             <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
@@ -494,8 +1204,10 @@
             
             <param name="action">The action that causes the addition.</param>
             <param name="item">The new item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Action,`0,`1)">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Func{`1},`0,`1)">
             <summary>
             Notify all relevant listeners that some item is added to the
             <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
@@ -504,60 +1216,151 @@
             <param name="action">The action that causes the addition.</param>
             <param name="key">The key at which the item is added.</param>
             <param name="value">The value of the new item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnAdd(System.Collections.Generic.KeyValuePair{`0,`1})">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Action,System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the addition.</param>
+            <param name="item">The removed item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendAddEvents(System.Action,`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item is added to the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the addition.</param>
+            <param name="key">
+            The key previously associated with the item.
+            </param>
+            <param name="value">The value of the item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnAdding(System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
             Perform any implementation-specific event handling when a new item
-            is added to <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            is just about to be added to <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </summary>
             
             <param name="item">The new item.</param>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemovingEvents(System.Collections.Generic.KeyValuePair{`0,`1})">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnAdd(System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
-            Notify all relevant listeners that some item is just about to be
-            removed from the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            Perform any implementation-specific event handling when a new item
+            has been added to <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </summary>
             
-            <param name="item">The removed item.</param>
+            <param name="item">The new item.</param>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemovingEvents(`0,`1)">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
-            Notify all relevant listeners that some item is just about to be
-            removed from the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </summary>
             
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the removal.</param>
+            <param name="item">The removed item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Func{System.Boolean},System.Func{System.Boolean},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the removal.</param>
+            <param name="item">The removed item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Func{System.Boolean},System.Func{System.Boolean},`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the removal.</param>
             <param name="key">
             The key previously associated with the item.
             </param>
             <param name="value">The value of the item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Func{`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the removal.</param>
+            <param name="item">The removed item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Func{`1},`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the removal.</param>
+            <param name="key">
+            The key previously associated with the item.
+            </param>
+            <param name="value">The value of the item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Action,System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the removal.</param>
+            <param name="item">The removed item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Action,`0,`1)">
+            <summary>
+            Notify all relevant listeners that some item is removed from the
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">The action that causes the removal.</param>
+            <param name="key">
+            The key previously associated with the item.
+            </param>
+            <param name="value">The value of the item.</param>
+            
+            <returns>The value returned by <paramref name="action"/>.</returns>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnRemoving(System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
-            Perform any implementation-specific event handling when an item is
-            just about to be removed from <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            Perform any implementation-specific event handling when an item
+            is just about to be removed from <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </summary>
             
             <param name="item">The removed item.</param>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(System.Collections.Generic.KeyValuePair{`0,`1})">
-            <summary>
-            Notify all relevant listeners that some item has been removed from
-            the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
-            </summary>
-            
-            <param name="item">The removed item.</param>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendRemoveEvents(`0,`1)">
-            <summary>
-            Notify all relevant listeners that some item has been removed from
-            the <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
-            </summary>
-            
-            <param name="key">
-            The key previously associated with the item.
-            </param>
-            <param name="value">The value of the item.</param>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnRemove(System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
@@ -566,6 +1369,103 @@
             </summary>
             
             <param name="item">The removed item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Func{System.Boolean},System.Func{System.Tuple{System.Boolean,`1}},System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key is changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">
+            The action that causes the replacement.
+            </param>
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Func{System.Boolean},System.Func{System.Boolean},System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key is changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">
+            The action that causes the replacement.
+            </param>
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Func{System.Boolean},System.Func{System.Boolean},`0,`1,`1)">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key is changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">
+            The action that causes the replacement.
+            </param>
+            <param name="key">The key at which the change occurred.</param>
+            <param name="newValue">
+            The new value associated with <paramref name="key"/>.
+            </param>
+            <param name="oldValue">
+            The value previously associated with <paramref name="key"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Func{`1},System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key is changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">
+            The action that causes the replacement.
+            </param>
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Func{`1},`0,`1,`1)">
+            <summary>
+            Notify all relevant listeners that the value associated with some
+            key is changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="action">
+            The action that causes the replacement.
+            </param>
+            <param name="key">The key at which the change occurred.</param>
+            <param name="newValue">
+            The new value associated with <paramref name="key"/>.
+            </param>
+            <param name="oldValue">
+            The value previously associated with <paramref name="key"/>.
+            </param>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendReplaceEvents(System.Action,System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
@@ -601,10 +1501,10 @@
             The value previously associated with <paramref name="key"/>.
             </param>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReplace(System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReplacing(System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
             <summary>
             Perform any implementation-specific event handling when an item is
-            changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            just about to be changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </summary>
             
             <param name="newItem">
@@ -615,26 +1515,51 @@
             <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
             </param>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendResetEvents(System.Action,System.Collections.IList)">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReplace(System.Collections.Generic.KeyValuePair{`0,`1},System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Perform any implementation-specific event handling when an item
+            has been changed in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </summary>
+            
+            <param name="newItem">
+            The item as it is now represented in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+            <param name="oldItem">
+            The item as it was previously represented in
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendResetEvents(System.Func{System.Boolean},System.Func{System.Boolean})">
+            <summary>
+            Notify all relevant listeners that <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is
+            cleared.
+            </summary>
+            
+            <param name="preTest">
+            A simplified approximation of the value returned by
+            <paramref name="action"/>, but that doesn't result in any changes.
+            </param>
+            <param name="action">The action that causes the reset.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.SendResetEvents(System.Action)">
             <summary>
             Notify all relevant listeners that <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is
             cleared.
             </summary>
             
             <param name="action">The action that causes the reset.</param>
-            <param name="oldItems">
-            The items previously contained in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
-            </param>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReset(System.Collections.IList)">
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnResetting">
             <summary>
             Perform any implementation-specific event handling when
-            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is cleared.
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> is just about to be cleared.
             </summary>
-            
-            <param name="oldItems">
-            The items previously contained in <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/>.
-            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.OnReset">
+            <summary>
+            Perform any implementation-specific event handling when
+            <see cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Dictionary"/> has been cleared.
+            </summary>
         </member>
         <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Item(`0)">
             <summary>
@@ -930,7 +1855,7 @@
             </param>
             
             <exception cref="T:System.ArgumentNullException">
-            <paramref name="key"/> is null.
+            <paramref name="key"/> is <c>null</c>.
             </exception>
             <exception cref="T:System.ArgumentException">
             An element with the same key already exists in the
@@ -964,7 +1889,7 @@
             </param>
             
             <exception cref="T:System.ArgumentNullException">
-            <paramref name="key"/> is null.
+            <paramref name="key"/> is <c>null</c>.
             </exception>
             <exception cref="T:System.ArgumentException">
             An element with the same key already exists in the
@@ -1030,7 +1955,7 @@
             </returns>
             
             <exception cref="T:System.ArgumentNullException">
-            <paramref name="key"/> is null.
+            <paramref name="key"/> is <c>null</c>.
             </exception>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Contains(System.Object)">
@@ -1048,7 +1973,7 @@
             </returns>
             
             <exception cref="T:System.ArgumentNullException">
-            <paramref name="item"/> is null.
+            <paramref name="item"/> is <c>null</c>.
             </exception>
             
             <seealso cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)"/>

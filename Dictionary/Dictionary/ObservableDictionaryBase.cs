@@ -15,10 +15,6 @@ using System.ComponentModel;
 using System.Linq;
 
 namespace AgEitilt.Common.Dictionary {
-	//TODO: Build another around ConcurrentDictionary for .NETStandard >= 1.1
-	// See <https://docs.microsoft.com/en-us/nuget/schema/msbuild-targets> and
-	// <https://docs.microsoft.com/en-us/nuget/create-packages/supporting-multiple-target-frameworks>
-
 	/// <summary>
 	/// Represents a generic read-only collection of key/value pairs while
 	/// notifying listeners when those contents change.
@@ -79,7 +75,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// <typeparam name="TValue">
 	/// The type of values in the dictionary.
 	/// </typeparam>
-	public abstract class ObservableDictionaryBase<TKey, TValue>
+	public abstract partial class ObservableDictionaryBase<TKey, TValue>
 		: IDictionary, IDictionary<TKey, TValue>, IObservableReadOnlyDictionary<TKey, TValue>,
 		  ICollection, ICollection<KeyValuePair<TKey, TValue>>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>,
 		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>> {
@@ -137,32 +133,124 @@ namespace AgEitilt.Common.Dictionary {
 #endif
 
 		/// <summary>
+		/// Wrap an action to use it in, for example,
+		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action to wrap.</param>
+		/// 
+		/// <returns>The enclosing function.</returns>
+		Func<Tuple<bool, TValue>> DummyAction(Action action) {
+			return (() => {
+				action.Invoke();
+				return Tuple.Create(true, default(TValue));
+			});
+		}
+		/// <summary>
+		/// Wrap a function to use it in, for example,
+		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action to wrap.</param>
+		/// 
+		/// <returns>The enclosing function.</returns>
+		Func<Tuple<bool, TValue>> DummyAction(Func<bool> action) {
+			return (() => {
+				return Tuple.Create(action.Invoke(), default(TValue));
+			});
+		}
+		/// <summary>
+		/// Wrap a function to use it in, for example,
+		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action to wrap.</param>
+		/// 
+		/// <returns>The enclosing function.</returns>
+		Func<Tuple<bool, TValue>> DummyAction(Func<TValue> action) {
+			return (() => {
+				return Tuple.Create(true, action.Invoke());
+			});
+		}
+
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="item">The new item.</param>
+		Tuple<bool, TValue> SendAddEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
+			if (preTest.Invoke()) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+#endif
+				OnAdding(item);
+			}
+
+			var result = action.Invoke();
+			if (result.Item1) {
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Add,
+					item
+				));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+
+				OnAdd(item);
+			}
+
+			return result;
+		}
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="item">The new item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected bool SendAddEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) =>
+			SendAddEvents(preTest, DummyAction(action), item).Item1;
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="key">The key at which the item is added.</param>
+		/// <param name="value">The value of the new item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected bool SendAddEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue value) =>
+			SendAddEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, value));
+		/// <summary>
 		/// Notify all relevant listeners that some item is added to the
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
 		/// <param name="action">The action that causes the addition.</param>
 		/// <param name="item">The new item.</param>
-		protected void SendAddEvents(Action action, KeyValuePair<TKey, TValue> item) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
-#endif
-			OnAdding(item);
-
-			action.Invoke();
-
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Add,
-				item
-			));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-
-			OnAdd(item);
-		}
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected TValue SendAddEvents(Func<TValue> action, KeyValuePair<TKey, TValue> item) =>
+			SendAddEvents((() => true), DummyAction(action), item).Item2;
 		/// <summary>
 		/// Notify all relevant listeners that some item is added to the
 		/// <see cref="Dictionary"/>.
@@ -171,6 +259,29 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="action">The action that causes the addition.</param>
 		/// <param name="key">The key at which the item is added.</param>
 		/// <param name="value">The value of the new item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected TValue SendAddEvents(Func<TValue> action, TKey key, TValue value) =>
+			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="item">The removed item.</param>
+		protected void SendAddEvents(Action action, KeyValuePair<TKey, TValue> item) =>
+			SendAddEvents((() => true), DummyAction(action), item);
+		/// <summary>
+		/// Notify all relevant listeners that some item is added to the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the addition.</param>
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
 		protected void SendAddEvents(Action action, TKey key, TValue value) =>
 			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
@@ -201,8 +312,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="item">The removed item.</param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) {
-			if (preTest()) {
+		Tuple<bool, TValue> SendRemoveEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
+			if (preTest.Invoke()) {
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
@@ -211,7 +322,8 @@ namespace AgEitilt.Common.Dictionary {
 				OnRemoving(item);
 			}
 
-			if (action()) {
+			var result = action.Invoke();
+			if (result.Item1) {
 				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
 					NotifyCollectionChangedAction.Remove,
 					item
@@ -221,12 +333,25 @@ namespace AgEitilt.Common.Dictionary {
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
 
 				OnRemove(item);
-
-				return true;
-			} else {
-				return false;
 			}
+
+			return result;
 		}
+		/// <summary>
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="item">The removed item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) =>
+			SendRemoveEvents(preTest, DummyAction(action), item).Item1;
 		/// <summary>
 		/// Notify all relevant listeners that some item is removed from the
 		/// <see cref="Dictionary"/>.
@@ -251,17 +376,25 @@ namespace AgEitilt.Common.Dictionary {
 		/// </summary>
 		/// 
 		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="item">The removed item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected TValue SendRemoveEvents(Func<TValue> action, KeyValuePair<TKey, TValue> item) =>
+			SendRemoveEvents((() => true), DummyAction(action), item).Item2;
+		/// <summary>
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="key">
 		/// The key previously associated with the item.
 		/// </param>
 		/// <param name="value">The value of the item.</param>
-		protected void SendRemoveEvents(Action action, TKey key, TValue value) {
-			Func<bool> dummyAction = (() => {
-				action();
-				return true;
-			});
-			SendRemoveEvents((() => true), dummyAction, key, value);
-		}
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected TValue SendRemoveEvents(Func<TValue> action, TKey key, TValue value) =>
+			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Notify all relevant listeners that some item is removed from the
 		/// <see cref="Dictionary"/>.
@@ -269,13 +402,24 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="item">The removed item.</param>
-		protected void SendRemoveEvents(Action action, KeyValuePair<TKey, TValue> item) {
-			Func<bool> dummyAction = (() => {
-				action();
-				return true;
-			});
-			SendRemoveEvents((() => true), dummyAction, item);
-		}
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected void SendRemoveEvents(Action action, KeyValuePair<TKey, TValue> item) =>
+			SendRemoveEvents((() => true), DummyAction(action), item);
+		/// <summary>
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected void SendRemoveEvents(Action action, TKey key, TValue value) =>
+			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// is just about to be removed from <see cref="Dictionary"/>.
@@ -296,6 +440,10 @@ namespace AgEitilt.Common.Dictionary {
 		/// key is changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
 		/// <param name="action">
 		/// The action that causes the replacement.
 		/// </param>
@@ -306,23 +454,121 @@ namespace AgEitilt.Common.Dictionary {
 		/// The item as it was previously represented in
 		/// <see cref="Dictionary"/>.
 		/// </param>
-		protected void SendReplaceEvents(Action action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
+		Tuple<bool, TValue> SendReplaceEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
+			if (preTest.Invoke()) {
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 #endif
-			OnReplacing(newItem, oldItem);
+				OnReplacing(newItem, oldItem);
+			}
 
-			action.Invoke();
+			var result = action.Invoke();
+			if (result.Item1) {
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Replace,
+					newItem,
+					oldItem
+				));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Replace,
-				newItem,
-				oldItem
-			));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+				OnReplace(newItem, oldItem);
+			}
 
-			OnReplace(newItem, oldItem);
+			return result;
 		}
+		/// <summary>
+		/// Notify all relevant listeners that the value associated with some
+		/// key is changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
+		/// <param name="newItem">
+		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// </param>
+		/// <param name="oldItem">
+		/// The item as it was previously represented in
+		/// <see cref="Dictionary"/>.
+		/// </param>
+		protected bool SendReplaceEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
+			SendReplaceEvents(preTest, DummyAction(action), newItem, oldItem).Item1;
+		/// <summary>
+		/// Notify all relevant listeners that the value associated with some
+		/// key is changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
+		/// <param name="key">The key at which the change occurred.</param>
+		/// <param name="newValue">
+		/// The new value associated with <paramref name="key"/>.
+		/// </param>
+		/// <param name="oldValue">
+		/// The value previously associated with <paramref name="key"/>.
+		/// </param>
+		protected bool SendReplaceEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue newValue, TValue oldValue) =>
+			SendReplaceEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
+		/// <summary>
+		/// Notify all relevant listeners that the value associated with some
+		/// key is changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
+		/// <param name="newItem">
+		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// </param>
+		/// <param name="oldItem">
+		/// The item as it was previously represented in
+		/// <see cref="Dictionary"/>.
+		/// </param>
+		protected TValue SendReplaceEvents(Func<TValue> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
+			SendReplaceEvents((() => true), DummyAction(action), newItem, oldItem).Item2;
+		/// <summary>
+		/// Notify all relevant listeners that the value associated with some
+		/// key is changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
+		/// <param name="key">The key at which the change occurred.</param>
+		/// <param name="newValue">
+		/// The new value associated with <paramref name="key"/>.
+		/// </param>
+		/// <param name="oldValue">
+		/// The value previously associated with <paramref name="key"/>.
+		/// </param>
+		protected TValue SendReplaceEvents(Func<TValue> action, TKey key, TValue newValue, TValue oldValue) =>
+			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
+		/// <summary>
+		/// Notify all relevant listeners that the value associated with some
+		/// key is changed in <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">
+		/// The action that causes the replacement.
+		/// </param>
+		/// <param name="newItem">
+		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// </param>
+		/// <param name="oldItem">
+		/// The item as it was previously represented in
+		/// <see cref="Dictionary"/>.
+		/// </param>
+		protected void SendReplaceEvents(Action action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
+			SendReplaceEvents((() => true), DummyAction(action), newItem, oldItem);
 		/// <summary>
 		/// Notify all relevant listeners that the value associated with some
 		/// key is changed in <see cref="Dictionary"/>.
@@ -372,25 +618,47 @@ namespace AgEitilt.Common.Dictionary {
 		/// cleared.
 		/// </summary>
 		/// 
+		/// <param name="preTest">
+		/// A simplified approximation of the value returned by
+		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// </param>
+		/// <param name="action">The action that causes the reset.</param>
+		protected bool SendResetEvents(Func<bool> preTest, Func<bool> action) {
+			if (preTest.Invoke()) {
+#if (SUPPORT_PROPERTYCHANGING_EVENT)
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+#endif
+				OnResetting();
+			}
+
+			var result = action.Invoke();
+			if (result) {
+				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Reset
+				));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+
+				OnReset();
+			}
+
+			return result;
+		}
+		/// <summary>
+		/// Notify all relevant listeners that <see cref="Dictionary"/> is
+		/// cleared.
+		/// </summary>
+		/// 
 		/// <param name="action">The action that causes the reset.</param>
 		protected void SendResetEvents(Action action) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-			PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
-#endif
-			OnResetting();
-
-			action.Invoke();
-
-			CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-				NotifyCollectionChangedAction.Reset
-			));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
-
-			OnReset();
+			Func<bool> singleDummyAction = () => {
+				action.Invoke();
+				return true;
+			};
+			SendResetEvents((() => true), singleDummyAction);
 		}
 		/// <summary>
 		/// Perform any implementation-specific event handling when
@@ -402,7 +670,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="Dictionary"/> has been cleared.
 		/// </summary>
 		protected virtual void OnReset() { }
-		#endregion
+#endregion
 
 		/// <summary>
 		/// Gets or sets the element with the specified key.
@@ -739,7 +1007,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		/// 
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is null.
+		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentException">
 		/// An element with the same key already exists in the
@@ -773,7 +1041,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		/// 
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is null.
+		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
 		/// <exception cref="ArgumentException">
 		/// An element with the same key already exists in the
@@ -851,7 +1119,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </returns>
 		/// 
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is null.
+		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
 		public bool ContainsKey(TKey key) =>
 			Dictionary.ContainsKey(key);
@@ -869,7 +1137,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </returns>
 		/// 
 		/// <exception cref="ArgumentNullException">
-		/// <paramref name="item"/> is null.
+		/// <paramref name="item"/> is <c>null</c>.
 		/// </exception>
 		/// 
 		/// <seealso cref="ContainsKey(TKey)"/>
