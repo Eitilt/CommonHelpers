@@ -42,8 +42,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// The type of values in the dictionary.
 	/// </typeparam>
 	public interface IObservableReadOnlyDictionary<TKey, TValue>
-		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>,
-		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,
+		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IEnumerable,
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
 		  INotifyPropertyChanging,
 #endif
@@ -77,8 +76,8 @@ namespace AgEitilt.Common.Dictionary {
 	/// The type of values in the dictionary.
 	/// </typeparam>
 	public abstract partial class ObservableDictionaryBase<TKey, TValue>
-		: IDictionary, IDictionary<TKey, TValue>, IObservableReadOnlyDictionary<TKey, TValue>,
-		  ICollection, ICollection<KeyValuePair<TKey, TValue>> {
+		: IObservableReadOnlyDictionary<TKey, TValue>,
+		  IDictionary, IDictionary<TKey, TValue> {
 		/// <summary>
 		/// Retrieve a reference to the underlying
 		/// <see cref="IDictionary{TKey, TValue}"/> used by the particular
@@ -898,7 +897,9 @@ namespace AgEitilt.Common.Dictionary {
 		/// An <see cref="IEnumerable{T}"/> containing the keys of the object
 		/// that implements <see cref="IDictionary{TKey, TValue}"/>.
 		/// </value>
-		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values =>
+			Values;
+
 		/// <summary>
 		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
 		/// contains a specific item.
