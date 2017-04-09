@@ -42,7 +42,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// The type of values in the dictionary.
 	/// </typeparam>
 	public interface IObservableReadOnlyDictionary<TKey, TValue>
-		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IReadOnlyList<KeyValuePair<TKey, TValue>>,
+		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>,
 		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
 		  INotifyPropertyChanging,
@@ -78,8 +78,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// </typeparam>
 	public abstract partial class ObservableDictionaryBase<TKey, TValue>
 		: IDictionary, IDictionary<TKey, TValue>, IObservableReadOnlyDictionary<TKey, TValue>,
-		  ICollection, ICollection<KeyValuePair<TKey, TValue>>,
-		  IList, IList<KeyValuePair<TKey, TValue>> {
+		  ICollection, ICollection<KeyValuePair<TKey, TValue>> {
 		/// <summary>
 		/// Retrieve a reference to the underlying
 		/// <see cref="IDictionary{TKey, TValue}"/> used by the particular
@@ -917,9 +916,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </returns>
 		public bool Contains(KeyValuePair<TKey, TValue> item) =>
 			Dictionary.Contains(item);
-		//TODO: Document
-		bool IList.Contains(object value) =>
-			Dictionary.Contains((KeyValuePair<TKey, TValue>)value);
 
 		/// <summary>
 		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
@@ -1065,9 +1061,6 @@ namespace AgEitilt.Common.Dictionary {
 			// Shouldn't be null as IDictionary<TKey, TValue> implements
 			// IDictionary, but check just in case
 			(Dictionary as IDictionary)?.IsFixedSize ?? false;
-		//TODO: Document
-		bool IList.IsFixedSize =>
-			(this as IDictionary).IsFixedSize;
 
 		/// <summary>
 		/// Gets a value indicating whether access to <see cref="Dictionary"/>
@@ -1361,126 +1354,6 @@ namespace AgEitilt.Common.Dictionary {
 
 			SendRemoveEvents((() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
 		}
-		//TODO: Document
-		void IList.Remove(object item) =>
-			(this as IDictionary).Remove(item);
 #endregion
-
-#region IList implementation
-		//TODO: Be sure these methods accurately reflect the online docs
-
-		KeyValuePair<TKey, TValue>? IndexedPair(int index) {
-			// This is the only native way to get key/value pairs
-			using (var enumerator = Dictionary.GetEnumerator()) {
-
-				// Retrieve the ith value in the enumerator
-				/* As the enumerator starts before the first value, need to
-					* run the loop `index + 1` times
-					*/
-				for (int i = 0; i <= index; ++i)
-					if (enumerator.MoveNext() == false)
-						return null;
-
-				return enumerator.Current;
-			}
-		}
-		void IndexedPair(int index, TValue newValue) {
-			var item = IndexedPair(index);
-			if (item.HasValue)
-				this[item.Value.Key] = newValue;
-		}
-
-		KeyValuePair<TKey, TValue> IList<KeyValuePair<TKey, TValue>>.this[int index] {
-			get {
-				var item = IndexedPair(index);
-				if (item.HasValue)
-					return item.Value;
-				else
-					throw new IndexOutOfRangeException();
-			}
-			set {
-				var oldItem = IndexedPair(index);
-				if (oldItem.HasValue) {
-					if (oldItem.Value.Key.Equals(value.Key) == false)
-						Remove(oldItem.Value);
-					this[value.Key] = value.Value;
-				} else {
-					Add(value);
-				}
-			}
-		}
-		KeyValuePair<TKey, TValue> IReadOnlyList<KeyValuePair<TKey, TValue>>.this[int index] =>
-			(this as IList<KeyValuePair<TKey, TValue>>)[index];
-		object IList.this[int index] {
-			get {
-				var item = IndexedPair(index);
-				if (item.HasValue)
-					return item.Value;
-				else
-					throw new IndexOutOfRangeException();
-			}
-			set {
-				var oldItem = IndexedPair(index);
-				if (oldItem.HasValue) {
-					if (value is KeyValuePair<TKey, TValue> pair) {
-						if (oldItem.Value.Key.Equals(pair.Key) == false)
-							Remove(oldItem.Value);
-						this[pair.Key] = pair.Value;
-					} else if (value is TValue v) {
-						this[oldItem.Value.Key] = v;
-					} else {
-						throw new InvalidCastException();
-					}
-				} else {
-					if (value is KeyValuePair<TKey, TValue> pair) {
-						this[pair.Key] = pair.Value;
-					} else {
-						throw new InvalidCastException();
-					}
-				}
-			}
-		}
-
-		int IList<KeyValuePair<TKey, TValue>>.IndexOf(KeyValuePair<TKey, TValue> item) {
-			using (var enumerator = Dictionary.GetEnumerator()) {
-				int i = 0;
-				while (enumerator.MoveNext()) {
-					if (enumerator.Current.Equals(item))
-						return i;
-					else
-						++i;
-				}
-			}
-			return -1;
-		}
-		int IList.IndexOf(object item) {
-			if (item is KeyValuePair<TKey, TValue> pair)
-				return (this as IList<KeyValuePair<TKey, TValue>>).IndexOf(pair);
-			else
-				return -1;
-		}
-
-		int IList.Add(object value) {
-			(this as IList).Insert(0, value);
-			return (this as IList<KeyValuePair<TKey, TValue>>).IndexOf((KeyValuePair<TKey, TValue>)value);
-		}
-		void IList.Insert(int index, object value) {
-			var item = (KeyValuePair<TKey, TValue>)value;
-			Add(item);
-		}
-
-		void IList<KeyValuePair<TKey, TValue>>.Insert(int index, KeyValuePair<TKey, TValue> item) =>
-			Add(item);
-
-		void IList<KeyValuePair<TKey, TValue>>.RemoveAt(int index) {
-			var oldItem = IndexedPair(index);
-			if (oldItem.HasValue)
-				Remove(oldItem.Value);
-			else
-				throw new IndexOutOfRangeException();
-		}
-		void IList.RemoveAt(int index) =>
-			(this as IList<KeyValuePair<TKey, TValue>>).RemoveAt(index);
-		#endregion
 	}
 }
