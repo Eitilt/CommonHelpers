@@ -41,12 +41,13 @@ namespace AgEitilt.Common.Dictionary {
 	/// <typeparam name="TValue">
 	/// The type of values in the dictionary.
 	/// </typeparam>
-	public interface IObservableReadOnlyDictionary<TKey, TValue> : IReadOnlyDictionary<TKey, TValue>,
+	public interface IObservableReadOnlyDictionary<TKey, TValue>
+		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IReadOnlyList<KeyValuePair<TKey, TValue>>,
+		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>>,
 #if (SUPPORT_PROPERTYCHANGING_EVENT)
-		INotifyPropertyChanging,
+		  INotifyPropertyChanging,
 #endif
-		INotifyCollectionChanged, INotifyPropertyChanged { }
-
+		  INotifyCollectionChanged, INotifyPropertyChanged { }
 
 	/// <summary>
 	/// Represents a collection of keys and values while notifying listeners
@@ -77,8 +78,8 @@ namespace AgEitilt.Common.Dictionary {
 	/// </typeparam>
 	public abstract partial class ObservableDictionaryBase<TKey, TValue>
 		: IDictionary, IDictionary<TKey, TValue>, IObservableReadOnlyDictionary<TKey, TValue>,
-		  ICollection, ICollection<KeyValuePair<TKey, TValue>>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>,
-		  IEnumerable, IEnumerable<KeyValuePair<TKey, TValue>> {
+		  ICollection, ICollection<KeyValuePair<TKey, TValue>>,
+		  IList, IList<KeyValuePair<TKey, TValue>> {
 		/// <summary>
 		/// Retrieve a reference to the underlying
 		/// <see cref="IDictionary{TKey, TValue}"/> used by the particular
@@ -672,6 +673,7 @@ namespace AgEitilt.Common.Dictionary {
 		protected virtual void OnReset() { }
 #endregion
 
+#region Item accessors
 		/// <summary>
 		/// Gets or sets the element with the specified key.
 		/// </summary>
@@ -880,6 +882,7 @@ namespace AgEitilt.Common.Dictionary {
 			// Shouldn't be null as IDictionary<TKey, TValue> implements
 			// IDictionary, but check just in case
 			(Dictionary as IDictionary)?.Values;
+
 		/// <summary>
 		/// Gets a read-only, enumerable collection containing the values of
 		/// <see cref="Dictionary"/>.
@@ -897,13 +900,126 @@ namespace AgEitilt.Common.Dictionary {
 		/// that implements <see cref="IDictionary{TKey, TValue}"/>.
 		/// </value>
 		IEnumerable<TValue> IReadOnlyDictionary<TKey, TValue>.Values => Values;
+		/// <summary>
+		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
+		/// contains a specific item.
+		/// </summary>
+		/// 
+		/// <param name="item">
+		/// The <see cref="KeyValuePair{TKey, TValue}"/> to locate.
+		/// </param>
+		/// 
+		/// <returns>
+		/// <c>true</c> if the value in the
+		/// <see cref="IDictionary{TKey, TValue}"/> associated with the key of
+		/// <paramref name="item"/> matches the latter's value; otherwise
+		/// <c>false</c>.
+		/// </returns>
+		public bool Contains(KeyValuePair<TKey, TValue> item) =>
+			Dictionary.Contains(item);
+		//TODO: Document
+		bool IList.Contains(object value) =>
+			Dictionary.Contains((KeyValuePair<TKey, TValue>)value);
 
+		/// <summary>
+		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
+		/// contains an element with the specified key.
+		/// </summary>
+		/// 
+		/// <param name="key">The key to locate.</param>
+		/// 
+		/// <returns>
+		/// <c>true</c> if the <see cref="IDictionary{TKey, TValue}"/>
+		/// contains an element associated with <paramref name="key"/>;
+		/// otherwise, <c>false</c>.
+		/// </returns>
+		/// 
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="key"/> is <c>null</c>.
+		/// </exception>
+		public bool ContainsKey(TKey key) =>
+			Dictionary.ContainsKey(key);
+		/// <summary>
+		/// Determines whether the <see cref="IDictionary"/> contains an
+		/// element with the specified key.
+		/// </summary>
+		/// 
+		/// <param name="item">The key to locate.</param>
+		/// 
+		/// <returns>
+		/// <c>true</c> if the <see cref="IDictionary"/> contains an element
+		/// associated with a key <paramref name="item"/>; otherwise,
+		/// <c>false</c>.
+		/// </returns>
+		/// 
+		/// <exception cref="ArgumentNullException">
+		/// <paramref name="item"/> is <c>null</c>.
+		/// </exception>
+		/// 
+		/// <seealso cref="ContainsKey(TKey)"/>
+		bool IDictionary.Contains(object item) =>
+			// Shouldn't be null as IDictionary<TKey, TValue> implements
+			// IDictionary, but check just in case
+			(Dictionary as IDictionary)?.Contains(item) ?? false;
+
+		/// <summary>
+		/// Returns an enumerator that iterates through the key-value pairs in
+		/// the dictionary.
+		/// </summary>
+		/// 
+		/// <returns>
+		/// An enumerator that can be used to iterate through the dictionary.
+		/// </returns>
+		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() =>
+			Dictionary.GetEnumerator();
+		/// <summary>
+		/// Returns an enumerator that iterates through the key-value pairs in
+		/// the dictionary as <see cref="DictionaryEntry"/> instances boxed to
+		/// <see cref="Object"/>.
+		/// </summary>
+		/// 
+		/// <returns>
+		/// An enumerator that can be used to iterate through the dictionary.
+		/// </returns>
+		IDictionaryEnumerator IDictionary.GetEnumerator() =>
+			// Shouldn't be null as IDictionary<TKey, TValue> implements
+			// IDictionary, but check just in case
+			(Dictionary as IDictionary)?.GetEnumerator();
+		/// <summary>
+		/// Returns an enumerator that iterates through the key-value pairs in
+		/// the dictionary.
+		/// </summary>
+		/// 
+		/// <returns>
+		/// An enumerator that can be used to iterate through the dictionary.
+		/// </returns>
+		IEnumerator IEnumerable.GetEnumerator() =>
+			Dictionary.GetEnumerator();
+
+		/// <summary>
+		/// Gets the value associated with the specified key.
+		/// </summary>
+		/// 
+		/// <param name="key">The key whose value to get.</param>
+		/// <param name="value">
+		/// When this method returns, the value associated with
+		/// <paramref name="key"/>, if that key is found; otherwise, the
+		/// default value for the type of the value parameter. This parameter
+		/// is passed uninitialized.
+		/// </param>
+		/// 
+		/// <returns></returns>
+		public bool TryGetValue(TKey key, out TValue value) =>
+			Dictionary.TryGetValue(key, out value);
+#endregion
+
+#region Properties
 		/// <summary>
 		/// Gets the number of key-value pairs contained in
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		public int Count =>
-			Dictionary.Count;
+				Dictionary.Count;
 		/// <summary>
 		/// Gets the number of key-value pairs contained in
 		/// <see cref="Dictionary"/>.
@@ -949,6 +1065,9 @@ namespace AgEitilt.Common.Dictionary {
 			// Shouldn't be null as IDictionary<TKey, TValue> implements
 			// IDictionary, but check just in case
 			(Dictionary as IDictionary)?.IsFixedSize ?? false;
+		//TODO: Document
+		bool IList.IsFixedSize =>
+			(this as IDictionary).IsFixedSize;
 
 		/// <summary>
 		/// Gets a value indicating whether access to <see cref="Dictionary"/>
@@ -993,7 +1112,9 @@ namespace AgEitilt.Common.Dictionary {
 		/// </remarks>
 		object ICollection.SyncRoot =>
 			(Dictionary as IDictionary)?.SyncRoot;
+#endregion
 
+#region Modifiers
 		/// <summary>
 		/// Adds an element with the provided key and value to the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
@@ -1088,65 +1209,6 @@ namespace AgEitilt.Common.Dictionary {
 			Clear();
 
 		/// <summary>
-		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
-		/// contains a specific item.
-		/// </summary>
-		/// 
-		/// <param name="item">
-		/// The <see cref="KeyValuePair{TKey, TValue}"/> to locate.
-		/// </param>
-		/// 
-		/// <returns>
-		/// <c>true</c> if the value in the
-		/// <see cref="IDictionary{TKey, TValue}"/> associated with the key of
-		/// <paramref name="item"/> matches the latter's value; otherwise
-		/// <c>false</c>.
-		/// </returns>
-		public bool Contains(KeyValuePair<TKey, TValue> item) =>
-			Dictionary.Contains(item);
-
-		/// <summary>
-		/// Determines whether the <see cref="IDictionary{TKey, TValue}"/>
-		/// contains an element with the specified key.
-		/// </summary>
-		/// 
-		/// <param name="key">The key to locate.</param>
-		/// 
-		/// <returns>
-		/// <c>true</c> if the <see cref="IDictionary{TKey, TValue}"/>
-		/// contains an element associated with <paramref name="key"/>;
-		/// otherwise, <c>false</c>.
-		/// </returns>
-		/// 
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
-		/// </exception>
-		public bool ContainsKey(TKey key) =>
-			Dictionary.ContainsKey(key);
-		/// <summary>
-		/// Determines whether the <see cref="IDictionary"/> contains an
-		/// element with the specified key.
-		/// </summary>
-		/// 
-		/// <param name="item">The key to locate.</param>
-		/// 
-		/// <returns>
-		/// <c>true</c> if the <see cref="IDictionary"/> contains an element
-		/// associated with a key <paramref name="item"/>; otherwise,
-		/// <c>false</c>.
-		/// </returns>
-		/// 
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="item"/> is <c>null</c>.
-		/// </exception>
-		/// 
-		/// <seealso cref="ContainsKey(TKey)"/>
-		bool IDictionary.Contains(object item) =>
-			// Shouldn't be null as IDictionary<TKey, TValue> implements
-			// IDictionary, but check just in case
-			(Dictionary as IDictionary)?.Contains(item) ?? false;
-
-		/// <summary>
 		/// Copies the elements of the <see cref="IDictionary{TKey, TValue}"/>
 		/// to an <see cref="Array"/>, starting at a particular index.
 		/// </summary>
@@ -1215,40 +1277,6 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		void ICollection.CopyTo(Array array, int arrayIndex) =>
 			(Dictionary as IDictionary).CopyTo(array, arrayIndex);
-
-		/// <summary>
-		/// Returns an enumerator that iterates through the key-value pairs in
-		/// the dictionary.
-		/// </summary>
-		/// 
-		/// <returns>
-		/// An enumerator that can be used to iterate through the dictionary.
-		/// </returns>
-		public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator() =>
-			Dictionary.GetEnumerator();
-		/// <summary>
-		/// Returns an enumerator that iterates through the key-value pairs in
-		/// the dictionary as <see cref="DictionaryEntry"/> instances boxed to
-		/// <see cref="Object"/>.
-		/// </summary>
-		/// 
-		/// <returns>
-		/// An enumerator that can be used to iterate through the dictionary.
-		/// </returns>
-		IDictionaryEnumerator IDictionary.GetEnumerator() =>
-			// Shouldn't be null as IDictionary<TKey, TValue> implements
-			// IDictionary, but check just in case
-			(Dictionary as IDictionary)?.GetEnumerator();
-		/// <summary>
-		/// Returns an enumerator that iterates through the key-value pairs in
-		/// the dictionary.
-		/// </summary>
-		/// 
-		/// <returns>
-		/// An enumerator that can be used to iterate through the dictionary.
-		/// </returns>
-		IEnumerator IEnumerable.GetEnumerator() =>
-			Dictionary.GetEnumerator();
 
 		/// <summary>
 		/// Removes the element with the specified key from the
@@ -1333,21 +1361,126 @@ namespace AgEitilt.Common.Dictionary {
 
 			SendRemoveEvents((() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
 		}
+		//TODO: Document
+		void IList.Remove(object item) =>
+			(this as IDictionary).Remove(item);
+#endregion
 
-		/// <summary>
-		/// Gets the value associated with the specified key.
-		/// </summary>
-		/// 
-		/// <param name="key">The key whose value to get.</param>
-		/// <param name="value">
-		/// When this method returns, the value associated with
-		/// <paramref name="key"/>, if that key is found; otherwise, the
-		/// default value for the type of the value parameter. This parameter
-		/// is passed uninitialized.
-		/// </param>
-		/// 
-		/// <returns></returns>
-		public bool TryGetValue(TKey key, out TValue value) =>
-			Dictionary.TryGetValue(key, out value);
+#region IList implementation
+		//TODO: Be sure these methods accurately reflect the online docs
+
+		KeyValuePair<TKey, TValue>? IndexedPair(int index) {
+			// This is the only native way to get key/value pairs
+			using (var enumerator = Dictionary.GetEnumerator()) {
+
+				// Retrieve the ith value in the enumerator
+				/* As the enumerator starts before the first value, need to
+					* run the loop `index + 1` times
+					*/
+				for (int i = 0; i <= index; ++i)
+					if (enumerator.MoveNext() == false)
+						return null;
+
+				return enumerator.Current;
+			}
+		}
+		void IndexedPair(int index, TValue newValue) {
+			var item = IndexedPair(index);
+			if (item.HasValue)
+				this[item.Value.Key] = newValue;
+		}
+
+		KeyValuePair<TKey, TValue> IList<KeyValuePair<TKey, TValue>>.this[int index] {
+			get {
+				var item = IndexedPair(index);
+				if (item.HasValue)
+					return item.Value;
+				else
+					throw new IndexOutOfRangeException();
+			}
+			set {
+				var oldItem = IndexedPair(index);
+				if (oldItem.HasValue) {
+					if (oldItem.Value.Key.Equals(value.Key) == false)
+						Remove(oldItem.Value);
+					this[value.Key] = value.Value;
+				} else {
+					Add(value);
+				}
+			}
+		}
+		KeyValuePair<TKey, TValue> IReadOnlyList<KeyValuePair<TKey, TValue>>.this[int index] =>
+			(this as IList<KeyValuePair<TKey, TValue>>)[index];
+		object IList.this[int index] {
+			get {
+				var item = IndexedPair(index);
+				if (item.HasValue)
+					return item.Value;
+				else
+					throw new IndexOutOfRangeException();
+			}
+			set {
+				var oldItem = IndexedPair(index);
+				if (oldItem.HasValue) {
+					if (value is KeyValuePair<TKey, TValue> pair) {
+						if (oldItem.Value.Key.Equals(pair.Key) == false)
+							Remove(oldItem.Value);
+						this[pair.Key] = pair.Value;
+					} else if (value is TValue v) {
+						this[oldItem.Value.Key] = v;
+					} else {
+						throw new InvalidCastException();
+					}
+				} else {
+					if (value is KeyValuePair<TKey, TValue> pair) {
+						this[pair.Key] = pair.Value;
+					} else {
+						throw new InvalidCastException();
+					}
+				}
+			}
+		}
+
+		int IList<KeyValuePair<TKey, TValue>>.IndexOf(KeyValuePair<TKey, TValue> item) {
+			using (var enumerator = Dictionary.GetEnumerator()) {
+				int i = 0;
+				while (enumerator.MoveNext()) {
+					if (enumerator.Current.Equals(item))
+						return i;
+					else
+						++i;
+				}
+			}
+			return -1;
+		}
+		int IList.IndexOf(object item) {
+			if (item is KeyValuePair<TKey, TValue> pair)
+				return (this as IList<KeyValuePair<TKey, TValue>>).IndexOf(pair);
+			else
+				return -1;
+		}
+
+		int IList.Add(object value) {
+			(this as IList).Insert(0, value);
+			return (this as IList<KeyValuePair<TKey, TValue>>).IndexOf((KeyValuePair<TKey, TValue>)value);
+		}
+		void IList.Insert(int index, object value) {
+			var item = (KeyValuePair<TKey, TValue>)value;
+			Add(item);
+		}
+
+		void IList<KeyValuePair<TKey, TValue>>.Insert(int index, KeyValuePair<TKey, TValue> item) =>
+			Add(item);
+
+		void IList<KeyValuePair<TKey, TValue>>.RemoveAt(int index) {
+			var oldItem = IndexedPair(index);
+			if (oldItem.HasValue)
+				Remove(oldItem.Value);
+			else
+				throw new IndexOutOfRangeException();
+		}
+		void IList.RemoveAt(int index) =>
+			(this as IList<KeyValuePair<TKey, TValue>>).RemoveAt(index);
+		#endregion
 	}
 }

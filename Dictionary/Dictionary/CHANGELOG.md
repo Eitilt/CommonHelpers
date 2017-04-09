@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 0.3.1
+### Added
+- `IList` and similar interfaces for `ObservableDictionaryBase`
+### Deprecated
+- `IList` and similar interfaces for `ObservableDictionaryBase`
+  - This throws an exception as soon as more than one element is added
+    to the dictionary, and will be moved to a subclass
+### Fixed
+- `ObservableDictionary` doesn't update properly in a UWP `ListView`
+
 ## 0.3.0
 ### Added
 - `ConcurrentObservableDictionary` wrapper for `ConcurrentDictionary`
@@ -18,7 +28,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
   on `ConcurrentDictionary`
 ### Fixed
 - `ObservableDictionary` constructors taking an existing dictionary
-  didn't initialize the object correctly
+  doesn't initialize the object correctly
 
 ## 0.2.2
 ### Added

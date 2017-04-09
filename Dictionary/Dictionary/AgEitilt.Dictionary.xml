@@ -1756,6 +1756,107 @@
             that implements <see cref="T:System.Collections.Generic.IDictionary`2"/>.
             </value>
         </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains a specific item.
+            </summary>
+            
+            <param name="item">
+            The <see cref="T:System.Collections.Generic.KeyValuePair`2"/> to locate.
+            </param>
+            
+            <returns>
+            <c>true</c> if the value in the
+            <see cref="T:System.Collections.Generic.IDictionary`2"/> associated with the key of
+            <paramref name="item"/> matches the latter's value; otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element with the specified key.
+            </summary>
+            
+            <param name="key">The key to locate.</param>
+            
+            <returns>
+            <c>true</c> if the <see cref="T:System.Collections.Generic.IDictionary`2"/>
+            contains an element associated with <paramref name="key"/>;
+            otherwise, <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Contains(System.Object)">
+            <summary>
+            Determines whether the <see cref="T:System.Collections.IDictionary"/> contains an
+            element with the specified key.
+            </summary>
+            
+            <param name="item">The key to locate.</param>
+            
+            <returns>
+            <c>true</c> if the <see cref="T:System.Collections.IDictionary"/> contains an element
+            associated with a key <paramref name="item"/>; otherwise,
+            <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="item"/> is <c>null</c>.
+            </exception>
+            
+            <seealso cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)"/>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary as <see cref="T:System.Collections.DictionaryEntry"/> instances boxed to
+            <see cref="T:System.Object"/>.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Returns an enumerator that iterates through the key-value pairs in
+            the dictionary.
+            </summary>
+            
+            <returns>
+            An enumerator that can be used to iterate through the dictionary.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.TryGetValue(`0,`1@)">
+            <summary>
+            Gets the value associated with the specified key.
+            </summary>
+            
+            <param name="key">The key whose value to get.</param>
+            <param name="value">
+            When this method returns, the value associated with
+            <paramref name="key"/>, if that key is found; otherwise, the
+            default value for the type of the value parameter. This parameter
+            is passed uninitialized.
+            </param>
+            
+            <returns></returns>
+        </member>
         <member name="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Count">
             <summary>
             Gets the number of key-value pairs contained in
@@ -1923,61 +2024,6 @@
             
             <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
         </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
-            <summary>
-            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
-            contains a specific item.
-            </summary>
-            
-            <param name="item">
-            The <see cref="T:System.Collections.Generic.KeyValuePair`2"/> to locate.
-            </param>
-            
-            <returns>
-            <c>true</c> if the value in the
-            <see cref="T:System.Collections.Generic.IDictionary`2"/> associated with the key of
-            <paramref name="item"/> matches the latter's value; otherwise
-            <c>false</c>.
-            </returns>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)">
-            <summary>
-            Determines whether the <see cref="T:System.Collections.Generic.IDictionary`2"/>
-            contains an element with the specified key.
-            </summary>
-            
-            <param name="key">The key to locate.</param>
-            
-            <returns>
-            <c>true</c> if the <see cref="T:System.Collections.Generic.IDictionary`2"/>
-            contains an element associated with <paramref name="key"/>;
-            otherwise, <c>false</c>.
-            </returns>
-            
-            <exception cref="T:System.ArgumentNullException">
-            <paramref name="key"/> is <c>null</c>.
-            </exception>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#Contains(System.Object)">
-            <summary>
-            Determines whether the <see cref="T:System.Collections.IDictionary"/> contains an
-            element with the specified key.
-            </summary>
-            
-            <param name="item">The key to locate.</param>
-            
-            <returns>
-            <c>true</c> if the <see cref="T:System.Collections.IDictionary"/> contains an element
-            associated with a key <paramref name="item"/>; otherwise,
-            <c>false</c>.
-            </returns>
-            
-            <exception cref="T:System.ArgumentNullException">
-            <paramref name="item"/> is <c>null</c>.
-            </exception>
-            
-            <seealso cref="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.ContainsKey(`0)"/>
-        </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
             <summary>
             Copies the elements of the <see cref="T:System.Collections.Generic.IDictionary`2"/>
@@ -2046,37 +2092,6 @@
             <typeparamref name="TKey"/> cannot be cast automatically to the
             underlying type of <paramref name="array"/>.
             </exception>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through the key-value pairs in
-            the dictionary.
-            </summary>
-            
-            <returns>
-            An enumerator that can be used to iterate through the dictionary.
-            </returns>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IDictionary#GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through the key-value pairs in
-            the dictionary as <see cref="T:System.Collections.DictionaryEntry"/> instances boxed to
-            <see cref="T:System.Object"/>.
-            </summary>
-            
-            <returns>
-            An enumerator that can be used to iterate through the dictionary.
-            </returns>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.System#Collections#IEnumerable#GetEnumerator">
-            <summary>
-            Returns an enumerator that iterates through the key-value pairs in
-            the dictionary.
-            </summary>
-            
-            <returns>
-            An enumerator that can be used to iterate through the dictionary.
-            </returns>
         </member>
         <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.Remove(`0)">
             <summary>
@@ -2147,21 +2162,6 @@
             </exception>
             
             <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
-        </member>
-        <member name="M:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.TryGetValue(`0,`1@)">
-            <summary>
-            Gets the value associated with the specified key.
-            </summary>
-            
-            <param name="key">The key whose value to get.</param>
-            <param name="value">
-            When this method returns, the value associated with
-            <paramref name="key"/>, if that key is found; otherwise, the
-            default value for the type of the value parameter. This parameter
-            is passed uninitialized.
-            </param>
-            
-            <returns></returns>
         </member>
     </members>
 </doc>

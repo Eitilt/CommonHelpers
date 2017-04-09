@@ -11,9 +11,9 @@
     <PackageLicenseUrl>https://www.mozilla.org/en-US/MPL/2.0/</PackageLicenseUrl>
     <DocumentationFile>AgEitilt.Dictionary.xml</DocumentationFile>
     <DefaultLanguage>en-US</DefaultLanguage>
-    <Version>0.3.0</Version>
-    <AssemblyVersion>0.3.0</AssemblyVersion>
-    <FileVersion>0.3.0.0</FileVersion>
+    <Version>0.3.1</Version>
+    <AssemblyVersion>0.3.1</AssemblyVersion>
+    <FileVersion>0.3.1.0</FileVersion>
     <RepositoryUrl>https://github.com/Eitilt/CommonHelpers</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
     <PackageTags>dictionary extension</PackageTags>
