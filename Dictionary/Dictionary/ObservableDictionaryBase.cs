@@ -43,7 +43,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// </typeparam>
 	public interface IObservableReadOnlyDictionary<TKey, TValue>
 		: IReadOnlyDictionary<TKey, TValue>, IReadOnlyCollection<KeyValuePair<TKey, TValue>>, IEnumerable,
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 		  INotifyPropertyChanging,
 #endif
 		  INotifyCollectionChanged, INotifyPropertyChanged { }
@@ -117,7 +117,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="PropertyChangedEventArgs"/>.
 		/// </remarks>
 		public event PropertyChangedEventHandler PropertyChanged;
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 		/// <summary>
 		/// Occurs just before a property value changes.
 		/// </summary>
@@ -185,7 +185,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="item">The new item.</param>
 		Tuple<bool, TValue> SendAddEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
 			if (preTest.Invoke()) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
@@ -313,7 +313,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
 		Tuple<bool, TValue> SendRemoveEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
 			if (preTest.Invoke()) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
@@ -455,7 +455,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		Tuple<bool, TValue> SendReplaceEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
 			if (preTest.Invoke()) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 #endif
 				OnReplacing(newItem, oldItem);
@@ -624,7 +624,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="action">The action that causes the reset.</param>
 		protected bool SendResetEvents(Func<bool> preTest, Func<bool> action) {
 			if (preTest.Invoke()) {
-#if (SUPPORT_PROPERTYCHANGING_EVENT)
+#if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));

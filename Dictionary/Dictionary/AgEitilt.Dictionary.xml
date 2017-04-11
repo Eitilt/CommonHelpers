@@ -2163,5 +2163,1305 @@
             
             <seealso cref="P:AgEitilt.Common.Dictionary.ObservableDictionaryBase`2.IsReadOnly"/>
         </member>
+        <member name="T:AgEitilt.Common.Dictionary.IReadOnlyOrderedDictionary`2">
+            <summary>
+            A read-only dictionary that additionally maintains a predictable
+            ordering of its items.
+            </summary>
+            
+            <typeparam name="TKey">
+            The type of keys to values in the dictionary.
+            </typeparam>
+            <typeparam name="TValue">
+            The type of the values stored in the dictionary.
+            </typeparam>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.OrderedDictionary`2">
+            <summary>
+            A <see cref="T:System.Collections.Generic.Dictionary`2"/> that additionally maintains a
+            predictable ordering of its items.
+            </summary>
+            
+            <remarks>
+            As this is built around the standard
+            <see cref="T:System.Collections.Generic.Dictionary`2"/> type, its keys may not be
+            <c>null</c> but its values (as long as <typeparamref name="TValue"/>
+            is a nullable type) can.
+            <para/>
+            Due to <see cref="T:System.Int32"/> being used as the index type in member
+            overrides, it is recommended that <typeparamref name="TKey"/>
+            <em>not</em> be given the type <see cref="T:System.Int32"/>, and instead that
+            integer keys be cast to one of the other number types (such as
+            <see cref="T:System.UInt32"/> or <see cref="T:System.Int16"/>).
+            <para/>
+            TODO: Implement <see cref="T:System.Collections.Generic.LinkedList`1"/>-style access.
+            </remarks>
+            
+            <typeparam name="TKey">
+            The type of keys to values in the dictionary.
+            </typeparam>
+            <typeparam name="TValue">
+            The type of the values stored in the dictionary.
+            </typeparam>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator">
+            <summary>
+            An enumerator for items in an
+            <see cref="T:AgEitilt.Common.Dictionary.OrderedDictionary`2"/>.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.list">
+            <summary>
+            A reference to the dictionary's items.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.currentNode">
+            <summary>
+            The currently-pointed-to item.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.beforeStart">
+            <summary>
+            Indicates that the enumerator should be considered "before the
+            first element" in the dictionary.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.#ctor(AgEitilt.Common.Dictionary.OrderedDictionary{`0,`1})">
+            <summary>
+            Initialize an enumerator over a specified dictionary.
+            </summary>
+            
+            <remarks>
+            This constructor runs in <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="dictionary">The dictionary to enumerate.</param>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.Current">
+            <summary>
+            The item currently pointed to by the enumerator.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.System#Collections#IEnumerator#Current">
+            <summary>
+            The item currently pointed to by the enumerator.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.System#Collections#IDictionaryEnumerator#Entry">
+            <summary>
+            The item currently pointed to by the enumerator.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.System#Collections#IDictionaryEnumerator#Key">
+            <summary>
+            The key of the item currently pointed to by the enumerator.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.System#Collections#IDictionaryEnumerator#Value">
+            <summary>
+            The value of the item currently pointed to by the enumerator.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.Dispose">
+            <summary>
+            Releases all resources used by the object.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.MoveNext">
+            <summary>
+            Increment the enumerator to point to the next element in the
+            dictionary.
+            </summary>
+            
+            <returns>
+            <c>true</c> if that next element exists and is successfully
+            pointed to; otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Enumerator.Reset">
+            <summary>
+            Return the enumerator to point to an element "before the
+            start" of the dictionary.
+            </summary>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.dictionary">
+            <summary>
+            The underlying key-value map used to implement dictionary access.
+            </summary>
+            
+            <remarks>
+            While this field would be simpler to maintain if its values were
+            simply <c>LinkedListNode&lt;TValue&gt;</c> objects, using the
+            longer (reference-typed) form allows the same objects to also be
+            used in <see cref="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.list"/>, thus requiring less space and ensuring
+            that any reordering of that list will be automatically reflected.
+            </remarks>
+        </member>
+        <member name="F:AgEitilt.Common.Dictionary.OrderedDictionary`2.list">
+            <summary>
+            The underlying ordered list used to implement indexed access.
+            </summary>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor">
+            <summary>
+            Initialize an empty dictionary with the default capacity and
+            comparer for the key type.
+            </summary>
+            
+            <remarks>
+            This constructor runs in <c>O(1) time</c>.
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor(System.Int32)">
+            <summary>
+            Initialize an empty dictionary with the specified capacity and
+            the default comparer for the key type.
+            </summary>
+            
+            <remarks>
+            This constructor runs in <c>O(1) time</c>.
+            </remarks>
+            
+            <param name="capacity">
+            The initial capacity of the dictionary.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">
+            <summary>
+            Initialize a dictionary with the specified items and the default
+            comparer for the key type.
+            </summary>
+            
+            <remarks>
+            The initial capacity will match the number of elements in
+            <paramref name="items"/>.
+            <para/>
+            This constructor runs in <c>O(n) time</c>, where <c>n</c> is the
+            number of elements in <paramref name="items"/>.
+            </remarks>
+            
+            <param name="items">
+            The items with which to initialize the dictionary.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor(System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initialize an empty dictionary with the default capacity and the
+            specified key comparer.
+            </summary>
+            
+            <remarks>
+            This constructor runs in <c>O(1) time</c>.
+            </remarks>
+            
+            <param name="comparer">
+            The means by which keys should be checked for equality.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor(System.Int32,System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initialize an empty dictionary with the specified capacity and key
+            comparer.
+            </summary>
+            
+            <remarks>
+            This constructor runs in <c>O(1) time</c>.
+            </remarks>
+            
+            <param name="capacity">
+            The initial capacity of the dictionary.
+            </param>
+            <param name="comparer">
+            The means by which keys should be checked for equality.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}},System.Collections.Generic.IEqualityComparer{`0})">
+            <summary>
+            Initialize a dictionary with the specified items and key comparer.
+            </summary>
+            
+            <remarks>
+            The initial capacity will match the number of elements in
+            <paramref name="items"/>.
+            <para/>
+            This constructor runs in <c>O(n) time</c>, where <c>n</c> is the
+            number of elements in <paramref name="items"/>.
+            </remarks>
+            
+            <param name="items">
+            The items with which to initialize the dictionary.
+            </param>
+            <param name="comparer">
+            The means by which keys should be checked for equality.
+            </param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.PopulateDictionary(System.Collections.Generic.IEnumerable{System.Collections.Generic.KeyValuePair{`0,`1}})">
+            <summary>
+            Add all elements in an existing list to the dictionary.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n)</c> time, where <c>n</c> is the
+            number of elements in <paramref name="items"/>.
+            </remarks>
+            
+            <param name="items">The elements to add to the dictionary.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.NodeAt(System.Int32)">
+            <summary>
+            Step through the list to find the node at an arbitrary index.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n/2)</c> time.
+            </remarks>
+            
+            <param name="index">The index of the node to access.</param>
+            
+            <returns>The node at <paramref name="index"/>.</returns>
+            
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Item(`0)">
+            <summary>
+            Gets or sets the value associated with the specific key.
+            </summary>
+            
+            <remarks>
+            If used as a setter and an item already exists with a key equal to
+            <paramref name="key"/>, the old value is overwritten.
+            <para/>
+            Getting or setting values through this property approaches
+            <c>O(1)</c>.
+            </remarks>
+            
+            <param name="key">The key of the value to get or set.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            This is used as an accessor, and the dictionary does not contain
+            any item with a key equal to <paramref name="key"/>.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Item(`0)">
+            <summary>
+            Gets the value associated with the specific key.
+            </summary>
+            
+            <remarks>
+            Getting values through this property approaches <c>O(1)</c>.
+            </remarks>
+            
+            <param name="key">The key of the value to get.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            The dictionary does not contain any item with a key equal to
+            <paramref name="key"/>.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Item(System.Object)">
+            <summary>
+            Gets or sets the value associated with the specific key.
+            </summary>
+            
+            <remarks>
+            If used as a setter and an item already exists with a key equal to
+            <paramref name="key"/>, the old value is overwritten.
+            <para/>
+            Getting or setting values through this property takes <c>O(1)</c>.
+            </remarks>
+            
+            <param name="key">The key of the value to get or set.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="key"/> can not be expressed as a <c>TKey</c>, or
+            the new value can not be expressed as a <c>TValue</c>.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            This is used as an accessor, and the dictionary does not contain
+            any item with a key equal to <paramref name="key"/>.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Item(System.Int32)">
+            <summary>
+            Gets or sets the value at the specified index.
+            </summary>
+            
+            <remarks>
+            If used as a setter and <paramref name="index"/> is equal to the
+            number of items already in the dictionary the new item is added to
+            the end, while if it's less, the item at that index is replaced.
+            <para/>
+            Getting or setting values through this property is <c>O(n/2)</c>.
+            </remarks>
+            
+            <param name="index">The index of the value to get or set.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            This is used as a setter, and the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of the new value is
+            <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            This is used as a setter, and the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of the new value
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#IReadOnlyList{System#Collections#Generic#KeyValuePair{TKey,TValue}}#Item(System.Int32)">
+            <summary>
+            Gets the value at the specified index.
+            </summary>
+            
+            <remarks>
+            Getting values through this property runs in <c>O(n/2)</c> time.
+            </remarks>
+            
+            <param name="index">The index of the value to access.</param>
+            
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#Item(System.Int32)">
+            <summary>
+            Gets or sets the value at the specified index.
+            </summary>
+            
+            <remarks>
+            If used as a setter and <paramref name="index"/> is equal to the
+            number of items already in the dictionary the new item is added to
+            the end, while if it's less, the item at that index is replaced.
+            <para/>
+            Getting or setting values through this property is <c>O(n/2)</c>.
+            </remarks>
+            
+            <param name="index">The index of the value to get or set.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            This is used as a setter, and the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of the new value is
+            <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            This is used as a setter, and the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of the new value
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Keys">
+            <summary>
+            Get a list of the keys in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Keys">
+            <summary>
+            Get a list of the keys in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Keys">
+            <summary>
+            Get a list of the keys in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Values">
+            <summary>
+            Get a list of the values in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#IReadOnlyDictionary{TKey,TValue}#Values">
+            <summary>
+            Get a list of the keys in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Values">
+            <summary>
+            Get a list of the keys in the dictionary, in the proper order.
+            </summary>
+            
+            <remarks>
+            This is a static collection; any changes made to the dictionary
+            will not be reflected in the returned object.
+            <para/>
+            This operation runs in <c>O(n)</c> time; in almost all cases, it
+            will be better to use <see cref="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator"/> to iterate
+            through the items as <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Contains(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Indicates whether an item with the specified key and value exists
+            in the dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="item">The key/value pair to search for.</param>
+            
+            <returns>
+            <c>true</c> if <paramref name="item"/> exists in the dictionary;
+            otherwise <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#Contains(System.Object)">
+            <summary>
+            Indicates whether an item with the specified key and value exists
+            in the dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="item">The key/value pair to search for.</param>
+            
+            <returns>
+            <c>true</c> if <paramref name="item"/> exists in the dictionary;
+            otherwise <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="item"/> can not be expressed as a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.ContainsKey(`0)">
+            <summary>
+            Indicates whether an item with the specified key exists in the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key to search for.</param>
+            
+            <returns>
+            <c>true</c> if <paramref name="key"/> exists in the dictionary;
+            otherwise <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Contains(System.Object)">
+            <summary>
+            Indicates whether an item with the specified key exists in the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key to search for.</param>
+            
+            <returns>
+            <c>true</c> if <paramref name="key"/> exists in the dictionary;
+            otherwise <c>false</c>.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="key"/> can not be expressed as a <c>TKey</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.ContainsValue(`1)">
+            <summary>
+            Indicates whether any item in the dictionary has the specified
+            value.
+            </summary>
+            
+            <remarks>This operation runs in <c>O(n)</c> time.</remarks>
+            
+            <param name="value">The value to search for.</param>
+            
+            <returns>
+            <c>true</c> if an item with a value equal to
+            <paramref name="value"/> exists in the dictionary; otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.GetEnumerator">
+            <summary>
+            Get an object allowing iteration through the dictionary, in the
+            proper order.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(1)</c> time.
+            </remarks>
+            
+            <returns>An enumerator over the dictionary.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#IEnumerable{System#Collections#Generic#KeyValuePair{TKey,TValue}}#GetEnumerator">
+            <summary>
+            Get an object allowing iteration through the dictionary, in the
+            proper order.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(1)</c> time.
+            </remarks>
+            
+            <returns>An enumerator over the dictionary.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            Get an object allowing iteration through the dictionary, in the
+            proper order.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(1)</c> time.
+            </remarks>
+            
+            <returns>An enumerator over the dictionary.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#GetEnumerator">
+            <summary>
+            Get an object allowing iteration through the dictionary, in the
+            proper order.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(1)</c> time.
+            </remarks>
+            
+            <returns>An enumerator over the dictionary.</returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.IndexOf(`0)">
+            <summary>
+            Returns the index of the item associated with the specified key.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n)</c> time.
+            </remarks>
+            
+            <param name="key">The key of the item to look up.</param>
+            
+            <returns>
+            The index of the item associated with <paramref name="key"/>, or
+            <c>-1</c> if no such item exists in the dictionary.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.IndexOf(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Returns the index of the item with the specified key and value.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n)</c> time.
+            </remarks>
+            
+            <param name="item">The item to look up.</param>
+            
+            <returns>
+            The index of the item represented by <paramref name="item"/>, or
+            <c>-1</c> if no such item exists in the dictionary.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="item"/> or its
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#IndexOf(System.Object)">
+            <summary>
+            Returns the index of the item with the specified key and value.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n)</c> time.
+            </remarks>
+            
+            <param name="item">The item to look up.</param>
+            
+            <returns>
+            The index of the item represented by <paramref name="item"/>, or
+            <c>-1</c> if no such item exists in the dictionary.
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="item"/> or its
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="item"/> can not be expressed as a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> with the proper type
+            parameters.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.TryGetValue(`0,`1@)">
+            <summary>
+            Gets the value associated with a specific key, if it exists in the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key of the value to access.</param>
+            <param name="value">
+            When this method returns, this will be set to the value associated
+            with <paramref name="key"/> in the dictionary if it exists;
+            otherwise, the default value of <c>TValue</c>.
+            </param>
+            
+            <returns>
+            <c>true</c> if the dictionary contains such a value; otherwise
+            <c>false</c>.
+            </returns>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count">
+            <summary>
+            Gets the number of items contained in this dictionary.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.IsFixedSize">
+            <summary>
+            Indicates whether items may be added to or removed from this
+            dictionary after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#IsFixedSize">
+            <summary>
+            Indicates whether items may be added to or removed from this
+            dictionary after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#IsFixedSize">
+            <summary>
+            Indicates whether items may be added to or removed from this
+            dictionary after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.IsReadOnly">
+            <summary>
+            Indicates whether this dictionary can be modified after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#Generic#ICollection{System#Collections#Generic#KeyValuePair{TKey,TValue}}#IsReadOnly">
+            <summary>
+            Indicates whether this dictionary can be modified after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#IsReadOnly">
+            <summary>
+            Indicates whether this dictionary can be modified after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#IsReadOnly">
+            <summary>
+            Indicates whether this dictionary can be modified after creation.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#ICollection#IsSynchronized">
+            <summary>
+            Indicates whether access to the dictionary is synchronized.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#ICollection#SyncRoot">
+            <summary>
+            Gets an object that can be used to synchronize access to the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            Accessing this value runs in <c>O(1)</c> time.
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Add(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Add a new item to the dictionary, after all existing items.
+            </summary>
+            
+            <remarks>
+            This operation typically approaches <c>O(1)</c> time, except if
+            the available capacity has been filled; in that case, it runs in
+            <c>O(n)</c> time where <c>n</c> is <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>.
+            </remarks>
+            
+            <param name="item">The item to add.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            The <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> already exists in the dictionary.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Add(`0,`1)">
+            <summary>
+            Add a new item to the dictionary, after all existing items.
+            </summary>
+            
+            <remarks>
+            This operation typically approaches <c>O(1)</c> time, except if
+            the available capacity has been filled; in that case, it runs in
+            <c>O(n)</c> time where <c>n</c> is <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>.
+            </remarks>
+            
+            <param name="key">The key at which to add the value.</param>
+            <param name="value">The value to add to the dictionary.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with a key equal to <paramref name="key"/>
+            already exists in the dictionary.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Add(System.Object,System.Object)">
+            <summary>
+            Add a new item to the dictionary, after all existing items.
+            </summary>
+            
+            <remarks>
+            This operation typically approaches <c>O(1)</c> time, except if
+            the available capacity has been filled; in that case, it runs in
+            <c>O(n)</c> time where <c>n</c> is <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>.
+            </remarks>
+            
+            <param name="key">The key at which to add the value.</param>
+            <param name="value">The value to add to the dictionary.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with a key equal to <paramref name="key"/>
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="key"/> can not be expressed as a <c>TKey</c>, or
+            <paramref name="value"/> can not be expressed as a <c>TValue</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#Add(System.Object)">
+            <summary>
+            Add a new item to the dictionary, after all existing items.
+            </summary>
+            
+            <remarks>
+            This operation typically approaches <c>O(1)</c> time, except if
+            the available capacity has been filled; in that case, it runs in
+            <c>O(n)</c> time where <c>n</c> is <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>.
+            </remarks>
+            
+            <param name="item">
+            The key/value pair to add to the dictionary.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            The <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="item"/> can not be expressed as a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> with the proper type
+            parameters.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Clear">
+            <summary>
+            Remove all items from the dictionary.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n)</c> time, where <c>n</c> is the
+            <em>capacity</em> of the dictionary (not <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>).
+            </remarks>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.CopyTo(System.Collections.Generic.KeyValuePair{`0,`1}[],System.Int32)">
+            <summary>
+            Copies all elements in the dictionary to an array, in order,
+            starting at the specified index in that array.
+            </summary>
+            
+            <remarks>
+            This ultimately uses
+            <see cref="M:System.Array.Copy(System.Array,System.Int32,System.Array,System.Int32,System.Int32)"/>, and so that
+            documentation will describe the behaviour in more detail.
+            <para/>
+            This operation runs in <c>O(n)</c> time.
+            </remarks>
+            
+            <param name="array">
+            The array to receive the dictionary's items.
+            </param>
+            <param name="arrayIndex">
+            The index in <paramref name="array"/> where the first item will be
+            located.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="array"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="arrayIndex"/> is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="arrayIndex"/> plus <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/> is greater
+            than the length of <paramref name="array"/>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#ICollection#CopyTo(System.Array,System.Int32)">
+            <summary>
+            Copies all elements in the dictionary to an array, in order,
+            starting at the specified index in that array.
+            </summary>
+            
+            <remarks>
+            This ultimately uses
+            <see cref="M:System.Array.Copy(System.Array,System.Int32,System.Array,System.Int32,System.Int32)"/>, and so that
+            documentation will describe the behaviour in more detail.
+            <para/>
+            This operation runs in <c>O(n)</c> time.
+            </remarks>
+            
+            <param name="array">
+            The array to receive the dictionary's items.
+            </param>
+            <param name="index">
+            The index in <paramref name="array"/> where the first item will be
+            located.
+            </param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="array"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentOutOfRangeException">
+            <paramref name="index"/> is less than 0.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            <paramref name="index"/> plus <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/> is greater than
+            the length of <paramref name="array"/>.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="array"/> can not be expressed as an array of
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/>, with the proper type
+            parameters.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Insert(System.Int32,System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Add the given key/value pair to the dictionary, at the specified
+            index.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="index">The index at which to add the pair.</param>
+            <param name="item">The key/value pair to add.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            The <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with the
+            <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or
+            is less than 0.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Insert(System.Int32,`0,`1)">
+            <summary>
+            Add the given key/value pair to the dictionary, at the specified
+            index.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="index">The index at which to add the pair.</param>
+            <param name="key">The key at which to add the value.</param>
+            <param name="value">The value to add to the dictionary.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with a key equal to <paramref name="key"/>
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or
+            is less than 0.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Insert(System.Int32,System.Object,System.Object)">
+            <summary>
+            Add the given key/value pair to the dictionary, at the specified
+            index.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="index">The index at which to add the pair.</param>
+            <param name="key">The key at which to add the value.</param>
+            <param name="value">The value to add to the dictionary.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with a key equal to <paramref name="key"/>
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or
+            is less than 0.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="key"/> can not be expressed as a <c>TKey</c>, or
+            <paramref name="value"/> can not be expressed as a <c>TValue</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#Insert(System.Int32,System.Object)">
+            <summary>
+            Add the given key/value pair to the dictionary, at the specified
+            index.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="index">The index at which to add the pair.</param>
+            <param name="item">The key/value pair to add.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            The <see cref="P:System.Collections.Generic.KeyValuePair`2.Key"/> of
+            <paramref name="item"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.ArgumentException">
+            An item associated with the same key as <paramref name="item"/>
+            already exists in the dictionary.
+            </exception>
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or
+            is less than 0.
+            </exception>
+            <exception cref="T:System.InvalidCastException">
+            <paramref name="item"/> can not be expressed as a
+            <see cref="T:System.Collections.Generic.KeyValuePair`2"/> with the proper type
+            parameters.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Remove(System.Collections.Generic.LinkedListNode{System.Collections.Generic.KeyValuePair{`0,`1}})">
+            <summary>
+            Remove the item associated with the specified node from the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="node">The key of the item to remove.</param>
+            
+            <returns>
+            <c>true</c> if the item was removed successfully; otherwise
+            <c>false</c> (including if the item did not exist).
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="node"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Remove(`0)">
+            <summary>
+            Remove the item associated with the specified key from the
+            dictionary.
+            </summary>
+            
+            <remarks>
+            No exception is thrown if <paramref name="key"/> does not exist.
+            <para/>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key of the item to remove.</param>
+            
+            <returns>
+            <c>true</c> if the item was removed successfully; otherwise
+            <c>false</c> (including if the item did not exist).
+            </returns>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IDictionary#Remove(System.Object)">
+            <summary>
+            Remove the item at the specified index from the dictionary.
+            </summary>
+            
+            <remarks>
+            No exception is thrown if <paramref name="key"/> does not exist.
+            <para/>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key of the item to remove.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.RemoveAt(System.Int32)">
+            <summary>
+            Remove the item at the specified index from the dictionary.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n/2)</c> time.
+            </remarks>
+            
+            <param name="index">The index of the item to remove.</param>
+            
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Remove(System.Collections.Generic.KeyValuePair{`0,`1})">
+            <summary>
+            Remove the specified key/value pair from the dictionary, if it
+            exists.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="item">The key/value pair to remove.</param>
+            
+            <returns>
+            <c>true</c> if the item was removed successfully; otherwise
+            <c>false</c> (including if the item did not exist).
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.System#Collections#IList#Remove(System.Object)">
+            <summary>
+            Remove the specified key/value pair from the dictionary, if it
+            exists.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="value">The key/value pair to remove.</param>
+            
+            <returns>
+            <c>true</c> if the item was removed successfully; otherwise
+            <c>false</c> (including if the item did not exist).
+            </returns>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Update(System.Collections.Generic.LinkedListNode{System.Collections.Generic.KeyValuePair{`0,`1}},`1)">
+            <summary>
+            Replace the value of the key/value pair pointed to by the given
+            node.
+            </summary>
+            
+            <param name="node">The node pointing to the target item.</param>
+            <param name="value">The new value of the item.</param>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Update(`0,`1)">
+            <summary>
+            Replace the value associated with the specified key.
+            </summary>
+            
+            <remarks>
+            This operation approaches <c>O(1)</c> time.
+            </remarks>
+            
+            <param name="key">The key of the item to update.</param>
+            <param name="value">The new value of the item.</param>
+            
+            <exception cref="T:System.ArgumentNullException">
+            <paramref name="key"/> is <c>null</c>.
+            </exception>
+            <exception cref="T:System.Collections.Generic.KeyNotFoundException">
+            This is used as an accessor, and the dictionary does not contain
+            any item with a key equal to <paramref name="key"/>.
+            </exception>
+        </member>
+        <member name="M:AgEitilt.Common.Dictionary.OrderedDictionary`2.Update(System.Int32,`1)">
+            <summary>
+            Replace the value of the key/value pair at the specified index.
+            </summary>
+            
+            <remarks>
+            This operation runs in <c>O(n/2)</c> time.
+            </remarks>
+            
+            <param name="index">The index of the item to update.</param>
+            <param name="value">The new value of the item.</param>
+            
+            <exception cref="T:System.IndexOutOfRangeException">
+            <paramref name="index"/> is greater than or equal to 
+            <see cref="P:AgEitilt.Common.Dictionary.OrderedDictionary`2.Count"/>, or is less than 0.
+            </exception>
+        </member>
+        <member name="T:AgEitilt.Common.Dictionary.Resources.Strings">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.Resources.Strings.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.Resources.Strings.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.Resources.Strings.Error_IndexTooHigh">
+            <summary>
+              Looks up a localized string similar to Attempted to access an index ({0}) beyond the end of the dictionary ({1}).
+            </summary>
+        </member>
+        <member name="P:AgEitilt.Common.Dictionary.Resources.Strings.Error_NegativeIndex">
+            <summary>
+              Looks up a localized string similar to Attempted to access an index ({0}) less than 0.
+            </summary>
+        </member>
     </members>
 </doc>
