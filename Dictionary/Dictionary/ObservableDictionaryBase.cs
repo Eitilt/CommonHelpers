@@ -1053,12 +1053,10 @@ namespace AgEitilt.Common.Dictionary {
 		public TValue this[TKey key] {
 			get => Dictionary[key];
 			set {
-				Action action = () => Dictionary[key] = value;
-
-				if (Dictionary.TryGetValue(key, out TValue oldValue))
-					SendReplaceEvents(action, key, value, oldValue);
+				if (Dictionary.ContainsKey(key))
+					Update(key, value);
 				else
-					SendAddEvents(action, key, value);
+					Add(key, value);
 			}
 		}
 		/// <summary>
@@ -1113,14 +1111,10 @@ namespace AgEitilt.Common.Dictionary {
 				if (converted == null)
 					return;
 
-				bool containedKey = converted.Contains(key);
-				object oldValue = (containedKey ? converted[key] : null);
-				Action action = () => converted[key] = value;
-
-				if (containedKey)
-					SendReplaceEvents(action, (TKey)key, (TValue)value, (TValue)oldValue);
+				if (converted.Contains(key))
+					Update((TKey)key, (TValue)value);
 				else
-					SendAddEvents(action, (TKey)key, (TValue)value);
+					Add((TKey)key, (TValue)value);
 			}
 		}
 
@@ -1484,15 +1478,15 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public void Add(TKey key, TValue value) =>
-			SendAddEvents(new Action(() => Dictionary.Add(key, value)), key, value);
+			Add(new KeyValuePair<TKey, TValue>(key, value));
 		/// <summary>
 		/// Adds a pre-created <see cref="KeyValuePair{TKey, TValue}"/> to the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
 		/// </summary>
 		/// 
 		/// <param name="item">The item to add.</param>
-		public void Add(KeyValuePair<TKey, TValue> item) =>
-			SendAddEvents(new Action(() => Dictionary.Add(item)), item);
+		public virtual void Add(KeyValuePair<TKey, TValue> item) =>
+			SendAddEvents(new Action(() => Dictionary.Add(item)), item, new Func<bool>(() => Dictionary.ContainsKey(item.Key) == false));
 		/// <summary>
 		/// Adds an element with the provided key and value to the
 		/// <see cref="IDictionary"/>.
@@ -1512,20 +1506,17 @@ namespace AgEitilt.Common.Dictionary {
 		/// An element with the same key already exists in the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
 		/// </exception>
+		/// <exception cref="InvalidCastException">
+		/// <paramref name="key"/> can not be expressed as a <c>TKey</c>, or
+		/// <paramref name="value"/> can not be expressed as a <c>TValue</c>
+		/// </exception>
 		/// <exception cref="NotSupportedException">
 		/// The <see cref="IDictionary{TKey, TValue}"/> is read-only.
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		void IDictionary.Add(object key, object value) {
-			var converted = Dictionary as IDictionary;
-			// Shouldn't happen as IDictionary<TKey, TValue> implements
-			// IDictionary, but check just in case
-			if (converted == null)
-				return;
-
-			SendAddEvents(new Action(() => converted.Add(key, value)), (TKey)key, (TValue)value);
-		}
+		void IDictionary.Add(object key, object value) =>
+			Add((TKey)key, (TValue)value);
 
 		/// <summary>
 		/// Removes all items from the <see cref="IDictionary{TKey, TValue}"/>.
@@ -1536,21 +1527,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		public void Clear() {
-			IList oldItems = Dictionary.ToList();
+		public virtual void Clear() =>
 			SendResetEvents(new Action(() => Dictionary.Clear()));
-		}
-		/// <summary>
-		/// Removes all items from the <see cref="IDictionary"/>.
-		/// </summary>
-		/// 
-		/// <exception cref="NotSupportedException">
-		/// The <see cref="IDictionary"/> is read-only.
-		/// </exception>
-		/// 
-		/// <seealso cref="IsReadOnly"/>
-		void IDictionary.Clear() =>
-			Clear();
 
 		/// <summary>
 		/// Copies the elements of the <see cref="IDictionary{TKey, TValue}"/>
@@ -1580,7 +1558,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// available space from <paramref name="arrayIndex"/> to the end of
 		/// the destination array.
 		/// </exception>
-		public void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) =>
+		public virtual void CopyTo(KeyValuePair<TKey, TValue>[] array, int arrayIndex) =>
 			Dictionary.CopyTo(array, arrayIndex);
 		/// <summary>
 		/// Copies the elements of the <see cref="IDictionary{TKey, TValue}"/>
@@ -1644,7 +1622,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		public bool Remove(TKey key) {
+		public virtual bool Remove(TKey key) {
 			var containedKey = Dictionary.TryGetValue(key, out TValue oldValue);
 
 			return SendRemoveEvents(new Func<bool>(() => Dictionary.Remove(key)), key, oldValue, new Func<bool>(() => containedKey)).Item1;
@@ -1669,8 +1647,12 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		public bool Remove(KeyValuePair<TKey, TValue> item) =>
-			SendRemoveEvents(new Func<bool>(() => Dictionary.Remove(item)), item, new Func<bool>(() => Dictionary.Contains(item))).Item1;
+		public bool Remove(KeyValuePair<TKey, TValue> item) {
+			if (Dictionary.Contains(item))
+				return Remove(item.Key);
+			else
+				return false;
+		}
 		/// <summary>
 		/// Removes the element with the specified key from the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
@@ -1693,17 +1675,19 @@ namespace AgEitilt.Common.Dictionary {
 		/// </exception>
 		/// 
 		/// <seealso cref="IsReadOnly"/>
-		void IDictionary.Remove(object key) {
-			var converted = Dictionary as IDictionary;
-			// Shouldn't happen as IDictionary<TKey, TValue> implements
-			// IDictionary, but check just in case
-			if (converted == null)
-				return;
+		void IDictionary.Remove(object key) =>
+			Remove((TKey)key);
 
-			bool containedKey = converted.Contains(key);
-			object oldValue = (containedKey ? converted[key] : null);
-
-			SendRemoveEvents(new Action(() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
+		/// <summary>
+		/// Replace the value of an existing item in the
+		/// <see cref="IDictionary{TKey, TValue}"/> with a new one.
+		/// </summary>
+		/// 
+		/// <param name="key">The key of the element to change.</param>
+		/// <param name="value">The new value of the item.</param>
+		public virtual void Update(TKey key, TValue value) {
+			if (Dictionary.TryGetValue(key, out var oldValue) && oldValue.Equals(value))
+				SendReplaceEvents(new Action(() => Dictionary[key] = value), key, value, oldValue);
 		}
 #endregion
 	}
