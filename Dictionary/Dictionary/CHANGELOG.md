@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 - `ConcurrentObservableDictionary` renamed to
   `ObservableConcurrentDictionary` to better follow naming scheme
+- `IsReadOnly` property hidden from `ObservableDictionaryBase` and
+  derived types -- use, for example, `dict as IDictionary` to access it
+- `ObservableDictionaryBase` protected notification methods simplified
 
 ## 0.4.0
 ### Added

@@ -132,44 +132,40 @@ namespace AgEitilt.Common.Dictionary {
 #endif
 
 		/// <summary>
-		/// Wrap an action to use it in, for example,
-		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
+		/// Convert an object into a function with the proper return type for,
+		/// for example, <see cref="SendAddEvents(object, object, Func{bool}, NotifyCollectionChangedEventArgs)"/>.
 		/// </summary>
 		/// 
 		/// <param name="action">The action to wrap.</param>
 		/// 
 		/// <returns>The enclosing function.</returns>
-		Func<Tuple<bool, TValue>> DummyAction(Action action) {
-			return (() => {
-				action.Invoke();
-				return Tuple.Create(true, default(TValue));
-			});
-		}
-		/// <summary>
-		/// Wrap a function to use it in, for example,
-		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
-		/// </summary>
 		/// 
-		/// <param name="action">The action to wrap.</param>
-		/// 
-		/// <returns>The enclosing function.</returns>
-		Func<Tuple<bool, TValue>> DummyAction(Func<bool> action) {
-			return (() => {
-				return Tuple.Create(action.Invoke(), default(TValue));
-			});
-		}
-		/// <summary>
-		/// Wrap a function to use it in, for example,
-		/// <see cref="SendAddEvents(Func{bool}, Func{Tuple{bool, TValue}}, KeyValuePair{TKey, TValue})"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action to wrap.</param>
-		/// 
-		/// <returns>The enclosing function.</returns>
-		Func<Tuple<bool, TValue>> DummyAction(Func<TValue> action) {
-			return (() => {
-				return Tuple.Create(true, action.Invoke());
-			});
+		/// <exception cref="ArgumentException">
+		/// <paramref name="action"/> cannot be expressed as a valid type.
+		/// </exception>
+		static Func<Tuple<bool, TValue>> ParseAction(object action) {
+			var actionNoResult = action as Action;
+			var actionTestOnly = action as Func<bool>;
+			var actionValueOnly = action as Func<TValue>;
+			var actionPair = action as Func<Tuple<bool, TValue>>;
+			if (actionPair == null) {
+				if (actionNoResult != null) {
+					return (() => {
+						actionNoResult.Invoke();
+						return Tuple.Create(true, default(TValue));
+					});
+				} else if (actionTestOnly != null) {
+					return (() => {
+						return Tuple.Create(actionTestOnly.Invoke(), default(TValue));
+					});
+				} else if (actionValueOnly != null) {
+					return (() => { return Tuple.Create(true, actionValueOnly.Invoke()); });
+				} else {
+					throw new ArgumentException("Can't properly cast desired action", nameof(action));
+				}
+			} else {
+				return actionPair;
+			}
 		}
 
 		/// <summary>
@@ -177,33 +173,62 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
+		/// <remarks>
+		/// <paramref name="item"/> is ignored unless
+		/// <paramref name="collectionArgs"/> is <c>null</c>.
+		/// <para/>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
 		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="item">The new item.</param>
-		Tuple<bool, TValue> SendAddEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
+		/// <param name="item">
+		/// The new item(s), or <c>null</c> if it is already contained in
+		/// <paramref name="collectionArgs"/>.
+		/// </param>
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// <param name="collectionArgs">
+		/// A description of how the collection is changed, or <c>null</c> to
+		/// generate a new value using <paramref name="item"/>.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendAddEvents(object action, object item = null,
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+			var actionFunc = ParseAction(action);
+			if (preTest == null)
+				preTest = (() => true);
+
+			if (collectionArgs == null) {
+				collectionArgs = new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Add,
+					item
+				);
+			}
+
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
-				OnAdding(item);
+				OnAdding(collectionArgs);
 			}
 
-			var result = action.Invoke();
+			var result = actionFunc.Invoke();
 			if (result.Item1) {
-				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Add,
-					item
-				));
+				CollectionChanged?.Invoke(this, collectionArgs);
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
 
-				OnAdd(item);
+				OnAdd(collectionArgs);
 			}
 
 			return result;
@@ -213,125 +238,107 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
-		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="item">The new item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected bool SendAddEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) =>
-			SendAddEvents(preTest, DummyAction(action), item).Item1;
-		/// <summary>
-		/// Notify all relevant listeners that some item is added to the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
-		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="key">The key at which the item is added.</param>
-		/// <param name="value">The value of the new item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected bool SendAddEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue value) =>
-			SendAddEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, value));
-		/// <summary>
-		/// Notify all relevant listeners that some item is added to the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="item">The new item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected TValue SendAddEvents(Func<TValue> action, KeyValuePair<TKey, TValue> item) =>
-			SendAddEvents((() => true), DummyAction(action), item).Item2;
-		/// <summary>
-		/// Notify all relevant listeners that some item is added to the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="key">The key at which the item is added.</param>
-		/// <param name="value">The value of the new item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected TValue SendAddEvents(Func<TValue> action, TKey key, TValue value) =>
-			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
-		/// <summary>
-		/// Notify all relevant listeners that some item is added to the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the addition.</param>
-		/// <param name="item">The removed item.</param>
-		protected void SendAddEvents(Action action, KeyValuePair<TKey, TValue> item) =>
-			SendAddEvents((() => true), DummyAction(action), item);
-		/// <summary>
-		/// Notify all relevant listeners that some item is added to the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
+		/// <remarks>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
 		/// 
 		/// <param name="action">The action that causes the addition.</param>
 		/// <param name="key">
-		/// The key previously associated with the item.
+		/// The key to be associated with the item.
 		/// </param>
 		/// <param name="value">The value of the item.</param>
-		protected void SendAddEvents(Action action, TKey key, TValue value) =>
-			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value));
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendAddEvents(object action, TKey key, TValue value, Func<bool> preTest = null) =>
+			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value), preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
 		/// is just about to be added to <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="item">The new item.</param>
-		protected virtual void OnAdding(KeyValuePair<TKey, TValue> item) { }
+		/// <param name="collectionArgs">
+		/// A description of how the collection will be changed.
+		/// </param>
+		protected virtual void OnAdding(NotifyCollectionChangedEventArgs collectionArgs) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
 		/// has been added to <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="item">The new item.</param>
-		protected virtual void OnAdd(KeyValuePair<TKey, TValue> item) { }
+		/// <param name="collectionArgs">
+		/// A description of how the collection was changed.
+		/// </param>
+		protected virtual void OnAdd(NotifyCollectionChangedEventArgs collectionArgs) { }
 
 		/// <summary>
 		/// Notify all relevant listeners that some item is removed from the
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
+		/// <remarks>
+		/// <paramref name="item"/> is ignored unless
+		/// <paramref name="collectionArgs"/> is <c>null</c>.
+		/// <para/>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
 		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="item">The removed item.</param>
+		/// <param name="item">
+		/// The item(s) that will be removed, or <c>null</c> if it is already
+		/// contained in <paramref name="collectionArgs"/>.
+		/// </param>
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// <param name="collectionArgs">
+		/// A description of how the collection is changed, or <c>null</c> to
+		/// generate a new value using <paramref name="item"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		Tuple<bool, TValue> SendRemoveEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> item) {
+		protected Tuple<bool, TValue> SendRemoveEvents(object action, object item = null,
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+			var actionFunc = ParseAction(action);
+			if (preTest == null)
+				preTest = (() => true);
+
+			if (collectionArgs == null) {
+				collectionArgs = new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Remove,
+					item
+				);
+			}
+
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
-				OnRemoving(item);
+				OnRemoving(collectionArgs);
 			}
 
-			var result = action.Invoke();
+			var result = actionFunc.Invoke();
 			if (result.Item1) {
-				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Remove,
-					item
-				));
+				CollectionChanged?.Invoke(this, collectionArgs);
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
 
-				OnRemove(item);
+				OnRemove(collectionArgs);
 			}
 
 			return result;
@@ -341,136 +348,104 @@ namespace AgEitilt.Common.Dictionary {
 		/// <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
 		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
 		/// </param>
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="item">The removed item.</param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> item) =>
-			SendRemoveEvents(preTest, DummyAction(action), item).Item1;
-		/// <summary>
-		/// Notify all relevant listeners that some item is removed from the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="key">
-		/// The key previously associated with the item.
-		/// </param>
-		/// <param name="value">The value of the item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected bool SendRemoveEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue value) =>
-			SendRemoveEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, value));
-		/// <summary>
-		/// Notify all relevant listeners that some item is removed from the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="item">The removed item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected TValue SendRemoveEvents(Func<TValue> action, KeyValuePair<TKey, TValue> item) =>
-			SendRemoveEvents((() => true), DummyAction(action), item).Item2;
-		/// <summary>
-		/// Notify all relevant listeners that some item is removed from the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="key">
-		/// The key previously associated with the item.
-		/// </param>
-		/// <param name="value">The value of the item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected TValue SendRemoveEvents(Func<TValue> action, TKey key, TValue value) =>
-			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value));
-		/// <summary>
-		/// Notify all relevant listeners that some item is removed from the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="item">The removed item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected void SendRemoveEvents(Action action, KeyValuePair<TKey, TValue> item) =>
-			SendRemoveEvents((() => true), DummyAction(action), item);
-		/// <summary>
-		/// Notify all relevant listeners that some item is removed from the
-		/// <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the removal.</param>
-		/// <param name="key">
-		/// The key previously associated with the item.
-		/// </param>
-		/// <param name="value">The value of the item.</param>
-		/// 
-		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected void SendRemoveEvents(Action action, TKey key, TValue value) =>
-			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value));
+		protected Tuple<bool, TValue> SendRemoveEvents(object action, TKey key, TValue value, Func<bool> preTest = null) =>
+			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value), preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// is just about to be removed from <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="item">The removed item.</param>
-		protected virtual void OnRemoving(KeyValuePair<TKey, TValue> item) { }
+		/// <param name="collectionArgs">
+		/// A description of how the collection will be changed.
+		/// </param>
+		protected virtual void OnRemoving(NotifyCollectionChangedEventArgs collectionArgs) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// has been removed from <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="item">The removed item.</param>
-		protected virtual void OnRemove(KeyValuePair<TKey, TValue> item) { }
+		/// <param name="collectionArgs">
+		/// A description of how the collection was changed.
+		/// </param>
+		protected virtual void OnRemove(NotifyCollectionChangedEventArgs collectionArgs) { }
 
 		/// <summary>
 		/// Notify all relevant listeners that the value associated with some
 		/// key is changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
+		/// <remarks>
+		/// <paramref name="oldItem"/> and <paramref name="newItem"/> are
+		/// ignored unless <paramref name="collectionArgs"/> is <c>null</c>.
+		/// <para/>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// The item as it will be represented in <see cref="Dictionary"/>, or
+		/// <c>null</c> if it is already contained in
+		/// <paramref name="collectionArgs"/>.
 		/// </param>
 		/// <param name="oldItem">
 		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
+		/// <see cref="Dictionary"/>, or <c>null</c> if it is already
+		/// contained in <paramref name="collectionArgs"/>.
 		/// </param>
-		Tuple<bool, TValue> SendReplaceEvents(Func<bool> preTest, Func<Tuple<bool, TValue>> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) {
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// <param name="collectionArgs">
+		/// A description of how the collection is changed, or <c>null</c> to
+		/// generate a new value using <paramref name="oldItem"/> and
+		/// <paramref name="newItem"/>.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendReplaceEvents(object action, object newItem = null, object oldItem = null,
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+			var actionFunc = ParseAction(action);
+			if (preTest == null)
+				preTest = (() => true);
+
+			if (collectionArgs == null) {
+				collectionArgs = new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Replace,
+					newItem,
+					oldItem
+				);
+			}
+
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 #endif
-				OnReplacing(newItem, oldItem);
+				OnReplacing(collectionArgs);
 			}
 
-			var result = action.Invoke();
+			var result = actionFunc.Invoke();
 			if (result.Item1) {
-				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Replace,
-					newItem,
-					oldItem
-				));
+				CollectionChanged?.Invoke(this, collectionArgs);
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 
-				OnReplace(newItem, oldItem);
+				OnReplace(collectionArgs);
 			}
 
 			return result;
@@ -480,195 +455,124 @@ namespace AgEitilt.Common.Dictionary {
 		/// key is changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
+		/// <remarks>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="key">The key at which the change occurred.</param>
+		/// <param name="newValue">
+		/// The new value associated with <paramref name="key"/>.
+		/// </param>
+		/// <param name="oldValue">
+		/// The value previously associated with <paramref name="key"/>.
+		/// </param>
 		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
 		/// </param>
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
-		/// </param>
-		/// <param name="oldItem">
-		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
-		/// </param>
-		protected bool SendReplaceEvents(Func<bool> preTest, Func<bool> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
-			SendReplaceEvents(preTest, DummyAction(action), newItem, oldItem).Item1;
-		/// <summary>
-		/// Notify all relevant listeners that the value associated with some
-		/// key is changed in <see cref="Dictionary"/>.
-		/// </summary>
 		/// 
-		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
-		/// </param>
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="key">The key at which the change occurred.</param>
-		/// <param name="newValue">
-		/// The new value associated with <paramref name="key"/>.
-		/// </param>
-		/// <param name="oldValue">
-		/// The value previously associated with <paramref name="key"/>.
-		/// </param>
-		protected bool SendReplaceEvents(Func<bool> preTest, Func<bool> action, TKey key, TValue newValue, TValue oldValue) =>
-			SendReplaceEvents(preTest, action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
-		/// <summary>
-		/// Notify all relevant listeners that the value associated with some
-		/// key is changed in <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
-		/// </param>
-		/// <param name="oldItem">
-		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
-		/// </param>
-		protected TValue SendReplaceEvents(Func<TValue> action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
-			SendReplaceEvents((() => true), DummyAction(action), newItem, oldItem).Item2;
-		/// <summary>
-		/// Notify all relevant listeners that the value associated with some
-		/// key is changed in <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="key">The key at which the change occurred.</param>
-		/// <param name="newValue">
-		/// The new value associated with <paramref name="key"/>.
-		/// </param>
-		/// <param name="oldValue">
-		/// The value previously associated with <paramref name="key"/>.
-		/// </param>
-		protected TValue SendReplaceEvents(Func<TValue> action, TKey key, TValue newValue, TValue oldValue) =>
-			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
-		/// <summary>
-		/// Notify all relevant listeners that the value associated with some
-		/// key is changed in <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
-		/// </param>
-		/// <param name="oldItem">
-		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
-		/// </param>
-		protected void SendReplaceEvents(Action action, KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) =>
-			SendReplaceEvents((() => true), DummyAction(action), newItem, oldItem);
-		/// <summary>
-		/// Notify all relevant listeners that the value associated with some
-		/// key is changed in <see cref="Dictionary"/>.
-		/// </summary>
-		/// 
-		/// <param name="action">
-		/// The action that causes the replacement.
-		/// </param>
-		/// <param name="key">The key at which the change occurred.</param>
-		/// <param name="newValue">
-		/// The new value associated with <paramref name="key"/>.
-		/// </param>
-		/// <param name="oldValue">
-		/// The value previously associated with <paramref name="key"/>.
-		/// </param>
-		protected void SendReplaceEvents(Action action, TKey key, TValue newValue, TValue oldValue) =>
-			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue));
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendReplaceEvents(object action, TKey key, TValue newValue, TValue oldValue, Func<bool> preTest = null) =>
+			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue),
+				preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item is
 		/// just about to be changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// <param name="collectionArgs">
+		/// A description of how the collection will be changed.
 		/// </param>
-		/// <param name="oldItem">
-		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
-		/// </param>
-		protected virtual void OnReplacing(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) { }
+		protected virtual void OnReplacing(NotifyCollectionChangedEventArgs collectionArgs) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// has been changed in <see cref="Dictionary"/>.
 		/// </summary>
 		/// 
-		/// <param name="newItem">
-		/// The item as it is now represented in <see cref="Dictionary"/>.
+		/// <param name="collectionArgs">
+		/// A description of how the collection was changed.
 		/// </param>
-		/// <param name="oldItem">
-		/// The item as it was previously represented in
-		/// <see cref="Dictionary"/>.
-		/// </param>
-		protected virtual void OnReplace(KeyValuePair<TKey, TValue> newItem, KeyValuePair<TKey, TValue> oldItem) { }
+		protected virtual void OnReplace(NotifyCollectionChangedEventArgs collectionArgs) { }
 
 		/// <summary>
 		/// Notify all relevant listeners that <see cref="Dictionary"/> is
 		/// cleared.
 		/// </summary>
 		/// 
+		/// <remarks>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
 		/// <param name="preTest">
-		/// A simplified approximation of the value returned by
-		/// <paramref name="action"/>, but that doesn't result in any changes.
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
 		/// </param>
-		/// <param name="action">The action that causes the reset.</param>
-		protected bool SendResetEvents(Func<bool> preTest, Func<bool> action) {
+		/// <param name="collectionArgs">
+		/// A description of how the collection is changed, or <c>null</c> to
+		/// generate a new value.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendResetEvents(object action, Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+			var actionFunc = ParseAction(action);
+			if (preTest == null)
+				preTest = (() => true);
+
+			if (collectionArgs == null) {
+				collectionArgs = new NotifyCollectionChangedEventArgs(
+					NotifyCollectionChangedAction.Reset
+				);
+			}
+
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
 				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
 #endif
-				OnResetting();
+				OnResetting(collectionArgs);
 			}
 
-			var result = action.Invoke();
-			if (result) {
-				CollectionChanged?.Invoke(this, new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Reset
-				));
+			var result = actionFunc.Invoke();
+			if (result.Item1) {
+				CollectionChanged?.Invoke(this, collectionArgs);
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
 				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
 
-				OnReset();
+				OnReset(collectionArgs);
 			}
 
 			return result;
 		}
 		/// <summary>
-		/// Notify all relevant listeners that <see cref="Dictionary"/> is
-		/// cleared.
-		/// </summary>
-		/// 
-		/// <param name="action">The action that causes the reset.</param>
-		protected void SendResetEvents(Action action) {
-			Func<bool> singleDummyAction = () => {
-				action.Invoke();
-				return true;
-			};
-			SendResetEvents((() => true), singleDummyAction);
-		}
-		/// <summary>
 		/// Perform any implementation-specific event handling when
 		/// <see cref="Dictionary"/> is just about to be cleared.
 		/// </summary>
-		protected virtual void OnResetting() { }
+		/// 
+		/// <param name="collectionArgs">
+		/// A description of how the collection will be changed.
+		/// </param>
+		protected virtual void OnResetting(NotifyCollectionChangedEventArgs collectionArgs) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when
 		/// <see cref="Dictionary"/> has been cleared.
 		/// </summary>
-		protected virtual void OnReset() { }
+		/// 
+		/// <param name="collectionArgs">
+		/// A description of how the collection was changed.
+		/// </param>
+		protected virtual void OnReset(NotifyCollectionChangedEventArgs collectionArgs) { }
 #endregion
 
 #region Item accessors
@@ -1027,20 +931,32 @@ namespace AgEitilt.Common.Dictionary {
 			(Dictionary as IDictionary)?.Count ?? 0;
 
 		/// <summary>
-		/// Gets a value indicating whether <see cref="Dictionary"/> is
-		/// read-only.
+		/// Indicates whether this dictionary can be modified after creation.
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// A collection that is read-only does not allow the addition or
-		/// removal of elements after the collection is created. Note that
-		/// "read-only" in this context does not indicate whether individual
-		/// elements of the collection can be modified, since the
-		/// <see cref="IDictionary{TKey, TValue}"/> interface only supports
-		/// addition, removal, and replacement operations.
+		/// Accessing this value runs in <c>O(1)</c> time.
 		/// </remarks>
-		public bool IsReadOnly =>
+		bool IsReadOnly =>
 			Dictionary.IsReadOnly;
+		/// <summary>
+		/// Indicates whether this dictionary can be modified after creation.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// Accessing this value runs in <c>O(1)</c> time.
+		/// </remarks>
+		bool ICollection<KeyValuePair<TKey, TValue>>.IsReadOnly =>
+			IsReadOnly;
+		/// <summary>
+		/// Indicates whether this dictionary can be modified after creation.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// Accessing this value runs in <c>O(1)</c> time.
+		/// </remarks>
+		bool IDictionary.IsReadOnly =>
+			IsReadOnly;
 
 		/// <summary>
 		/// Gets a value indicating whether <see cref="Dictionary"/> has a
@@ -1134,7 +1050,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public void Add(TKey key, TValue value) =>
-			SendAddEvents((() => Dictionary.Add(key, value)), key, value);
+			SendAddEvents(new Action(() => Dictionary.Add(key, value)), key, value);
 		/// <summary>
 		/// Adds a pre-created <see cref="KeyValuePair{TKey, TValue}"/> to the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
@@ -1142,7 +1058,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <param name="item">The item to add.</param>
 		public void Add(KeyValuePair<TKey, TValue> item) =>
-			SendAddEvents((() => Dictionary.Add(item)), item);
+			SendAddEvents(new Action(() => Dictionary.Add(item)), item);
 		/// <summary>
 		/// Adds an element with the provided key and value to the
 		/// <see cref="IDictionary"/>.
@@ -1174,7 +1090,7 @@ namespace AgEitilt.Common.Dictionary {
 			if (converted == null)
 				return;
 
-			SendAddEvents((() => converted.Add(key, value)), (TKey)key, (TValue)value);
+			SendAddEvents(new Action(() => converted.Add(key, value)), (TKey)key, (TValue)value);
 		}
 
 		/// <summary>
@@ -1188,7 +1104,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <seealso cref="IsReadOnly"/>
 		public void Clear() {
 			IList oldItems = Dictionary.ToList();
-			SendResetEvents(() => Dictionary.Clear());
+			SendResetEvents(new Action(() => Dictionary.Clear()));
 		}
 		/// <summary>
 		/// Removes all items from the <see cref="IDictionary"/>.
@@ -1297,7 +1213,7 @@ namespace AgEitilt.Common.Dictionary {
 		public bool Remove(TKey key) {
 			var containedKey = Dictionary.TryGetValue(key, out TValue oldValue);
 
-			return SendRemoveEvents((() => containedKey), (() => Dictionary.Remove(key)), key, oldValue);
+			return SendRemoveEvents(new Func<bool>(() => Dictionary.Remove(key)), key, oldValue, new Func<bool>(() => containedKey)).Item1;
 		}
 		/// <summary>
 		/// Removes the element with the specified key from the
@@ -1320,7 +1236,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <seealso cref="IsReadOnly"/>
 		public bool Remove(KeyValuePair<TKey, TValue> item) =>
-			SendRemoveEvents((() => Dictionary.Contains(item)), (() => Dictionary.Remove(item)), item);
+			SendRemoveEvents(new Func<bool>(() => Dictionary.Remove(item)), item, new Func<bool>(() => Dictionary.Contains(item))).Item1;
 		/// <summary>
 		/// Removes the element with the specified key from the
 		/// <see cref="IDictionary{TKey, TValue}"/>.
@@ -1353,7 +1269,7 @@ namespace AgEitilt.Common.Dictionary {
 			bool containedKey = converted.Contains(key);
 			object oldValue = (containedKey ? converted[key] : null);
 
-			SendRemoveEvents((() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
+			SendRemoveEvents(new Action(() => converted.Remove(key)), (TKey)key, (TValue)oldValue);
 		}
 #endregion
 	}

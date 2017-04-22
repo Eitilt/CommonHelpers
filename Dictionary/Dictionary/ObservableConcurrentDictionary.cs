@@ -1,4 +1,9 @@
-﻿#if (!NETSTANDARD1_0)
+﻿/* This Source Code Form is subject to the terms of the Mozilla Public
+ * License, v. 2.0. If a copy of the MPL was not distributed with this
+ * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ */
+
+#if (!NETSTANDARD1_0)
 
 using System;
 using System.Collections.Concurrent;
@@ -160,10 +165,10 @@ namespace AgEitilt.Common.Dictionary {
 			if (ContainsKey(key)) {
 				var oldValue = this[key];
 				var newValue = updateValueFactory(key, oldValue);
-				return SendReplaceEvents(action, key, newValue, oldValue);
+				return SendReplaceEvents(action, key, newValue, oldValue).Item2;
 			} else {
 				var newValue = addValueFactory(key);
-				return SendAddEvents(action, key, newValue);
+				return SendAddEvents(action, key, newValue).Item2;
 			}
 		}
 		/// <summary>
@@ -219,10 +224,10 @@ namespace AgEitilt.Common.Dictionary {
 				return dictionary.GetOrAdd(key, valueFactory);
 			} else {
 				return SendAddEvents(
-					(() => dictionary.GetOrAdd(key, valueFactory)),
+					new Func<TValue>(() => dictionary.GetOrAdd(key, valueFactory)),
 					key,
 					valueFactory(key)
-				);
+				).Item2;
 			}
 		}
 		/// <summary>
@@ -275,7 +280,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="key"/> is <c>null</c>.
 		/// </exception>
 		public bool TryAdd(TKey key, TValue value) =>
-			SendAddEvents((() => ContainsKey(key) == false), (() => dictionary.TryAdd(key, value)), key, value);
+			SendAddEvents(new Func<bool>(() => dictionary.TryAdd(key, value)), key, value, new Func<bool>(() => ContainsKey(key) == false)).Item1;
 
 		/// <summary>
 		/// Remove a value from the dictionary if the given key exists.
@@ -303,11 +308,11 @@ namespace AgEitilt.Common.Dictionary {
 			 * finer-grained Send* mixing `bool` and `TValue` lambdas.
 			 */
 			return SendRemoveEvents(
-				(() => ContainsKey(key)),
-				(() => dictionary.TryRemove(key, out _)),
+				new Func<bool>(() => dictionary.TryRemove(key, out _)),
 				key,
-				value
-			);
+				value,
+				new Func<bool>(() => ContainsKey(key))
+			).Item1;
 		}
 
 		/// <summary>
@@ -339,12 +344,12 @@ namespace AgEitilt.Common.Dictionary {
 			 * finer-grained Send* mixing `bool` and `TValue` lambdas.
 			 */
 			return SendReplaceEvents(
-				(() => ContainsKey(key) && this[key].Equals(comparisonValue)),
-				(() => dictionary.TryUpdate(key, newValue, comparisonValue)),
+				new Func<bool>(() => dictionary.TryUpdate(key, newValue, comparisonValue)),
 				key,
 				newValue,
-				oldValue
-			);
+				oldValue,
+				new Func<bool>(() => ContainsKey(key) && this[key].Equals(comparisonValue))
+			).Item1;
 		}
 	}
 }
