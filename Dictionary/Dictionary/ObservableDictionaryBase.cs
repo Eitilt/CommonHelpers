@@ -133,7 +133,7 @@ namespace AgEitilt.Common.Dictionary {
 
 		/// <summary>
 		/// Convert an object into a function with the proper return type for,
-		/// for example, <see cref="SendAddEvents(object, object, Func{bool}, NotifyCollectionChangedEventArgs)"/>.
+		/// for example, <see cref="SendAddEvents(object, object, Func{bool}, NotifyCollectionChangedEventArgs, bool, bool, ICollection{string})"/>.
 		/// </summary>
 		/// 
 		/// <param name="action">The action to wrap.</param>
@@ -169,6 +169,14 @@ namespace AgEitilt.Common.Dictionary {
 		}
 
 		/// <summary>
+		/// The properties affected by an addition action.
+		/// </summary>
+		protected virtual ISet<string> AddProperties => new HashSet<string>(new string[3]{
+			nameof(Keys),
+			nameof(Values),
+			nameof(Count)
+		});
+		/// <summary>
 		/// Notify all relevant listeners that some item is added to the
 		/// <see cref="Dictionary"/>.
 		/// </summary>
@@ -197,38 +205,58 @@ namespace AgEitilt.Common.Dictionary {
 		/// A description of how the collection is changed, or <c>null</c> to
 		/// generate a new value using <paramref name="item"/>.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="AddProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
 		protected Tuple<bool, TValue> SendAddEvents(object action, object item = null,
-				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
 			var actionFunc = ParseAction(action);
 			if (preTest == null)
 				preTest = (() => true);
 
 			if (collectionArgs == null) {
-				collectionArgs = new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Add,
-					item
-				);
+				if (item is IList itemList) {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Add,
+						itemList
+					);
+				} else {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Add,
+						item
+					);
+				}
 			}
 
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+				if (deferChanging == false)
+					foreach (var prop in (properties ?? AddProperties))
+						PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(prop));
 #endif
-				OnAdding(collectionArgs);
+				OnAdding(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			var result = actionFunc.Invoke();
 			if (result.Item1) {
 				CollectionChanged?.Invoke(this, collectionArgs);
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+				if (deferChanged == false)
+					foreach (var prop in (properties ?? AddProperties))
+						PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
-				OnAdd(collectionArgs);
+				OnAdd(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			return result;
@@ -255,9 +283,22 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="action"/>, but that doesn't result in any changes,
 		/// or <c>null</c> if it will always run.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="AddProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendAddEvents(object action, TKey key, TValue value, Func<bool> preTest = null) =>
+		protected Tuple<bool, TValue> SendAddEvents(object action, TKey key, TValue value, Func<bool> preTest = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) =>
 			SendAddEvents(action, new KeyValuePair<TKey, TValue>(key, value), preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
@@ -267,7 +308,20 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection will be changed.
 		/// </param>
-		protected virtual void OnAdding(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="AddProperties"/>.
+		/// </param>
+		protected virtual void OnAdding(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when a new item
 		/// has been added to <see cref="Dictionary"/>.
@@ -276,8 +330,212 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection was changed.
 		/// </param>
-		protected virtual void OnAdd(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="AddProperties"/>.
+		/// </param>
+		protected virtual void OnAdd(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 
+		/// <summary>
+		/// The properties affected by a move action.
+		/// </summary>
+		protected virtual ISet<string> MoveProperties => new HashSet<string>(new string[0]{
+		});
+		/// <summary>
+		/// Notify all relevant listeners that some item is moved within the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <remarks>
+		/// <paramref name="item"/> is ignored unless
+		/// <paramref name="collectionArgs"/> is <c>null</c>.
+		/// <para/>
+		/// <paramref name="action"/> must be able to be expressed as one of:
+		/// <see cref="Action"/>, <c>Func&lt;bool&gt;</c>,
+		/// <c>Func&lt;TValue&gt;</c>, or
+		/// <c>Func&lt;Tuple&lt;bool, TValue&gt;&gt;</c>.
+		/// </remarks>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="newIndex">
+		/// The index to which the item is moved.
+		/// </param>
+		/// <param name="oldIndex">
+		/// The index the item was previously located at.
+		/// </param>
+		/// <param name="item">
+		/// The item(s) that will be removed, or <c>null</c> if it is already
+		/// contained in <paramref name="collectionArgs"/>.
+		/// </param>
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// <param name="collectionArgs">
+		/// A description of how the collection is changed, or <c>null</c> to
+		/// generate a new value using <paramref name="item"/>.
+		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="MoveProperties"/>.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendMoveEvents(object action, int newIndex, int oldIndex, object item = null,
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
+			var actionFunc = ParseAction(action);
+			if (preTest == null)
+				preTest = (() => true);
+
+			if (collectionArgs == null) {
+				if (item is IList itemList) {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Move,
+						itemList,
+						newIndex,
+						oldIndex
+					);
+				} else {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Move,
+						item,
+						newIndex,
+						oldIndex
+					);
+				}
+			}
+
+			if (preTest.Invoke()) {
+#if SUPPORT_PROPERTYCHANGING_EVENT
+				if (deferChanging == false)
+					foreach (var prop in (properties ?? MoveProperties))
+						PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(prop));
+#endif
+				OnMoving(collectionArgs, deferChanging, deferChanged, properties);
+			}
+
+			var result = actionFunc.Invoke();
+			if (result.Item1) {
+				CollectionChanged?.Invoke(this, collectionArgs);
+				if (deferChanged == false)
+					foreach (var prop in (properties ?? MoveProperties))
+						PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
+
+				OnMove(collectionArgs, deferChanging, deferChanged, properties);
+			}
+
+			return result;
+		}
+		/// <summary>
+		/// Notify all relevant listeners that some item is removed from the
+		/// <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="action">The action that causes the removal.</param>
+		/// <param name="newIndex">
+		/// The index to which the item is moved.
+		/// </param>
+		/// <param name="oldIndex">
+		/// The index the item was previously located at.
+		/// </param>
+		/// <param name="key">
+		/// The key previously associated with the item.
+		/// </param>
+		/// <param name="value">The value of the item.</param>
+		/// <param name="preTest">
+		/// A simplified approximation of the test performed by
+		/// <paramref name="action"/>, but that doesn't result in any changes,
+		/// or <c>null</c> if it will always run.
+		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="MoveProperties"/>.
+		/// </param>
+		/// 
+		/// <returns>The value returned by <paramref name="action"/>.</returns>
+		protected Tuple<bool, TValue> SendMoveEvents(object action, int newIndex, int oldIndex, TKey key, TValue value, Func<bool> preTest = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) =>
+			SendMoveEvents(action, newIndex, oldIndex, new KeyValuePair<TKey, TValue>(key, value), preTest);
+		/// <summary>
+		/// Perform any implementation-specific event handling when an item
+		/// is just about to be removed from <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="collectionArgs">
+		/// A description of how the collection will be changed.
+		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="MoveProperties"/>.
+		/// </param>
+		protected virtual void OnMoving(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
+		/// <summary>
+		/// Perform any implementation-specific event handling when an item
+		/// has been removed from <see cref="Dictionary"/>.
+		/// </summary>
+		/// 
+		/// <param name="collectionArgs">
+		/// A description of how the collection was changed.
+		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="MoveProperties"/>.
+		/// </param>
+		protected virtual void OnMove(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
+
+		/// <summary>
+		/// The properties affected by a removal action.
+		/// </summary>
+		protected virtual ISet<string> RemoveProperties => new HashSet<string>(new string[3]{
+			nameof(Keys),
+			nameof(Values),
+			nameof(Count)
+		});
 		/// <summary>
 		/// Notify all relevant listeners that some item is removed from the
 		/// <see cref="Dictionary"/>.
@@ -307,38 +565,58 @@ namespace AgEitilt.Common.Dictionary {
 		/// A description of how the collection is changed, or <c>null</c> to
 		/// generate a new value using <paramref name="item"/>.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="RemoveProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
 		protected Tuple<bool, TValue> SendRemoveEvents(object action, object item = null,
-				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
 			var actionFunc = ParseAction(action);
 			if (preTest == null)
 				preTest = (() => true);
 
 			if (collectionArgs == null) {
-				collectionArgs = new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Remove,
-					item
-				);
+				if (item is IList itemList) {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Remove,
+						itemList
+					);
+				} else {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Remove,
+						item
+					);
+				}
 			}
 
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+				if (deferChanging == false)
+					foreach (var prop in (properties ?? RemoveProperties))
+						PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(prop));
 #endif
-				OnRemoving(collectionArgs);
+				OnRemoving(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			var result = actionFunc.Invoke();
 			if (result.Item1) {
 				CollectionChanged?.Invoke(this, collectionArgs);
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+				if (deferChanged == false)
+					foreach (var prop in (properties ?? RemoveProperties))
+						PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
-				OnRemove(collectionArgs);
+				OnRemove(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			return result;
@@ -358,9 +636,22 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="action"/>, but that doesn't result in any changes,
 		/// or <c>null</c> if it will always run.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="RemoveProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendRemoveEvents(object action, TKey key, TValue value, Func<bool> preTest = null) =>
+		protected Tuple<bool, TValue> SendRemoveEvents(object action, TKey key, TValue value, Func<bool> preTest = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) =>
 			SendRemoveEvents(action, new KeyValuePair<TKey, TValue>(key, value), preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
@@ -370,7 +661,20 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection will be changed.
 		/// </param>
-		protected virtual void OnRemoving(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="RemoveProperties"/>.
+		/// </param>
+		protected virtual void OnRemoving(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// has been removed from <see cref="Dictionary"/>.
@@ -379,8 +683,27 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection was changed.
 		/// </param>
-		protected virtual void OnRemove(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="RemoveProperties"/>.
+		/// </param>
+		protected virtual void OnRemove(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 
+		/// <summary>
+		/// The properties affected by a replacement action.
+		/// </summary>
+		protected readonly ISet<string> replaceProperties = new HashSet<string>(new string[1]{
+			nameof(Values)
+		});
 		/// <summary>
 		/// Notify all relevant listeners that the value associated with some
 		/// key is changed in <see cref="Dictionary"/>.
@@ -417,35 +740,60 @@ namespace AgEitilt.Common.Dictionary {
 		/// generate a new value using <paramref name="oldItem"/> and
 		/// <paramref name="newItem"/>.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="replaceProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
 		protected Tuple<bool, TValue> SendReplaceEvents(object action, object newItem = null, object oldItem = null,
-				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
 			var actionFunc = ParseAction(action);
 			if (preTest == null)
 				preTest = (() => true);
 
 			if (collectionArgs == null) {
-				collectionArgs = new NotifyCollectionChangedEventArgs(
-					NotifyCollectionChangedAction.Replace,
-					newItem,
-					oldItem
-				);
+				if ((newItem is IList newItemList) && (oldItem is IList oldItemList)) {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Replace,
+						newItemList,
+						oldItemList
+					);
+				} else {
+					collectionArgs = new NotifyCollectionChangedEventArgs(
+						NotifyCollectionChangedAction.Replace,
+						newItem,
+						oldItem
+					);
+				}
 			}
 
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
+				if (deferChanging == false)
+					foreach (var prop in (properties ?? replaceProperties))
+						PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(prop));
 #endif
-				OnReplacing(collectionArgs);
+				OnReplacing(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			var result = actionFunc.Invoke();
 			if (result.Item1) {
 				CollectionChanged?.Invoke(this, collectionArgs);
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
+				if (deferChanged == false)
+					foreach (var prop in (properties ?? replaceProperties))
+						PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
-				OnReplace(collectionArgs);
+				OnReplace(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			return result;
@@ -475,11 +823,23 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="action"/>, but that doesn't result in any changes,
 		/// or <c>null</c> if it will always run.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="replaceProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendReplaceEvents(object action, TKey key, TValue newValue, TValue oldValue, Func<bool> preTest = null) =>
-			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue),
-				preTest);
+		protected Tuple<bool, TValue> SendReplaceEvents(object action, TKey key, TValue newValue, TValue oldValue, Func<bool> preTest = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) =>
+			SendReplaceEvents(action, new KeyValuePair<TKey, TValue>(key, newValue), new KeyValuePair<TKey, TValue>(key, oldValue), preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item is
 		/// just about to be changed in <see cref="Dictionary"/>.
@@ -488,7 +848,20 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection will be changed.
 		/// </param>
-		protected virtual void OnReplacing(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="replaceProperties"/>.
+		/// </param>
+		protected virtual void OnReplacing(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// has been changed in <see cref="Dictionary"/>.
@@ -497,8 +870,29 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection was changed.
 		/// </param>
-		protected virtual void OnReplace(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="replaceProperties"/>.
+		/// </param>
+		protected virtual void OnReplace(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 
+		/// <summary>
+		/// The properties affected by a reset action.
+		/// </summary>
+		protected virtual ISet<string> ResetProperties => new HashSet<string>(new string[3]{
+			nameof(Keys),
+			nameof(Values),
+			nameof(Count)
+		});
 		/// <summary>
 		/// Notify all relevant listeners that <see cref="Dictionary"/> is
 		/// cleared.
@@ -521,9 +915,23 @@ namespace AgEitilt.Common.Dictionary {
 		/// A description of how the collection is changed, or <c>null</c> to
 		/// generate a new value.
 		/// </param>
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="ResetProperties"/>.
+		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendResetEvents(object action, Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null) {
+		protected Tuple<bool, TValue> SendResetEvents(object action,
+				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
+				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
 			var actionFunc = ParseAction(action);
 			if (preTest == null)
 				preTest = (() => true);
@@ -536,21 +944,21 @@ namespace AgEitilt.Common.Dictionary {
 
 			if (preTest.Invoke()) {
 #if SUPPORT_PROPERTYCHANGING_EVENT
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Keys)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Values)));
-				PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(nameof(Count)));
+				if (deferChanging == false)
+					foreach (var prop in (properties ?? ResetProperties))
+						PropertyChanging?.Invoke(this, new PropertyChangingEventArgs(prop));
 #endif
-				OnResetting(collectionArgs);
+				OnResetting(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			var result = actionFunc.Invoke();
 			if (result.Item1) {
 				CollectionChanged?.Invoke(this, collectionArgs);
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Keys)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Values)));
-				PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Count)));
+				if (deferChanged == false)
+					foreach (var prop in (properties ?? ResetProperties))
+						PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(prop));
 
-				OnReset(collectionArgs);
+				OnReset(collectionArgs, deferChanging, deferChanged, properties);
 			}
 
 			return result;
@@ -563,7 +971,20 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection will be changed.
 		/// </param>
-		protected virtual void OnResetting(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="ResetProperties"/>.
+		/// </param>
+		protected virtual void OnResetting(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 		/// <summary>
 		/// Perform any implementation-specific event handling when
 		/// <see cref="Dictionary"/> has been cleared.
@@ -572,7 +993,20 @@ namespace AgEitilt.Common.Dictionary {
 		/// <param name="collectionArgs">
 		/// A description of how the collection was changed.
 		/// </param>
-		protected virtual void OnReset(NotifyCollectionChangedEventArgs collectionArgs) { }
+		/// <param name="deferChanging">
+		/// Whether to skip notifying listeners that a property is about to
+		/// change; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="deferChanged">
+		/// Whether to skip notifying listeners that a property has just
+		/// changed; defaults to <c>false</c>.
+		/// </param>
+		/// <param name="properties">
+		/// The properties that will be affected by the change, or <c>null</c>
+		/// to use <see cref="ResetProperties"/>.
+		/// </param>
+		protected virtual void OnReset(NotifyCollectionChangedEventArgs collectionArgs,
+			bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) { }
 #endregion
 
 #region Item accessors
