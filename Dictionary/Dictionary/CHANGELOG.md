@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+- `ConcurrentObservableDictionary` renamed to
+  `ObservableConcurrentDictionary` to better follow naming scheme
+
 ## 0.4.0
 ### Added
 - `OrderedDictionary` class and `IReadOnlyOrderedDictionary` interface

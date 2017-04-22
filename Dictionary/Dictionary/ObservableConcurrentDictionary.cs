@@ -16,7 +16,7 @@ namespace AgEitilt.Common.Dictionary {
 	/// <typeparam name="TValue">
 	/// The type of values in the dictionary.
 	/// </typeparam>
-	public class ConcurrentObservableDictionary<TKey, TValue> : ObservableDictionaryBase<TKey, TValue> {
+	public class ObservableConcurrentDictionary<TKey, TValue> : ObservableDictionaryBase<TKey, TValue> {
 		/// <summary>
 		/// The underlying item store.
 		/// </summary>
@@ -31,15 +31,15 @@ namespace AgEitilt.Common.Dictionary {
 
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/> class
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/> class
 		/// that is empty, has the default initial capacity, and uses the
 		/// default equality comparer for the key type.
 		/// </summary>
-		public ConcurrentObservableDictionary() =>
+		public ObservableConcurrentDictionary() =>
 			dictionary = new ConcurrentDictionary<TKey, TValue>();
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/> class
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/> class
 		/// that contains elements copied from the specified collection of
 		/// key/value pairs and uses the default equality comparer for the key
 		/// type.
@@ -47,14 +47,14 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <remarks>
 		/// The initial capacity of the new
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/> is
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/> is
 		/// large enough to contain all the elements in
 		/// <paramref name="collection"/>.
 		/// </remarks>
 		/// 
 		/// <param name="collection">
 		/// The elements which should be copied to the new
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/>.
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/>.
 		/// </param>
 		/// 
 		/// <exception cref="ArgumentNullException">
@@ -63,11 +63,11 @@ namespace AgEitilt.Common.Dictionary {
 		/// <exception cref="ArgumentException">
 		/// <paramref name="collection"/> contains one or more duplicate keys.
 		/// </exception>
-		public ConcurrentObservableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) =>
+		public ObservableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection) =>
 			dictionary = new ConcurrentDictionary<TKey, TValue>(collection);
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/> class
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/> class
 		/// that is empty, has the default initial capacity, and uses the
 		/// specified <see cref="IEqualityComparer{T}"/>.
 		/// </summary>
@@ -77,11 +77,11 @@ namespace AgEitilt.Common.Dictionary {
 		/// comparing keys, or <c>null</c> to use the default
 		/// <see cref="IEqualityComparer{T}"/> for the type of the key.
 		/// </param>
-		public ConcurrentObservableDictionary(IEqualityComparer<TKey> comparer) =>
+		public ObservableConcurrentDictionary(IEqualityComparer<TKey> comparer) =>
 			dictionary = new ConcurrentDictionary<TKey, TValue>(comparer);
 		/// <summary>
 		/// Initializes a new instance of the
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/> class
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/> class
 		/// that contains elements copied from the specified collection of
 		/// key/value pairs and uses the specified
 		/// <see cref="IEqualityComparer{T}"/>.
@@ -95,7 +95,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// 
 		/// <param name="collection">
 		/// The elements which should be copied to the new
-		/// <see cref="ConcurrentObservableDictionary{TKey, TValue}"/>.
+		/// <see cref="ObservableConcurrentDictionary{TKey, TValue}"/>.
 		/// </param>
 		/// <param name="comparer">
 		/// The <see cref="IEqualityComparer{T}"/> implementation to use when
@@ -109,7 +109,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// <exception cref="ArgumentException">
 		/// <paramref name="collection"/> contains one or more duplicate keys.
 		/// </exception>
-		public ConcurrentObservableDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) =>
+		public ObservableConcurrentDictionary(IEnumerable<KeyValuePair<TKey, TValue>> collection, IEqualityComparer<TKey> comparer) =>
 			dictionary = new ConcurrentDictionary<TKey, TValue>(collection, comparer);
 		//TODO: Add `ConcurrentObservableDictionary(int, int)`,
 		// `ConcurrentObservableDictionary(int, IEnumerable<KeyValuePair<TKey,TValue>>, IEqualityComparer<TKey>)`,
