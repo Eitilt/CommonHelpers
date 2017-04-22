@@ -366,31 +366,12 @@ namespace AgEitilt.Common.Dictionary {
 		public TValue this[TKey key] {
 			get => dictionary[key].Value.Value;
 			set {
-				if (dictionary.ContainsKey(key))
-					Update(key, value);
+				if (dictionary.TryGetValue(key, out var keyItem))
+					Update(keyItem, value);
 				else
 					Add(key, value);
 			}
 		}
-		/// <summary>
-		/// Gets the value associated with the specific key.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// Getting values through this property approaches <c>O(1)</c>.
-		/// </remarks>
-		/// 
-		/// <param name="key">The key of the value to get.</param>
-		/// 
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="KeyNotFoundException">
-		/// The dictionary does not contain any item with a key equal to
-		/// <paramref name="key"/>.
-		/// </exception>
-		TValue IReadOnlyDictionary<TKey, TValue>.this[TKey key] =>
-			this[key];
 		/// <summary>
 		/// Gets or sets the value associated with the specific key.
 		/// </summary>
@@ -465,22 +446,6 @@ namespace AgEitilt.Common.Dictionary {
 				}
 			}
 		}
-		/// <summary>
-		/// Gets the value at the specified index.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// Getting values through this property runs in <c>O(n/2)</c> time.
-		/// </remarks>
-		/// 
-		/// <param name="index">The index of the value to access.</param>
-		/// 
-		/// <exception cref="IndexOutOfRangeException">
-		/// <paramref name="index"/> is greater than or equal to 
-		/// <see cref="Count"/>, or is less than 0.
-		/// </exception>
-		KeyValuePair<TKey, TValue> IReadOnlyList<KeyValuePair<TKey, TValue>>.this[int index] =>
-			(this as IList<KeyValuePair<TKey, TValue>>)[index];
 #if SUPPORT_IORDEREDDICTIONARY
 		/// <summary>
 		/// Gets or sets the value at the specified index.
@@ -1479,43 +1444,6 @@ namespace AgEitilt.Common.Dictionary {
 		void Update(LinkedListNode<KeyValuePair<TKey, TValue>> node, TValue value) {
 			node.Value = new KeyValuePair<TKey, TValue>(node.Value.Key, value);
 		}
-		/// <summary>
-		/// Replace the value associated with the specified key.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// This operation approaches <c>O(1)</c> time.
-		/// </remarks>
-		/// 
-		/// <param name="key">The key of the item to update.</param>
-		/// <param name="value">The new value of the item.</param>
-		/// 
-		/// <exception cref="ArgumentNullException">
-		/// <paramref name="key"/> is <c>null</c>.
-		/// </exception>
-		/// <exception cref="KeyNotFoundException">
-		/// This is used as an accessor, and the dictionary does not contain
-		/// any item with a key equal to <paramref name="key"/>.
-		/// </exception>
-		public void Update(TKey key, TValue value) =>
-			Update(dictionary[key], value);
-		/// <summary>
-		/// Replace the value of the key/value pair at the specified index.
-		/// </summary>
-		/// 
-		/// <remarks>
-		/// This operation runs in <c>O(n/2)</c> time.
-		/// </remarks>
-		/// 
-		/// <param name="index">The index of the item to update.</param>
-		/// <param name="value">The new value of the item.</param>
-		/// 
-		/// <exception cref="IndexOutOfRangeException">
-		/// <paramref name="index"/> is greater than or equal to 
-		/// <see cref="Count"/>, or is less than 0.
-		/// </exception>
-		public void Update(int index, TValue value) =>
-			Update(NodeAt(index), value);
 #endregion
 	}
 }

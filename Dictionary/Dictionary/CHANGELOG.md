@@ -11,6 +11,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - `IsReadOnly` property hidden from `ObservableDictionaryBase` and
   derived types -- use, for example, `dict as IDictionary` to access it
 - `ObservableDictionaryBase` protected notification methods simplified
+- `Update` methods hidden from `OrderedDictionary` -- use `TryUpdate`
+  in `Dictionary.Extensions` if it's really necessary
 
 ## 0.4.0
 ### Added
