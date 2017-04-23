@@ -144,6 +144,9 @@ namespace AgEitilt.Common.Dictionary {
 		/// <paramref name="action"/> cannot be expressed as a valid type.
 		/// </exception>
 		static Func<Tuple<bool, TValue>> ParseAction(object action) {
+			if (action == null)
+				return (() => Tuple.Create(true, default(TValue)));
+
 			var actionNoResult = action as Action;
 			var actionTestOnly = action as Func<bool>;
 			var actionValueOnly = action as Func<TValue>;
@@ -356,7 +359,8 @@ namespace AgEitilt.Common.Dictionary {
 		/// </summary>
 		/// 
 		/// <remarks>
-		/// <paramref name="item"/> is ignored unless
+		/// <paramref name="item"/>, <paramref name="newIndex"/>, and
+		/// <paramref name="oldIndex"/> are ignored unless
 		/// <paramref name="collectionArgs"/> is <c>null</c>.
 		/// <para/>
 		/// <paramref name="action"/> must be able to be expressed as one of:
@@ -399,7 +403,7 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendMoveEvents(object action, int newIndex, int oldIndex, object item = null,
+		protected Tuple<bool, TValue> SendMoveEvents(object action, object item = null, int? newIndex = null, int? oldIndex = null,
 				Func<bool> preTest = null, NotifyCollectionChangedEventArgs collectionArgs = null,
 				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) {
 			var actionFunc = ParseAction(action);
@@ -411,15 +415,15 @@ namespace AgEitilt.Common.Dictionary {
 					collectionArgs = new NotifyCollectionChangedEventArgs(
 						NotifyCollectionChangedAction.Move,
 						itemList,
-						newIndex,
-						oldIndex
+						newIndex.Value,
+						oldIndex.Value
 					);
 				} else {
 					collectionArgs = new NotifyCollectionChangedEventArgs(
 						NotifyCollectionChangedAction.Move,
 						item,
-						newIndex,
-						oldIndex
+						newIndex.Value,
+						oldIndex.Value
 					);
 				}
 			}
@@ -480,9 +484,9 @@ namespace AgEitilt.Common.Dictionary {
 		/// </param>
 		/// 
 		/// <returns>The value returned by <paramref name="action"/>.</returns>
-		protected Tuple<bool, TValue> SendMoveEvents(object action, int newIndex, int oldIndex, TKey key, TValue value, Func<bool> preTest = null,
+		protected Tuple<bool, TValue> SendMoveEvents(object action, TKey key, TValue value, int newIndex, int oldIndex, Func<bool> preTest = null,
 				bool deferChanging = false, bool deferChanged = false, ICollection<string> properties = null) =>
-			SendMoveEvents(action, newIndex, oldIndex, new KeyValuePair<TKey, TValue>(key, value), preTest);
+			SendMoveEvents(action, new KeyValuePair<TKey, TValue>(key, value), newIndex, oldIndex, preTest);
 		/// <summary>
 		/// Perform any implementation-specific event handling when an item
 		/// is just about to be removed from <see cref="Dictionary"/>.
