@@ -10,7 +10,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>ConcatStream.Test</RootNamespace>
     <AssemblyName>ConcatStream.Test</AssemblyName>
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <TargetFSharpCoreVersion>4.4.1.0</TargetFSharpCoreVersion>
     <Name>ConcatStream.Test</Name>
@@ -70,9 +70,6 @@
     </Reference>
     <Reference Include="FsCheck.Xunit">
       <HintPath>..\..\packages\FsCheck.Xunit.2.8.0\lib\net452\FsCheck.Xunit.dll</HintPath>
-    </Reference>
-    <Reference Include="FSharp.Core">
-      <HintPath>..\..\packages\FSharp.Core.3.1.2.5\lib\net40\FSharp.Core.dll</HintPath>
     </Reference>
     <Reference Include="mscorlib" />
     <Reference Include="System" />
